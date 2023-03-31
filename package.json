@@ -1,6 +1,6 @@
 {
-  "name": "@nekojs/core",
-  "version": "1.0.0",
+  "name": "nekojs",
+  "version": "1.0.1",
   "description": "Nekojs is a component based Javascript library for building user interfaces",
   "main": "dist/bundle.umd.js",
   "module": "src/index.ts",
