@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`patch should be able to apply a simple update patch 1`] = `"<div id="container" class="d-block"></div>"`;
+
+exports[`patch should be able to apply a simple update patch 2`] = `"<div id="container" class="d-none"></div>"`;
+
+exports[`patch should be able to patch child nodes 1`] = `"<div><h1 id="title">Hello</h1></div>"`;
+
+exports[`patch should be able to patch child nodes 2`] = `"<div><h1 id="title">World</h1></div>"`;
+
+exports[`patch should insert new child nodes 1`] = `"<div></div>"`;
+
+exports[`patch should insert new child nodes 2`] = `"<div><h1>hello</h1></div>"`;
+
+exports[`patch should remove old child nodes 1`] = `"<div><h1>hello</h1></div>"`;
+
+exports[`patch should remove old child nodes 2`] = `"<div></div>"`;
+
+exports[`patch should skip child text nodes if the value is the same 1`] = `"<div><h1>hello</h1></div>"`;
+
+exports[`patch should skip child text nodes if the value is the same 2`] = `"<div><h1>hello</h1></div>"`;

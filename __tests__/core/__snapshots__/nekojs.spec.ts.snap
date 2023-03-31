@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NekoJS calls the onUpdated function when state changes 1`] = `"<div></div>"`;
+
+exports[`NekoJS calls the onUpdated function when state changes 2`] = `"<div></div>"`;
+
+exports[`NekoJS should be able to patch a component 1`] = `"<div></div>"`;
+
+exports[`NekoJS should be able to render a component 1`] = `"<div></div>"`;
+
+exports[`NekoJS should change the _el when replacing the root node 1`] = `"<div></div>"`;
+
+exports[`NekoJS should change the _el when replacing the root node 2`] = `"<div></div>"`;
+
+exports[`NekoJS should not patch a component when the _el is not defined 1`] = `"<div></div>"`;
+
+exports[`NekoJS should patch a component when the state changes 1`] = `"<div></div>"`;
+
+exports[`NekoJS should patch a component when the state changes 2`] = `"<div></div>"`;
+
+exports[`NekoJS should patch a component when the state changes 3`] = `"<div></div>"`;

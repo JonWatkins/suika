@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render Should render a basic vDomNode 1`] = `"<div></div>"`;
+
+exports[`render should be able to add attributes to a node 1`] = `"<div id="container"></div>"`;
+
+exports[`render should be able to add event handlers to a node 1`] = `"<button></button>"`;
+
+exports[`render should be able to render a component 1`] = `"<div><h1>Hello World</h1></div>"`;
+
+exports[`render should be able to render a component that already has an instance 1`] = `"<div><h1>Hello World</h1></div>"`;
+
+exports[`render should be able to render child nodes 1`] = `"<div id="container"><h1>Hello World</h1></div>"`;
+
+exports[`render should be able to render text nodes 1`] = `"hello"`;
