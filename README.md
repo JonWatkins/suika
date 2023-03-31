@@ -1,7 +1,7 @@
-# @nekojs/core ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/nekojs/main.yml) ![npm](https://img.shields.io/npm/v/@nekojs/core) ![GitHub](https://img.shields.io/github/license/JonWatkins/nekojs)
+# @nekojs/core ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/nekojs/main.yml) ![npm](https://img.shields.io/npm/v/@nekojs/core) ![GitHub](https://img.shields.io/github/license/JonWatkins/nekojs) [![codecov](https://codecov.io/gh/JonWatkins/nekojs/branch/main/graph/badge.svg?token=CZ8QB5X8S5)](https://codecov.io/gh/JonWatkins/nekojs)
 
 
-Nekojs is a component based Javascript library for building user interfaces
+Nekojs is a lightweight component based Javascript library for building user interfaces.
 
 ## Installation
 
