@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "@suika/core",
   "version": "1.0.1",
+=======
+  "name": "@nekojs/core",
+  "version": "1.0.2",
+>>>>>>> 203ccbb151147da529bb2dc711f4121dc85c57ae
   "description": "Nekojs is a component based Javascript library for building user interfaces",
   "main": "dist/bundle.umd.js",
   "module": "src/index.ts",
