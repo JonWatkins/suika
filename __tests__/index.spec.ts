@@ -1,13 +1,13 @@
-import * as NekoJs from "../src/index";
+import * as Suika from "../src/index";
 
-describe("NekoJS", () => {
-  describe("NekoJS.h", () => {
+describe("Suika", () => {
+  describe("Suika.h", () => {
     it("should be a function", () => {
-      expect(typeof NekoJs.h).toEqual("function");
+      expect(typeof Suika.h).toEqual("function");
     });
 
     it("should be able to make a vNode", () => {
-      const vDomNode = NekoJs.h("div", {});
+      const vDomNode = Suika.h("div", {});
       // @ts-ignore:next-line
       expect(vDomNode.tag).toEqual("div");
     });

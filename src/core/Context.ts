@@ -10,7 +10,7 @@ export abstract class Context {
   protected _el: HTMLElement | Text | null;
   protected _vNode: vDomNode | null;
   protected _mounted: boolean;
-  protected _isNekoJS: boolean;
+  protected _isSuika: boolean;
   protected state: object;
 
   constructor() {

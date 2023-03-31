@@ -1,13 +1,13 @@
-import { NekoJS } from "../../src/core/NekoJS";
+import { Suika } from "../../src/core/Suika";
 import { h } from "../../src/vdom/h";
 import { diff } from "../../src/vdom/diff";
 import { patch } from "../../src/vdom/patch";
 import { mount } from "../../src/vdom/mount";
 
-describe("NekoJS", () => {
+describe("Suika", () => {
   it("Should be able to make a simpe app", () => {
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -24,7 +24,7 @@ describe("NekoJS", () => {
 
   it("should have a function to get a new diff", () => {
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -43,7 +43,7 @@ describe("NekoJS", () => {
 
   it("should return update diff if the vDomNode has not changed", () => {
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -65,7 +65,7 @@ describe("NekoJS", () => {
 
   it("should be able to render a component", () => {
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -85,7 +85,7 @@ describe("NekoJS", () => {
     let el;
 
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -109,7 +109,7 @@ describe("NekoJS", () => {
     let el;
 
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -137,7 +137,7 @@ describe("NekoJS", () => {
     let el;
 
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -167,7 +167,7 @@ describe("NekoJS", () => {
     const spy = jest.fn();
 
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }
@@ -197,7 +197,7 @@ describe("NekoJS", () => {
 
   it("should change the _el when replacing the root node", () => {
     // @ts-ignore:next-line
-    class Ctx extends NekoJS {
+    class Ctx extends Suika {
       constructor() {
         super();
       }

@@ -93,10 +93,10 @@ function O(t, e, n = []) {
     get: o
   });
 }
-const N = () => ({ kind: "skip" }), f = (t) => ({
+const K = () => ({ kind: "skip" }), f = (t) => ({
   kind: "replace",
   newNode: t
-}), K = () => ({ kind: "remove" }), L = (t) => ({ kind: "insert", node: t }), z = (t, e) => ({
+}), L = () => ({ kind: "remove" }), N = (t) => ({ kind: "insert", node: t }), z = (t, e) => ({
   kind: "update",
   attrs: t,
   childeren: e
@@ -104,7 +104,7 @@ const N = () => ({ kind: "skip" }), f = (t) => ({
   if (!t)
     return f(e);
   if (t.kind === "text" && e.kind === "text" && t.value === e.value)
-    return N();
+    return K();
   if (t.kind === "text" || e.kind === "text")
     return f(e);
   if (t.kind === "component" && e.kind === "component" && t.component === e.component && t.instance)
@@ -147,10 +147,10 @@ const N = () => ({ kind: "skip" }), f = (t) => ({
   return y(i, n, void 0), b(i, r, void 0), i;
 }, y = (t, e, n) => {
   for (; e[0] && e[0][0] != n; )
-    e[0][1].kind == "component" && (e[0][1].instance._unmount(), e[0][1].instance = null), t.push(K()), e.shift();
+    e[0][1].kind == "component" && (e[0][1].instance._unmount(), e[0][1].instance = null), t.push(L()), e.shift();
 }, b = (t, e, n) => {
   for (; e[0] && e[0][0] != n; )
-    t.push(L(e.shift()[1]));
+    t.push(N(e.shift()[1]));
 };
 function l(t) {
   if (t.kind === "text")
@@ -167,9 +167,9 @@ function l(t) {
   const e = document.createElement(t.tag);
   for (const n in t.attrs)
     e[n] = t.attrs[n];
-  return J(e, t.children), e;
+  return W(e, t.children), e;
 }
-function J(t, e) {
+function W(t, e) {
   e.forEach((n) => {
     t.appendChild(l(n));
   });
@@ -185,9 +185,9 @@ function U(t, e) {
     t.removeAttribute(n);
   for (const n in e.attrs.set)
     t[n] = e.attrs.set[n];
-  return W(t, e.childeren), t;
+  return B(t, e.childeren), t;
 }
-const W = (t, e) => {
+const B = (t, e) => {
   let n = 0;
   for (let r = 0; r < e.length; r++) {
     const i = e[r];
@@ -205,10 +205,10 @@ const W = (t, e) => {
     U(c, i);
   }
 };
-let B = 0;
+let I = 0;
 class C {
   constructor() {
-    this._uid = B++;
+    this._uid = I++;
   }
   _getDiff() {
     const e = this.render(), n = P(this._vNode, e);
@@ -258,7 +258,7 @@ class V extends C {
     return this.state;
   }
 }
-const I = () => "FRAGMENT", Q = (t) => m(t) ? M(t) : t, X = (t, e, n) => {
+const J = () => "FRAGMENT", Q = (t) => m(t) ? M(t) : t, X = (t, e, n) => {
   e || (e = {});
   const r = e.key;
   return delete e.key, {
@@ -298,15 +298,15 @@ const I = () => "FRAGMENT", Q = (t) => m(t) ? M(t) : t, X = (t, e, n) => {
     const r = n.map(Q);
     return X(t, e, r);
   } else
-    return p(t) ? t === I ? Z(t(), e, n) : Y(t, e || {}) : M(t);
+    return p(t) ? t === J ? Z(t(), e, n) : Y(t, e || {}) : M(t);
 }, et = (t, e) => {
   const n = new t();
   return n._mount(e), n;
 };
 export {
   V as Component,
-  I as Fragment,
-  w as NekoJS,
+  J as Fragment,
+  w as Suika,
   tt as h,
   et as mount,
   O as observable,

@@ -1,74 +1,71 @@
-# NekoJS ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/nekojs/main.yml) ![npm](https://img.shields.io/npm/v/@nekojs/core) ![GitHub](https://img.shields.io/github/license/JonWatkins/nekojs) [![codecov](https://codecov.io/gh/JonWatkins/nekojs/branch/main/graph/badge.svg?token=CZ8QB5X8S5)](https://codecov.io/gh/JonWatkins/nekojs)
+# Suika ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/suika/main.yml) ![npm](https://img.shields.io/npm/v/suika) ![GitHub](https://img.shields.io/github/license/JonWatkins/suika) [![codecov](https://codecov.io/gh/JonWatkins/suika/branch/main/graph/badge.svg?token=CZ8QB5X8S5)](https://codecov.io/gh/JonWatkins/suika)
 
-
-Nekojs is a lightweight component based Javascript library for building user interfaces.
+Suika is a lightweight component based Javascript library for building user interfaces.
 
 ## Installation
 
-You can use NekoJS as a `<script>` tag from a CDN, or as a `@nekojs/core` package on npm.
+You can use Suika as a `<script>` tag from a CDN, or as a `suika` package on npm.
 
 ```bash
-npm i nekojs
+npm i suika
 ```
 
 ## Compiler
 
-The easiest way to compile a NekoJs app is with [vite](https://vitejs.dev/). Here is an example `vite.config.js`.
+The easiest way to compile a Suika app is with [vite](https://vitejs.dev/). Here is an example `vite.config.js`.
 
 ```js
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
 export default defineConfig(() => {
   return {
     esbuild: {
-      jsxFactory: 'h',
-      jsxFragment: 'Fragment',
-      jsxInject: `import { h, Fragment } from 'nekojs'`,
-    }
-  }
-})
+      jsxFactory: "h",
+      jsxFragment: "Fragment",
+      jsxInject: `import { h, Fragment } from 'suika'`,
+    },
+  };
+});
 ```
 
 ## Examples
 
 ```jsx
-import { App, Component, mount } from 'nekojs'
+import { App, Component, mount } from "suika";
 
-const root = document.getElementById('app')
+const root = document.getElementById("app");
 
 class Counter extends Component {
   constructor() {
-    super()
+    super();
   }
   state = {
-    count: 0
-  }
+    count: 0,
+  };
   render() {
     return (
       <div id="counter">
         <h1>Count: {this.state.count}</h1>
-        <button onclick={() => ++this.state.count}>
-          inc
-        </button>
+        <button onclick={() => ++this.state.count}>inc</button>
       </div>
-    )
+    );
   }
 }
 
-class App extends NekoJS {
+class App extends Suika {
   constructor() {
-    super()
+    super();
   }
   render() {
     return (
       <div id="container">
         <Counter />
       </div>
-    )
+    );
   }
 }
 
-mount(App, root)
+mount(App, root);
 ```
 
-NekoJs is [MIT licensed](./LICENSE).
+Suika is [MIT licensed](./LICENSE).

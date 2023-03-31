@@ -1,4 +1,4 @@
-export { NekoJS } from "./core/NekoJS";
+export { Suika } from "./core/Suika";
 export { Component } from "./core/Component";
 export { h, Fragment } from "./vdom/h";
 export { render } from "./vdom/render";

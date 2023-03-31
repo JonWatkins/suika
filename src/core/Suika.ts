@@ -1,6 +1,6 @@
 import { Context } from "./Context";
 
-export abstract class NekoJS extends Context {
+export abstract class Suika extends Context {
   constructor() {
     super();
   }
