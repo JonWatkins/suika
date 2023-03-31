@@ -1,4 +1,5 @@
-# @nekojs/core 
+# @nekojs/core ![CircleCI](https://img.shields.io/circleci/build/github/JonWatkins/nekojs/main) ![npm](https://img.shields.io/npm/v/@nekojs/core)
+
 
 Nekojs is a component based Javascript library for building user interfaces
 
