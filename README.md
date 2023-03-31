@@ -1,4 +1,4 @@
-# @nekojs/core ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/nekojs/main.yml) ![npm](https://img.shields.io/npm/v/@nekojs/core) ![GitHub](https://img.shields.io/github/license/JonWatkins/nekojs) [![codecov](https://codecov.io/gh/JonWatkins/nekojs/branch/main/graph/badge.svg?token=CZ8QB5X8S5)](https://codecov.io/gh/JonWatkins/nekojs)
+# NekoJS ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/nekojs/main.yml) ![npm](https://img.shields.io/npm/v/@nekojs/core) ![GitHub](https://img.shields.io/github/license/JonWatkins/nekojs) [![codecov](https://codecov.io/gh/JonWatkins/nekojs/branch/main/graph/badge.svg?token=CZ8QB5X8S5)](https://codecov.io/gh/JonWatkins/nekojs)
 
 
 Nekojs is a lightweight component based Javascript library for building user interfaces.
@@ -8,13 +8,31 @@ Nekojs is a lightweight component based Javascript library for building user int
 You can use NekoJS as a `<script>` tag from a CDN, or as a `@nekojs/core` package on npm.
 
 ```bash
-npm i @nekojs/core
+npm i nekojs
+```
+
+## Compiler
+
+The easiest way to compile a NekoJs app is with [vite](https://vitejs.dev/). Here is an example `vite.config.js`.
+
+```js
+import { defineConfig } from 'vite'
+
+export default defineConfig(() => {
+  return {
+    esbuild: {
+      jsxFactory: 'h',
+      jsxFragment: 'Fragment',
+      jsxInject: `import { h, Fragment } from 'nekojs'`,
+    }
+  }
+})
 ```
 
 ## Examples
 
 ```jsx
-import { App, Component, mount } from '@nekojs/framework'
+import { App, Component, mount } from 'nekojs'
 
 const root = document.getElementById('app')
 
