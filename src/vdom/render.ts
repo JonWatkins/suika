@@ -22,6 +22,13 @@ export function render(rootNode: vDomNode): HTMLElement | Text {
     return el;
   }
 
+  if (rootNode.kind === "function") {
+    const vNode = rootNode.component(rootNode.attrs);
+    const el = render(vNode);
+    rootNode.children = vNode.children;
+    return el;
+  }
+
   const el = document.createElement(rootNode.tag);
 
   for (const attr in rootNode.attrs) {

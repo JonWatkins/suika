@@ -22,7 +22,7 @@ Documentation is comming soon.
 
 ## Example
 
-A simple todo example can be found [here](https://jonwatkins.github.io/suika-example/). Or you can checkout thre repo [here](https://github.com/JonWatkins/suika-example).
+A simple todo example can be found [here](https://jonwatkins.github.io/suika-example/). Or you can checkout the repo [here](https://github.com/JonWatkins/suika-example).
 
 ## Usage
 
@@ -106,6 +106,41 @@ You don't have to use `Typescript` to use Suika, you can use plain old `JavaScri
 
   suika.mount(App, root);
 </script>
+```
+
+## Stateless components
+
+You can also use functions as components instead of extending the `Component` class if you just need a stateless component.
+
+```jsx
+const Header = ({ title }) => <h1>{title}</h1>;
+
+const Body = ({ content }) => <p>{content}</p>;
+
+const Footer = ({ text }) => <small>{text}</small>;
+
+const Page = ({ title, content, text }) => (
+  <div id="page">
+    <Header title={title} />
+    <Body content={content} />
+    <Footer text={text} />
+  </div>
+);
+```
+
+```js
+const Header = ({ title }) => h("h1", {}, title);
+const Body = ({ content }) => h("p", {}, content);
+const Footer = ({ text }) => h("small", {}, text);
+
+const Page = ({ title, content, text }) =>
+  h(
+    "div",
+    { id: "page" },
+    h(Header, { title }),
+    h(Body, { content }),
+    h(Footer, { text })
+  );
 ```
 
 Suika is [MIT licensed](./LICENSE).

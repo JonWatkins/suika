@@ -1,5 +1,6 @@
 import { h } from "../../src/vdom/h";
 import { render } from "../../src/vdom/render";
+import { Component } from "../../src/core/Component";
 
 describe("render", () => {
   it("Should render a basic vDomNode", () => {
@@ -42,8 +43,16 @@ describe("render", () => {
   });
 
   it("should be able to render child nodes", () => {
+    // @ts-ignore:next-line
     const vDomNode = h("div", { id: "container" }, h("h1", {}, "Hello World"));
     const el = render(vDomNode);
+    // @ts-ignore:next-line
+    expect(el.outerHTML).toMatchSnapshot();
+  });
+
+  it("should be able to handle function child nodes", () => {
+    const Title = ({ id, text }) => h("h1", { id }, text);
+    const el = render(h(Title, { id: "1", text: "hello" }));
     // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
@@ -51,8 +60,14 @@ describe("render", () => {
   it("should be able to render a component", () => {
     const mountedSpy = jest.fn();
     const stateSpy = jest.fn();
-    class Component {
+
+    // @ts-ignore:next-line
+    class Ctx extends Component {
+      constructor() {
+        super();
+      }
       _initProps() {
+        // @ts-ignore:next-line
         return h("div", {}, h("h1", {}, "Hello World"));
       }
       _initState() {
@@ -63,7 +78,7 @@ describe("render", () => {
       }
     }
     // @ts-ignore:next-line
-    const vDomNode = h(Component);
+    const vDomNode = h(Ctx);
     const el = render(vDomNode);
     expect(stateSpy).toHaveBeenCalled();
     expect(mountedSpy).toHaveBeenCalled();
@@ -73,8 +88,13 @@ describe("render", () => {
 
   it("should be able to render a component that already has an instance", () => {
     const mountedSpy = jest.fn();
-    class Component {
+    // @ts-ignore:next-line
+    class Ctx extends Component {
+      constructor() {
+        super();
+      }
       render() {
+        // @ts-ignore:next-line
         return h("div", {}, h("h1", {}, "Hello World"));
       }
       _notifyMounted() {
@@ -82,7 +102,7 @@ describe("render", () => {
       }
     }
     // @ts-ignore:next-line
-    const vDomNode = h(Component);
+    const vDomNode = h(Ctx);
     // @ts-ignore:next-line
     vDomNode.instance = new vDomNode.component();
 

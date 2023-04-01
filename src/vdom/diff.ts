@@ -111,6 +111,17 @@ export const diff = (
     };
   }
 
+  // If the oldVnode and newVnode are both functions and the functions are the
+  // same we need to return a new diff passing in the oldVnode, and the return
+  // value of the newVnode function
+  if (
+    oldVnode.kind === "function" &&
+    newVnode.kind === "function" &&
+    oldVnode.component === newVnode.component
+  ) {
+    return diff(oldVnode, newVnode.component(newVnode.attrs));
+  }
+
   // if the tag of a node has changed we have to replace it completely
   if (oldVnode.tag !== newVnode.tag) {
     return replace(newVnode);
@@ -118,10 +129,10 @@ export const diff = (
 
   // Now we can apply the updates to the attributes
   const attrs: AttrsUpdater = {
-    remove: Object.keys(oldVnode.attrs || {}).filter(
+    remove: Object.keys(oldVnode.attrs).filter(
       (attr) => Object.keys(newVnode).indexOf(attr) === -1
     ),
-    set: Object.keys(newVnode.attrs || {})
+    set: Object.keys(newVnode.attrs)
       .filter((attr) => oldVnode.attrs[attr] !== newVnode.attrs[attr])
       .reduce(
         (updated, attr) => ({ ...updated, [attr]: newVnode.attrs[attr] }),

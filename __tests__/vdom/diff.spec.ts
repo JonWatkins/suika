@@ -1,6 +1,7 @@
 import { h } from "../../src/vdom/h";
 import { diff } from "../../src/vdom/diff";
 import { render } from "../../src/vdom/render";
+import { Component } from "../../src/core/Component";
 
 describe("diff", () => {
   it("should return a replace patch when the oldVnode is null", () => {
@@ -70,14 +71,19 @@ describe("diff", () => {
     const oldVnode = h(
       "div",
       {},
+      // @ts-ignore:next-line
       h("h1", { key: 1 }, "Hello"),
+      // @ts-ignore:next-line
       h("p", { key: 2 }, "Lorem ipsum"),
+      // @ts-ignore:next-line
       h("p", { key: 3 }, "Lorem ipsum")
     );
     const newVnode = h(
       "div",
       {},
+      // @ts-ignore:next-line
       h("h1", { key: 1 }, "Hello"),
+      // @ts-ignore:next-line
       h("p", { key: 2 }, "Lorem ipsum")
     );
 
@@ -92,10 +98,15 @@ describe("diff", () => {
     const componentVdom = h(
       "div",
       { key: 2 },
+      // @ts-ignore:next-line
       h("h1", { key: 3 }, "Hello World")
     );
 
-    class Component {
+    // @ts-ignore:next-line
+    class Ctx extends Component {
+      constructor() {
+        super();
+      }
       _initProps() {
         return componentVdom;
       }
@@ -106,7 +117,7 @@ describe("diff", () => {
       _notifyMounted() {}
     }
 
-    const newVnode = h("div", {}, h(Component, { key: 1 }));
+    const newVnode = h("div", {}, h(Ctx, { key: 1 }));
 
     // need to call render on vDomNode to create the
     // instance
@@ -123,15 +134,21 @@ describe("diff", () => {
     const component1Vdom = h(
       "div",
       { key: 2 },
+      // @ts-ignore:next-line
       h("h1", { key: 3 }, "Hello World")
     );
     const component2Vdom = h(
       "div",
       { key: 4 },
+      // @ts-ignore:next-line
       h("h2", { key: 5 }, "Hello World!")
     );
 
-    class Component1 {
+    // @ts-ignore:next-line
+    class Ctx1 extends Component {
+      constructor() {
+        super();
+      }
       _initProps() {
         return component1Vdom;
       }
@@ -143,7 +160,11 @@ describe("diff", () => {
       _unmount() {}
     }
 
-    class Component2 {
+    // @ts-ignore:next-line
+    class Ctx2 extends Component {
+      constructor() {
+        super();
+      }
       _initProps() {
         return component2Vdom;
       }
@@ -155,9 +176,9 @@ describe("diff", () => {
       _unmount() {}
     }
 
-    const oldVnode = h("div", {}, h(Component1, { key: 1 }));
+    const oldVnode = h("div", {}, h(Ctx1, { key: 1 }));
 
-    const newVnode = h("div", {}, h(Component2, { key: 6 }));
+    const newVnode = h("div", {}, h(Ctx2, { key: 6 }));
 
     // need to call render on vDomNode to create the
     // instance

@@ -1,4 +1,5 @@
 import { h } from "../../src/vdom/h";
+import { Component } from "../../src/core/Component";
 
 describe("h", () => {
   it("should be a function", () => {
@@ -48,6 +49,7 @@ describe("h", () => {
   });
 
   it("should be able to make vDomText nodes", () => {
+    // @ts-ignore:next-line
     const vDomNode = h("div", {}, "Hello World");
 
     expect(vDomNode.children.length).toEqual(1);
@@ -57,15 +59,25 @@ describe("h", () => {
   });
 
   it("should be able to make vDomComponent nodes", () => {
-    class Component {}
     // @ts-ignore:next-line
-    const vDomNode = h(Component);
+    class Ctx extends Component {
+      constructor() {
+        super();
+      }
+    }
+    // @ts-ignore:next-line
+    const vDomNode = h(Ctx);
     expect(vDomNode.kind).toEqual("component");
   });
 
   it("should be able to apply attributes vDomComponent nodes", () => {
-    class Component {}
-    const vDomNode = h(Component, { id: "container" });
+    // @ts-ignore:next-line
+    class Ctx extends Component {
+      constructor() {
+        super();
+      }
+    }
+    const vDomNode = h(Ctx, { id: "container" });
     expect(vDomNode.kind).toEqual("component");
     // @ts-ignore:next-line
     expect(vDomNode.attrs.id).toEqual("container");

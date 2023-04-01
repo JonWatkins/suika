@@ -3,6 +3,8 @@ export { Component } from "./core/Component";
 export { h, Fragment } from "./vdom/h";
 export { render } from "./vdom/render";
 export { mount } from "./vdom/mount";
+export { diff } from "./vdom/diff";
+export { patch } from "./vdom/patch";
 export { observable } from "./lib/observable";
 export * as utils from "./lib/utils";
 export { version } from "../package.json";

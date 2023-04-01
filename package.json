@@ -1,6 +1,6 @@
 {
   "name": "suika",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Suika is a lightweight component based Javascript library for building user interfaces",
   "homepage": "https://jonwatkins.github.io/suika/",
   "author": "Jon Watkins <jwatkins@gmail.com>",
@@ -24,7 +24,7 @@
     "dev": "cross-env NODE_ENV=development vite",
     "producion": "cross-env NODE_ENV=production vite build",
     "preview": "cross-env NODE_ENV=production vite preview",
-    "build": "npm run lint && npm run producion"
+    "build": "npm run lint && npm run test && npm run producion"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",

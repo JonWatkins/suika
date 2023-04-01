@@ -25,6 +25,15 @@ export interface vDomComponent {
   children: vDomNode[];
 }
 
+export interface vDomFunction {
+  kind: "function";
+  attrs: object;
+  component: Function;
+  tag: undefined;
+  children: vDomNode[];
+  key?: string;
+}
+
 export interface vDomText {
   value: string;
   key?: string;
@@ -40,11 +49,24 @@ export interface vDomFragment {
   tag: string;
 }
 
-export type vDomNode = vDomElement | vDomComponent | vDomText | vDomFragment;
+export type vDomNode =
+  | vDomElement
+  | vDomComponent
+  | vDomFunction
+  | vDomText
+  | vDomFragment;
 
 const mapChildNodes = (i): vDomNode => {
   if (isString(i)) return createText(i);
   return i;
+};
+
+const isComponent = (value: any): boolean => {
+  return value.prototype instanceof Component;
+};
+
+const isFragment = (value: any): boolean => {
+  return value === Fragment;
 };
 
 const createElement = (
@@ -83,6 +105,23 @@ const createComponent = <P extends object>(
   };
 };
 
+const createFunction = (
+  component: Function,
+  attrs: vDomAttrs & { key?: string }
+): vDomFunction => {
+  const key = attrs.key;
+  delete attrs.key;
+
+  return {
+    attrs,
+    key,
+    kind: "function",
+    component,
+    tag: undefined,
+    children: [],
+  };
+};
+
 const createText = (value: string | number | boolean, key = ""): vDomText => ({
   key,
   kind: "text",
@@ -114,10 +153,12 @@ export const h = (tag, attrs, ...children: Array<vDomNode>): vDomNode => {
     const childNodes: vDomNode[] = children.map(mapChildNodes);
     return createElement(tag, attrs, childNodes);
   } else if (isFunction(tag)) {
-    if (tag === Fragment) {
+    if (isFragment(tag)) {
       return createFragment(tag(), attrs, children);
-    } else {
+    } else if (isComponent(tag)) {
       return createComponent(tag, attrs || {});
+    } else {
+      return createFunction(tag, attrs || {});
     }
   } else {
     return createText(tag);

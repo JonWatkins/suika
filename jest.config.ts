@@ -4,7 +4,7 @@
  */
 
 export default {
-  verbose: true,
+  verbose: false,
   collectCoverage: true,
   coverageDirectory: "coverage",
   testEnvironment: "jsdom",
