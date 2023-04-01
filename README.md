@@ -42,6 +42,8 @@ export default defineConfig(() => {
 
 ```jsx
 import { App, Component, mount } from "suika";
+import logoImg from './public/images/logo.png'
+import './scss/styles.scss'
 
 const root = document.getElementById("app");
 
@@ -51,7 +53,7 @@ class Counter extends Component {
   }
   state = {
     count: 0,
-  };
+  }
   render() {
     return (
       <div id="counter">
@@ -69,6 +71,7 @@ class App extends Suika {
   render() {
     return (
       <div id="container">
+        <img src={logoImg}>
         <Counter />
       </div>
     );
@@ -99,6 +102,6 @@ You don't have to use `Typescript` to use Suika, you can use plain old `JavaScri
 
   suika.mount(App, root);
 </script>
+```
 
 Suika is [MIT licensed](./LICENSE).
-```
