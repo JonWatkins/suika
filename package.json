@@ -50,6 +50,7 @@
   "keywords": [
     "suika",
     "vdom",
-    "JSX"
+    "JSX",
+    "reactive"
   ]
 }
