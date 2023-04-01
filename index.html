@@ -35,10 +35,25 @@
       }
     }
 
+    function Group (props, children) {
+      return h('div', props, ...children)
+    }
+
+    function Input () {
+      return h('input')
+    }
+
+    function Btn() {
+      return h('button', {}, 'meh')
+    }
+
     class App extends Suika {
       render() {
         return h('div', { key: 'root' }, 
-          h(Counter, { key: 'counter' })
+          h(Group, {}, 
+            h(Input),
+            h(Btn)
+          )
         )
       }
     }

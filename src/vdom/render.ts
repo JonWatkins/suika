@@ -23,7 +23,7 @@ export function render(rootNode: vDomNode): HTMLElement | Text {
   }
 
   if (rootNode.kind === "function") {
-    const vNode = rootNode.component(rootNode.attrs);
+    const vNode = rootNode.component(rootNode.attrs, rootNode.children);
     const el = render(vNode);
     rootNode.children = vNode.children;
     return el;

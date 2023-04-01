@@ -1,7 +1,7 @@
-function h(t) {
+function d(t) {
   return Object.prototype.toString.call(t);
 }
-function d(t) {
+function h(t) {
   return Array.isArray(t);
 }
 function E(t) {
@@ -16,22 +16,22 @@ function R(t) {
 function A(t) {
   return t === !1;
 }
-function D(t, e) {
-  return Object.prototype.hasOwnProperty.call(t, e);
+function D(t, n) {
+  return Object.prototype.hasOwnProperty.call(t, n);
 }
-const g = (t) => t !== null && typeof t == "object", l = (t) => typeof t == "function";
+const g = (t) => t !== null && typeof t == "object", f = (t) => typeof t == "function";
 function G(t) {
-  return !d(t) && !d(t) && h(t) === "[object Object]";
+  return !h(t) && !h(t) && d(t) === "[object Object]";
 }
 function q(t) {
-  return h(t) === "[object RegExp]";
+  return d(t) === "[object RegExp]";
 }
 const m = (t) => typeof t == "string";
-function k(t, e) {
-  const n = /* @__PURE__ */ new Map(), r = t.split(",");
-  for (let i = 0; i < r.length; i++)
-    n.set(r[i], !0);
-  return (i) => n.has(e ? i.toLowerCase() : i);
+function k(t, n) {
+  const e = /* @__PURE__ */ new Map(), i = t.split(",");
+  for (let r = 0; r < i.length; r++)
+    e.set(i[r], !0);
+  return (r) => e.has(n ? r.toLowerCase() : r);
 }
 function v(t) {
   return x(t) || j(t);
@@ -41,15 +41,15 @@ const x = k(
 ), j = k(
   "svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,foreignobject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view",
   !0
-), O = (t, e) => !1, et = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+), O = (t, n) => !1, nt = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: k,
   hasOwn: D,
-  isArray: d,
+  isArray: h,
   isDef: F,
   isEqual: O,
   isFalse: A,
-  isFunction: l,
+  isFunction: f,
   isHTMLTag: x,
   isObject: g,
   isPlainObject: G,
@@ -59,156 +59,156 @@ const x = k(
   isString: m,
   isTrue: R,
   isUndef: E,
-  toString: h
+  toString: d
 }, Symbol.toStringTag, { value: "Module" }));
-function P(t, e, n = []) {
+function P(t, n, e = []) {
   if (!g(t))
     return t;
-  const r = (s) => n.concat(s).join(".");
+  const i = (s) => e.concat(s).join(".");
   for (const s in t)
     t[s] = P(
       t[s],
-      e,
-      n.concat(s)
+      n,
+      e.concat(s)
     );
-  const i = (s, u) => {
+  const r = (s, u) => {
     const p = Reflect.deleteProperty(s, u);
-    return l(e) && e({
-      path: r(u),
+    return f(n) && n({
+      path: i(u),
       target: s,
       name: u
     }), p;
   }, c = (s, u, p, S) => {
     const T = Reflect.set(s, u, p, S);
-    return l(e) && e({
-      path: r(u),
+    return f(n) && n({
+      path: i(u),
       target: s,
       name: u,
       value: p
     }), T;
   }, o = (s, u, p) => Reflect.get(s, u, p);
   return new Proxy(t, {
-    deleteProperty: i,
+    deleteProperty: r,
     set: c,
     get: o
   });
 }
-const K = () => ({ kind: "skip" }), f = (t) => ({
+const K = () => ({ kind: "skip" }), l = (t) => ({
   kind: "replace",
   newNode: t
-}), L = () => ({ kind: "remove" }), z = (t) => ({ kind: "insert", node: t }), H = (t, e) => ({
+}), L = () => ({ kind: "remove" }), z = (t) => ({ kind: "insert", node: t }), H = (t, n) => ({
   kind: "update",
   attrs: t,
-  childeren: e
-}), y = (t, e) => {
+  childeren: n
+}), y = (t, n) => {
   if (!t)
-    return f(e);
-  if (t.kind === "text" && e.kind === "text" && t.value === e.value)
+    return l(n);
+  if (t.kind === "text" && n.kind === "text" && t.value === n.value)
     return K();
-  if (t.kind === "text" || e.kind === "text")
-    return f(e);
-  if (t.kind === "component" && e.kind === "component" && t.component === e.component && t.instance)
-    return e.instance = t.instance, O(t.attrs, e.attrs), e.instance._setProps(e.attrs);
-  if (e.kind === "component")
-    return e.instance = new e.component(), {
+  if (t.kind === "text" || n.kind === "text")
+    return l(n);
+  if (t.kind === "component" && n.kind === "component" && t.component === n.component && t.instance)
+    return n.instance = t.instance, O(t.attrs, n.attrs), n.instance._setProps(n.attrs);
+  if (n.kind === "component")
+    return n.instance = new n.component(), {
       kind: "replace",
-      newNode: e.instance._initProps(e.attrs),
-      callback: (i) => {
+      newNode: n.instance._initProps(n.attrs),
+      callback: (r) => {
         var c;
-        return (c = e.instance) == null ? void 0 : c._notifyMounted(i);
+        return (c = n.instance) == null ? void 0 : c._notifyMounted(r);
       }
     };
-  if (t.kind === "function" && e.kind === "function" && t.component === e.component)
-    return y(t, e.component(e.attrs));
-  if (t.tag !== e.tag)
-    return f(e);
-  const n = {
+  if (t.kind === "function" && n.kind === "function" && t.component === n.component)
+    return y(t, n.component(n.attrs));
+  if (t.tag !== n.tag)
+    return l(n);
+  const e = {
     remove: Object.keys(t.attrs).filter(
-      (i) => Object.keys(e).indexOf(i) === -1
+      (r) => Object.keys(n).indexOf(r) === -1
     ),
-    set: Object.keys(e.attrs).filter((i) => t.attrs[i] !== e.attrs[i]).reduce(
-      (i, c) => ({ ...i, [c]: e.attrs[c] }),
+    set: Object.keys(n.attrs).filter((r) => t.attrs[r] !== n.attrs[r]).reduce(
+      (r, c) => ({ ...r, [c]: n.attrs[c] }),
       {}
     )
-  }, r = W(
+  }, i = W(
     t.children,
-    e.children
+    n.children
   );
-  return H(n, r);
-}, W = (t, e) => {
-  const n = t.map((o) => [o.key, o]), r = e.map((o) => [o.key, o]), i = [];
-  let [c] = n.find(
-    (o) => r.map((s) => s[0]).indexOf(o[0]) != -1
+  return H(e, i);
+}, W = (t, n) => {
+  const e = t.map((o) => [o.key, o]), i = n.map((o) => [o.key, o]), r = [];
+  let [c] = e.find(
+    (o) => i.map((s) => s[0]).indexOf(o[0]) != -1
   ) || [null];
   for (; c; )
-    b(i, n, c), _(i, r, c), i.push(
-      y(n.shift()[1], r.shift()[1])
-    ), [c] = n.find(
-      (o) => r.map((s) => s[0]).indexOf(o[0]) != -1
+    b(r, e, c), _(r, i, c), r.push(
+      y(e.shift()[1], i.shift()[1])
+    ), [c] = e.find(
+      (o) => i.map((s) => s[0]).indexOf(o[0]) != -1
     ) || [null];
-  return b(i, n, void 0), _(i, r, void 0), i;
-}, b = (t, e, n) => {
-  for (; e[0] && e[0][0] != n; )
-    e[0][1].kind == "component" && (e[0][1].instance._unmount(), e[0][1].instance = null), t.push(L()), e.shift();
-}, _ = (t, e, n) => {
-  for (; e[0] && e[0][0] != n; )
-    t.push(z(e.shift()[1]));
+  return b(r, e, void 0), _(r, i, void 0), r;
+}, b = (t, n, e) => {
+  for (; n[0] && n[0][0] != e; )
+    n[0][1].kind == "component" && (n[0][1].instance._unmount(), n[0][1].instance = null), t.push(L()), n.shift();
+}, _ = (t, n, e) => {
+  for (; n[0] && n[0][0] != e; )
+    t.push(z(n.shift()[1]));
 };
 function a(t) {
   if (t.kind === "text")
     return document.createTextNode(t.value);
   if (t.kind === "component") {
     if (t.instance) {
-      const i = a(t.instance.render());
-      return t.instance._notifyMounted(i), i;
+      const r = a(t.instance.render());
+      return t.instance._notifyMounted(r), r;
     }
     t.instance = new t.component(), t.instance._initState();
-    const n = t.instance._initProps(t.attrs), r = a(n);
-    return t.instance._notifyMounted(r), r;
+    const e = t.instance._initProps(t.attrs), i = a(e);
+    return t.instance._notifyMounted(i), i;
   }
   if (t.kind === "function") {
-    const n = t.component(t.attrs), r = a(n);
-    return t.children = n.children, r;
+    const e = t.component(t.attrs, t.children), i = a(e);
+    return t.children = e.children, i;
   }
-  const e = document.createElement(t.tag);
-  for (const n in t.attrs)
-    e[n] = t.attrs[n];
-  return B(e, t.children), e;
+  const n = document.createElement(t.tag);
+  for (const e in t.attrs)
+    n[e] = t.attrs[e];
+  return B(n, t.children), n;
 }
-function B(t, e) {
-  e.forEach((n) => {
-    t.appendChild(a(n));
+function B(t, n) {
+  n.forEach((e) => {
+    t.appendChild(a(e));
   });
 }
-function C(t, e) {
-  if (e.kind === "skip")
+function C(t, n) {
+  if (n.kind === "skip")
     return t;
-  if (e.kind == "replace") {
-    const n = a(e.newNode);
-    return t == null || t.replaceWith(n), e.callback && e.callback(n), n;
+  if (n.kind == "replace") {
+    const e = a(n.newNode);
+    return t == null || t.replaceWith(e), n.callback && n.callback(e), e;
   }
-  for (const n in e.attrs.remove)
-    t.removeAttribute(n);
-  for (const n in e.attrs.set)
-    t[n] = e.attrs.set[n];
-  return I(t, e.childeren), t;
+  for (const e in n.attrs.remove)
+    t.removeAttribute(e);
+  for (const e in n.attrs.set)
+    t[e] = n.attrs.set[e];
+  return I(t, n.childeren), t;
 }
-const I = (t, e) => {
-  let n = 0;
-  for (let r = 0; r < e.length; r++) {
-    const i = e[r];
-    if (i.kind == "skip")
+const I = (t, n) => {
+  let e = 0;
+  for (let i = 0; i < n.length; i++) {
+    const r = n[i];
+    if (r.kind == "skip")
       continue;
-    if (i.kind == "insert") {
-      t.childNodes[r + n - 1] ? t.childNodes[r + n - 1].after(a(i.node)) : t.appendChild(a(i.node));
-      continue;
-    }
-    const c = t.childNodes[r + n];
-    if (i.kind == "remove") {
-      c.remove(), n -= 1;
+    if (r.kind == "insert") {
+      t.childNodes[i + e - 1] ? t.childNodes[i + e - 1].after(a(r.node)) : t.appendChild(a(r.node));
       continue;
     }
-    C(c, i);
+    const c = t.childNodes[i + e];
+    if (r.kind == "remove") {
+      c.remove(), e -= 1;
+      continue;
+    }
+    C(c, r);
   }
 };
 let J = 0;
@@ -217,8 +217,8 @@ class U {
     this._uid = J++;
   }
   _getDiff() {
-    const e = this.render(), n = y(this._vNode, e);
-    return n.kind === "replace" && (n.callback = (r) => this._el = r), this._vNode = e, n;
+    const n = this.render(), e = y(this._vNode, n);
+    return e.kind === "replace" && (e.callback = (i) => this._el = i), this._vNode = n, e;
   }
   _update() {
     this._el && (C(this._el, this._getDiff()), this._notifyUpdated());
@@ -229,8 +229,8 @@ class U {
   _unmount() {
     this.beforeUnmount(), this._el = null;
   }
-  _notifyMounted(e) {
-    this._el = e, setTimeout(() => this.onMounted());
+  _notifyMounted(n) {
+    this._el = n, setTimeout(() => this.onMounted());
   }
   _notifyUpdated() {
     setTimeout(() => this.onUpdated());
@@ -242,93 +242,93 @@ class U {
   beforeUnmount() {
   }
 }
-class nt extends U {
+class et extends U {
   constructor() {
     super();
   }
-  _mount(e) {
-    this._el = e, this._mounted = !0, this._initState(), this._update();
+  _mount(n) {
+    this._el = n, this._mounted = !0, this._initState(), this._update();
   }
 }
 class Q extends U {
   constructor() {
     super();
   }
-  _initProps(e) {
-    return this.props = e, this._vNode = this.render(), this._vNode;
+  _initProps(n) {
+    return this.props = n, this._vNode = this.render(), this._vNode;
   }
-  _setProps(e) {
-    return this.props = e, this.willGetProps(this.props, this.state), this._getDiff();
+  _setProps(n) {
+    return this.props = n, this.willGetProps(this.props, this.state), this._getDiff();
   }
-  willGetProps(e, n) {
+  willGetProps(n, e) {
     return this.state;
   }
 }
-const X = () => "FRAGMENT", Y = (t) => m(t) ? M(t) : t, Z = (t) => t.prototype instanceof Q, $ = (t) => t === X, N = (t, e, n) => {
-  e || (e = {});
-  const r = e.key;
-  return delete e.key, {
+const X = () => "FRAGMENT", Y = (t) => m(t) ? M(t) : t, Z = (t) => t.prototype instanceof Q, $ = (t) => t === X, N = (t, n, e) => {
+  n || (n = {});
+  const i = n.key;
+  return delete n.key, {
     tag: t,
-    attrs: e,
-    children: n,
-    key: r,
+    attrs: n,
+    children: e,
+    key: i,
     kind: "element"
   };
-}, w = (t, e) => {
-  const n = e.key;
-  return delete e.key, {
-    attrs: e,
-    key: n,
+}, w = (t, n) => {
+  const e = n.key;
+  return delete n.key, {
+    attrs: n,
+    key: e,
     kind: "component",
     component: t,
     tag: void 0,
     children: []
   };
-}, V = (t, e) => {
-  const n = e.key;
-  return delete e.key, {
-    attrs: e,
-    key: n,
+}, V = (t, n, e) => {
+  const i = n.key;
+  return delete n.key, {
+    attrs: n,
+    key: i,
     kind: "function",
     component: t,
     tag: void 0,
-    children: []
+    children: e
   };
-}, M = (t, e = "") => ({
-  key: e,
+}, M = (t, n = "") => ({
+  key: n,
   kind: "text",
   value: t.toString(),
   children: []
-}), tt = (t, e, n) => {
-  e || (e = {});
-  const r = e.key;
-  return delete e.key, {
-    key: r,
+}), tt = (t, n, e) => {
+  n || (n = {});
+  const i = n.key;
+  return delete n.key, {
+    key: i,
     tag: t,
     kind: "fragment",
-    attrs: e,
-    children: n
+    attrs: n,
+    children: e
   };
-}, it = (t, e, ...n) => {
+}, it = (t, n, ...e) => {
   if (m(t) && v(t)) {
-    const r = n.map(Y);
-    return N(t, e, r);
+    const i = e.map(Y);
+    return N(t, n, i);
   } else
-    return l(t) ? $(t) ? tt(t(), e, n) : Z(t) ? w(t, e || {}) : V(t, e || {}) : M(t);
-}, rt = (t, e) => {
-  const n = new t();
-  return n._mount(e), n;
+    return f(t) ? $(t) ? tt(t(), n, e) : Z(t) ? w(t, n || {}) : V(t, n || {}, e) : M(t);
+}, rt = (t, n) => {
+  const e = new t();
+  return e._mount(n), e;
 }, st = "1.1.0";
 export {
   Q as Component,
   X as Fragment,
-  nt as Suika,
+  et as Suika,
   y as diff,
   it as h,
   rt as mount,
   P as observable,
   C as patch,
   a as render,
-  et as utils,
+  nt as utils,
   st as version
 };

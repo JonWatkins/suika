@@ -107,7 +107,8 @@ const createComponent = <P extends object>(
 
 const createFunction = (
   component: Function,
-  attrs: vDomAttrs & { key?: string }
+  attrs: vDomAttrs & { key?: string },
+  children: vDomNode[]
 ): vDomFunction => {
   const key = attrs.key;
   delete attrs.key;
@@ -118,7 +119,7 @@ const createFunction = (
     kind: "function",
     component,
     tag: undefined,
-    children: [],
+    children,
   };
 };
 
@@ -158,7 +159,7 @@ export const h = (tag, attrs, ...children: Array<vDomNode>): vDomNode => {
     } else if (isComponent(tag)) {
       return createComponent(tag, attrs || {});
     } else {
-      return createFunction(tag, attrs || {});
+      return createFunction(tag, attrs || {}, children);
     }
   } else {
     return createText(tag);
