@@ -302,7 +302,7 @@ const J = () => "FRAGMENT", Q = (t) => m(t) ? M(t) : t, X = (t, e, n) => {
 }, et = (t, e) => {
   const n = new t();
   return n._mount(e), n;
-}, nt = "1.0.6";
+}, nt = "1.0.7";
 export {
   V as Component,
   J as Fragment,

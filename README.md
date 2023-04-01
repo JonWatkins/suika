@@ -20,6 +20,10 @@ Or you can use Suika as a `<script>` tag from a CDN.
 
 Documentation is comming soon.
 
+## Example
+
+A simple todo example can be found [here](https://jonwatkins.github.io/suika-example/). Or you can checkout thre repo [here](https://github.com/JonWatkins/suika-example).
+
 ## Usage
 
 The easiest way to use Suika is to use the [vite](https://vitejs.dev/) bundler, as this supports `SCSS` and `Typescript` out of the box. Below is an example `vite.config.js` for bundling a Suika application.
