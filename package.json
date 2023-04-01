@@ -1,8 +1,19 @@
 {
   "name": "suika",
-  "version": "1.0.4",
-  "description": "Suika is a component based Javascript library for building user interfaces",
+  "version": "1.0.5",
+  "description": "Suika is a lightweight component based Javascript library for building user interfaces",
+  "homepage": "https://github.com/JonWatkins/suika#readme",
+  "author": "Jon Watkins <jwatkins@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JonWatkins/suika.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JonWatkins/suika/issues"
+  },
   "main": "dist/bundle.umd.js",
+  "browser": "dist/bundle.umd.js",
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
@@ -15,12 +26,6 @@
     "preview": "cross-env NODE_ENV=production vite preview",
     "build": "npm run lint && npm run producion"
   },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "author": "Jon Watkins",
-  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
@@ -37,5 +42,14 @@
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1",
     "vite": "^4.2.1"
-  }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "suika",
+    "vdom",
+    "JSX"
+  ]
 }

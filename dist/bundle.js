@@ -302,7 +302,7 @@ const J = () => "FRAGMENT", Q = (t) => m(t) ? M(t) : t, X = (t, e, n) => {
 }, et = (t, e) => {
   const n = new t();
   return n._mount(e), n;
-};
+}, nt = "1.0.5";
 export {
   V as Component,
   J as Fragment,
@@ -311,5 +311,6 @@ export {
   et as mount,
   O as observable,
   l as render,
-  $ as utils
+  $ as utils,
+  nt as version
 };

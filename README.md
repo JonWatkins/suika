@@ -1,18 +1,28 @@
 # Suika ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/suika/main.yml) ![npm](https://img.shields.io/npm/v/suika) ![GitHub](https://img.shields.io/github/license/JonWatkins/suika) [![codecov](https://codecov.io/gh/JonWatkins/suika/branch/main/graph/badge.svg?token=CZ8QB5X8S5)](https://codecov.io/gh/JonWatkins/suika)
 
-Suika is a lightweight component based Javascript library for building user interfaces.
+Suika is a lightweight component based `Javascript` library for building user interfaces, that relies on a virtual DOM with keyed diffs with `JSX` support.
 
 ## Installation
 
-You can use Suika as a `<script>` tag from a CDN, or as a `suika` package on npm.
+You can use as a `suika` package on `npm`
 
 ```bash
-npm i suika
+npm install@latest suika
 ```
 
-## Compiler
+Or you can use Suika as a `<script>` tag from a CDN.
 
-The easiest way to compile a Suika app is with [vite](https://vitejs.dev/). Here is an example `vite.config.js`.
+```html
+<script src="https://unpkg.com/suika@1.0.4/dist/bundle.umd.cjs"></script>
+```
+
+## Documentation
+
+Documentaion is comming soon.
+
+## Usage
+
+The easiest way to use Suika is to use the [vite](https://vitejs.dev/) bundler, as this supports `SCSS` and `Typescript` out of the box. Below is an example `vite.config.js` for bundling a Suika application.
 
 ```js
 import { defineConfig } from "vite";
@@ -28,7 +38,7 @@ export default defineConfig(() => {
 });
 ```
 
-## Examples
+## TypeScript
 
 ```jsx
 import { App, Component, mount } from "suika";
@@ -68,4 +78,27 @@ class App extends Suika {
 mount(App, root);
 ```
 
+## JavaScript
+
+You don't have to use `Typescript` to use Suika, you can use plain old `JavaScript`.
+
+```html
+<script src="https://unpkg.com/suika@1.0.4/dist/bundle.umd.cjs"></script>
+<script type="text/javascript">
+  const root = document.getElementById("app");
+
+  class App extends suika.App {
+    render() {
+      return suika.h(
+        "div",
+        { key: "container" },
+        suika.h("h1", { key: "title" }, "Hello World")
+      );
+    }
+  }
+
+  suika.mount(App, root);
+</script>
+
 Suika is [MIT licensed](./LICENSE).
+```
