@@ -18,7 +18,7 @@ Or you can use Suika as a `<script>` tag from a CDN.
 
 ## Documentation
 
-Documentaion is comming soon.
+Documentation is comming soon.
 
 ## Usage
 
