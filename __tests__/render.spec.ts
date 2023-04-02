@@ -1,6 +1,6 @@
-import { h } from "../../src/vdom/h";
-import { render } from "../../src/vdom/render";
-import { Component } from "../../src/core/Component";
+import { h } from "../src/vdom";
+import { render, mount } from "../src/render";
+import { Component } from "../src/Component";
 
 describe("render", () => {
   it("Should render a basic vDomNode", () => {
@@ -66,8 +66,7 @@ describe("render", () => {
       constructor() {
         super();
       }
-      _initProps() {
-        // @ts-ignore:next-line
+      render() {
         return h("div", {}, h("h1", {}, "Hello World"));
       }
       _initState() {
@@ -110,5 +109,38 @@ describe("render", () => {
     expect(mountedSpy).toHaveBeenCalled();
     // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
+  });
+
+  describe("mount", () => {
+    it("should error if not given a component", () => {
+      expect(() => {
+        // @ts-ignore:next-line
+        mount();
+      }).toThrow();
+    });
+
+    it("should throw if the element is not a dom not", () => {
+      class App extends Component {
+        render() {
+          return h("h1", {}, "hi");
+        }
+      }
+
+      expect(() => {
+        // @ts-ignore:next-line
+        mount(App);
+      }).toThrow();
+    });
+
+    it("should be able to mount a component", () => {
+      class App extends Component {
+        render() {
+          return h("h1", {}, "hi");
+        }
+      }
+
+      const instance = mount(App, document.createElement("div"));
+      expect(instance._isSuika).toBe(true);
+    });
   });
 });

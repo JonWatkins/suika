@@ -1,4 +1,4 @@
-import { observable } from "../../src/lib/observable";
+import { observable } from "../src/observable";
 
 type Ob2 = { b: number };
 type Ob1 = { a?: Ob2 };

@@ -1,0 +1,62 @@
+import { isDef } from "./utils";
+import { isComponent } from "./vdom";
+
+export const render = (rootNode) => {
+  if (rootNode.kind === "text") {
+    return document.createTextNode(rootNode.value);
+  }
+
+  if (rootNode.kind === "function") {
+    const el = render(rootNode.component(rootNode.attrs, rootNode.children));
+    return el;
+  }
+
+  if (rootNode.kind === "component") {
+    if (rootNode.instance) {
+      const el = render(rootNode.instance.render());
+      rootNode.instance._notifyMounted(el);
+      return el;
+    }
+
+    rootNode.instance = new rootNode.component();
+    rootNode.instance._initState();
+
+    const vNode = rootNode.instance._initVnode(rootNode.attrs);
+    const el = render(vNode);
+
+    rootNode.instance._notifyMounted(el);
+    return el;
+  }
+
+  const el = document.createElement(rootNode.tag);
+
+  for (const attr in rootNode.attrs) {
+    (el as any)[attr] = rootNode.attrs[attr];
+  }
+
+  rootNode.children.forEach((child) => {
+    el.appendChild(render(child));
+  });
+
+  return el;
+};
+
+export const mount = (component, root) => {
+  if (!isDef(component) || !isComponent(component)) {
+    throw new Error("Must pass a component to render");
+  }
+
+  if (!isDef(component) || !(root instanceof Element)) {
+    throw new Error("Must pass a dom node to mount");
+  }
+
+  const instance = new component();
+  instance._initState();
+
+  const el = render(instance._initVnode({}));
+
+  instance._notifyMounted(el);
+  root.replaceWith(el);
+
+  return instance;
+};

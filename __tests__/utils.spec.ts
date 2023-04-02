@@ -1,4 +1,4 @@
-import makeMap, * as utils from "../../src/lib/utils";
+import makeMap, * as utils from "../src/utils";
 
 const HTML_ELEMENTS = [
   "html",
@@ -344,6 +344,12 @@ describe("utils", () => {
 
     it("should return false for non reserved tag", () => {
       expect(utils.isReservedTag("my-tag")).toBe(false);
+    });
+  });
+
+  describe("utils.sleep", () => {
+    it("should be able to wait", async () => {
+      await utils.sleep(10);
     });
   });
 });

@@ -32,7 +32,12 @@ export function observable(
   };
 
   const set = (target: object, name: string, value: any, receiver: any) => {
-    const res = Reflect.set(target, name, value, receiver);
+    const res = Reflect.set(
+      target,
+      name,
+      observable(value, listener),
+      receiver
+    );
 
     if (isFunction(listener)) {
       listener({

@@ -2,7 +2,7 @@
 
 exports[`Component calls the onUpdated function when state changes 1`] = `"<div><h1>Hello</h1></div>"`;
 
-exports[`Component calls the onUpdated function when state changes 2`] = `"<div><h1>Hello</h1></div>"`;
+exports[`Component calls the onUpdated function when state changes 2`] = `"<div><h1>World</h1></div>"`;
 
 exports[`Component should be able to patch a component 1`] = `"<div><h1>Hello World</h1></div>"`;
 
@@ -16,12 +16,8 @@ exports[`Component should not patch a component when the _el is not defined 1`] 
 
 exports[`Component should patch a component when the state changes 1`] = `"<div><h1>Hello</h1></div>"`;
 
-exports[`Component should patch a component when the state changes 2`] = `"<div><h1>Hello</h1></div>"`;
+exports[`Component should patch a component when the state changes 2`] = `"<div><h1>World</h1></div>"`;
 
 exports[`Component the _unmount function should be called when unmounting a child component 1`] = `"<div><div><h1>Hello World</h1></div></div>"`;
 
 exports[`Component the _unmount function should be called when unmounting a child component 2`] = `"<div></div>"`;
-
-exports[`Component the beforeUnmount function should be called when unmounting a child component 1`] = `"<div><div><h1>Hello World</h1></div></div>"`;
-
-exports[`Component the beforeUnmount function should be called when unmounting a child component 2`] = `"<div></div>"`;

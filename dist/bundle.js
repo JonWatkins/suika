@@ -1,334 +1,254 @@
-function d(t) {
-  return Object.prototype.toString.call(t);
-}
-function h(t) {
+function _(t) {
   return Array.isArray(t);
 }
-function E(t) {
-  return t == null;
-}
-function F(t) {
+function f(t) {
   return t != null;
 }
-function R(t) {
-  return t === !0;
+const x = (t) => t !== null && typeof t == "object", l = (t) => typeof t == "function", b = (t) => typeof t == "string";
+function g(t, n) {
+  const e = /* @__PURE__ */ new Map(), s = t.split(",");
+  for (let i = 0; i < s.length; i++)
+    e.set(s[i], !0);
+  return (i) => e.has(n ? i.toLowerCase() : i);
 }
-function A(t) {
-  return t === !1;
+function C(t) {
+  return E(t) || S(t);
 }
-function D(t, n) {
-  return Object.prototype.hasOwnProperty.call(t, n);
-}
-const g = (t) => t !== null && typeof t == "object", f = (t) => typeof t == "function";
-function G(t) {
-  return !h(t) && !h(t) && d(t) === "[object Object]";
-}
-function q(t) {
-  return d(t) === "[object RegExp]";
-}
-const m = (t) => typeof t == "string";
-function k(t, n) {
-  const e = /* @__PURE__ */ new Map(), i = t.split(",");
-  for (let r = 0; r < i.length; r++)
-    e.set(i[r], !0);
-  return (r) => e.has(n ? r.toLowerCase() : r);
-}
-function v(t) {
-  return x(t) || j(t);
-}
-const x = k(
+const E = g(
   "html,body,base,head,link,meta,style,title,address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,s,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,embed,object,param,source,canvas,script,noscript,del,ins,caption,col,colgroup,table,thead,tbody,td,th,tr,button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,output,progress,select,textarea,details,dialog,menu,menuitem,summary,content,element,shadow,template,blockquote,iframe,tfoot"
-), j = k(
+), S = g(
   "svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,foreignobject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view",
   !0
-), O = (t, n) => !1, nt = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: k,
-  hasOwn: D,
-  isArray: h,
-  isDef: F,
-  isEqual: O,
-  isFalse: A,
-  isFunction: f,
-  isHTMLTag: x,
-  isObject: g,
-  isPlainObject: G,
-  isRegExp: q,
-  isReservedTag: v,
-  isSVG: j,
-  isString: m,
-  isTrue: R,
-  isUndef: E,
-  toString: d
-}, Symbol.toStringTag, { value: "Module" }));
-function P(t, n, e = []) {
-  if (!g(t))
+), j = (t, n) => !1;
+function d(t, n, e = []) {
+  if (!x(t))
     return t;
-  const i = (s) => e.concat(s).join(".");
-  for (const s in t)
-    t[s] = P(
-      t[s],
+  const s = (r) => e.concat(r).join(".");
+  for (const r in t)
+    t[r] = d(
+      t[r],
       n,
-      e.concat(s)
+      e.concat(r)
     );
-  const r = (s, u) => {
-    const p = Reflect.deleteProperty(s, u);
-    return f(n) && n({
-      path: i(u),
-      target: s,
-      name: u
-    }), p;
-  }, c = (s, u, p, S) => {
-    const T = Reflect.set(s, u, p, S);
-    return f(n) && n({
-      path: i(u),
-      target: s,
-      name: u,
-      value: p
-    }), T;
-  }, o = (s, u, p) => Reflect.get(s, u, p);
+  const i = (r, a) => {
+    const u = Reflect.deleteProperty(r, a);
+    return l(n) && n({
+      path: s(a),
+      target: r,
+      name: a
+    }), u;
+  }, c = (r, a, u, v) => {
+    const M = Reflect.set(
+      r,
+      a,
+      d(u, n),
+      v
+    );
+    return l(n) && n({
+      path: s(a),
+      target: r,
+      name: a,
+      value: u
+    }), M;
+  }, h = (r, a, u) => Reflect.get(r, a, u);
   return new Proxy(t, {
-    deleteProperty: r,
+    deleteProperty: i,
     set: c,
-    get: o
+    get: h
   });
 }
-const K = () => ({ kind: "skip" }), l = (t) => ({
-  kind: "replace",
-  newNode: t
-}), L = () => ({ kind: "remove" }), z = (t) => ({ kind: "insert", node: t }), H = (t, n) => ({
-  kind: "update",
-  attrs: t,
-  childeren: n
-}), y = (t, n) => {
-  if (!t)
-    return l(n);
-  if (t.kind === "text" && n.kind === "text" && t.value === n.value)
-    return K();
-  if (t.kind === "text" || n.kind === "text")
-    return l(n);
-  if (t.kind === "component" && n.kind === "component" && t.component === n.component && t.instance)
-    return n.instance = t.instance, O(t.attrs, n.attrs), n.instance._setProps(n.attrs);
-  if (n.kind === "component")
-    return n.instance = new n.component(), {
-      kind: "replace",
-      newNode: n.instance._initProps(n.attrs),
-      callback: (r) => {
-        var c;
-        return (c = n.instance) == null ? void 0 : c._notifyMounted(r);
-      }
-    };
-  if (t.kind === "function" && n.kind === "function" && t.component === n.component)
-    return y(t, n.component(n.attrs));
-  if (t.tag !== n.tag)
-    return l(n);
-  const e = {
-    remove: Object.keys(t.attrs).filter(
-      (r) => Object.keys(n).indexOf(r) === -1
-    ),
-    set: Object.keys(n.attrs).filter((r) => t.attrs[r] !== n.attrs[r]).reduce(
-      (r, c) => ({ ...r, [c]: n.attrs[c] }),
-      {}
-    )
-  }, i = W(
-    t.children,
-    n.children
-  );
-  return H(e, i);
-}, W = (t, n) => {
-  const e = t.map((o) => [o.key, o]), i = n.map((o) => [o.key, o]), r = [];
-  let [c] = e.find(
-    (o) => i.map((s) => s[0]).indexOf(o[0]) != -1
-  ) || [null];
-  for (; c; )
-    b(r, e, c), _(r, i, c), r.push(
-      y(e.shift()[1], i.shift()[1])
-    ), [c] = e.find(
-      (o) => i.map((s) => s[0]).indexOf(o[0]) != -1
-    ) || [null];
-  return b(r, e, void 0), _(r, i, void 0), r;
-}, b = (t, n, e) => {
-  for (; n[0] && n[0][0] != e; )
-    n[0][1].kind == "component" && (n[0][1].instance._unmount(), n[0][1].instance = null), t.push(L()), n.shift();
-}, _ = (t, n, e) => {
-  for (; n[0] && n[0][0] != e; )
-    t.push(z(n.shift()[1]));
-};
-function a(t) {
+const P = () => "fragment", k = (t) => t.prototype instanceof H, F = (t) => t === P && t() === t(), W = (t, n, e) => ({
+  kind: "element",
+  tag: t,
+  attrs: n,
+  children: e
+}), z = (t, n) => ({
+  kind: "component",
+  attrs: n,
+  component: t
+}), A = (t, n, e) => ({
+  kind: "function",
+  attrs: n,
+  component: t,
+  children: e
+}), D = (t) => ({
+  kind: "fragment",
+  children: t
+}), y = (t) => ({
+  kind: "text",
+  value: t.toString()
+}), R = (t) => t.filter((n) => f(n)).map(
+  (n) => b(n) ? y(n) : n
+), B = (t, n = {}, ...e) => {
+  const s = R(e);
+  return b(t) && C(t) ? W(t, n, s) : l(t) ? F(t) ? D(s) : k(t) ? z(t, n) : A(t, n, s) : y(t);
+}, o = (t) => {
   if (t.kind === "text")
     return document.createTextNode(t.value);
+  if (t.kind === "function")
+    return o(t.component(t.attrs, t.children));
   if (t.kind === "component") {
     if (t.instance) {
-      const r = a(t.instance.render());
-      return t.instance._notifyMounted(r), r;
+      const i = o(t.instance.render());
+      return t.instance._notifyMounted(i), i;
     }
     t.instance = new t.component(), t.instance._initState();
-    const e = t.instance._initProps(t.attrs), i = a(e);
-    return t.instance._notifyMounted(i), i;
-  }
-  if (t.kind === "function") {
-    const e = t.component(t.attrs, t.children), i = a(e);
-    return t.children = e.children, i;
+    const e = t.instance._initVnode(t.attrs), s = o(e);
+    return t.instance._notifyMounted(s), s;
   }
   const n = document.createElement(t.tag);
   for (const e in t.attrs)
     n[e] = t.attrs[e];
-  return B(n, t.children), n;
-}
-function B(t, n) {
-  n.forEach((e) => {
-    t.appendChild(a(e));
-  });
-}
-function C(t, n) {
-  if (n.kind === "skip")
-    return t;
-  if (n.kind == "replace") {
-    const e = a(n.newNode);
-    return t == null || t.replaceWith(e), n.callback && n.callback(e), e;
-  }
-  for (const e in n.attrs.remove)
-    t.removeAttribute(e);
-  for (const e in n.attrs.set)
-    t[e] = n.attrs.set[e];
-  return I(t, n.childeren), t;
-}
-const I = (t, n) => {
-  let e = 0;
-  for (let i = 0; i < n.length; i++) {
-    const r = n[i];
-    if (r.kind == "skip")
-      continue;
-    if (r.kind == "insert") {
-      t.childNodes[i + e - 1] ? t.childNodes[i + e - 1].after(a(r.node)) : t.appendChild(a(r.node));
-      continue;
-    }
-    const c = t.childNodes[i + e];
-    if (r.kind == "remove") {
-      c.remove(), e -= 1;
-      continue;
-    }
-    C(c, r);
-  }
+  return t.children.forEach((e) => {
+    n.appendChild(o(e));
+  }), n;
+}, I = (t, n) => {
+  if (!f(t) || !k(t))
+    throw new Error("Must pass a component to render");
+  if (!f(t) || !(n instanceof Element))
+    throw new Error("Must pass a dom node to mount");
+  const e = new t();
+  e._initState();
+  const s = o(e._initVnode({}));
+  return e._notifyMounted(s), n.replaceWith(s), e;
 };
-let J = 0;
-class U {
-  constructor() {
-    this._uid = J++;
+function m(t, n) {
+  if (!t)
+    return (i) => {
+      const c = o(n);
+      return i.replaceWith(c), c;
+    };
+  if (!n)
+    return (i) => {
+      _(t.children) && p(t.children, []), i.remove();
+    };
+  if (t.kind === "text" || n.kind === "text")
+    return t.value !== n.value ? (i) => {
+      const c = o(n);
+      return i.replaceWith(c), c;
+    } : (i) => i;
+  if (t.kind === "function" && n.kind === "function")
+    return m(
+      t,
+      n.component(n.attrs, n.children)
+    );
+  if (t.kind === "component" && n.kind === "component" && t.component === n.component && t.instance)
+    return n.instance = t.instance, j(t.attrs, n.attrs), n.instance._setAttrs(n.attrs), n.instance._getDiff();
+  if (n.kind === "component")
+    return n.instance = new n.component(), n.instance._initState(), n.instance._initVnode(n.attrs), (i) => {
+      const c = o(n);
+      return i.replaceWith(c), n.instance._notifyMounted(i), c;
+    };
+  if (t.tag !== n.tag)
+    return (i) => {
+      const c = o(n);
+      return _(t.children) && p(t.children, n.children), i.replaceWith(c), c;
+    };
+  const e = U(t.attrs, n.attrs), s = q(t.children, n.children);
+  return (i) => (e(i), s(i), i);
+}
+function U(t, n) {
+  const e = {
+    remove: Object.keys(t || {}).filter(
+      (s) => !f(n[s])
+    ),
+    set: Object.keys(n || {}).filter(
+      (s) => t[s] !== n[s] && f(n[s])
+    ).reduce((s, i) => ({ ...s, [i]: n[i] }), {})
+  };
+  return (s) => {
+    for (const i of e.remove)
+      s.removeAttribute(i);
+    for (const i in e.set)
+      s[i] = e.set[i];
+  };
+}
+function q(t, n) {
+  const e = [], s = [];
+  t.forEach((i, c) => {
+    e.push(m(i, n[c]));
+  });
+  for (const i of n.slice(t.length))
+    s.push((c) => (c.appendChild(o(i)), c));
+  return (i) => {
+    if (i) {
+      for (const [c, h] of L(
+        e,
+        i.childNodes
+      ))
+        c(h);
+      for (const c of s)
+        c(i);
+    }
+    return i;
+  };
+}
+function p(t, n) {
+  let e = t.length;
+  for (; e--; ) {
+    const s = t[e];
+    if (s.kind === "component") {
+      const i = O(s, n);
+      i && p(
+        s.instance._vNode.children,
+        i.instance._vNode.children
+      ), i || s.instance._unmount();
+    }
   }
-  _getDiff() {
-    const n = this.render(), e = y(this._vNode, n);
-    return e.kind === "replace" && (e.callback = (i) => this._el = i), this._vNode = n, e;
+}
+function O(t, n) {
+  return n.find(
+    (e) => t.component === e.component
+  );
+}
+const L = (t, n) => {
+  const e = [];
+  for (let s = 0; s < Math.min(t.length, n.length); s++)
+    e.push([t[s], n[s]]);
+  return e;
+};
+let G = 0;
+class H {
+  constructor() {
+    this._isSuika = !0, this._uid = G++;
   }
   _update() {
-    this._el && (C(this._el, this._getDiff()), this._notifyUpdated());
+    if (this._el) {
+      const n = this._getDiff();
+      this._el = n(this._el), this.onUpdated();
+    }
+  }
+  _getDiff() {
+    const n = this.render(), e = m(this._vNode, n);
+    return this._vNode = n, e;
+  }
+  _initVnode(n) {
+    return this._setAttrs(n), this._vNode = this.render(), this._vNode;
   }
   _initState() {
-    this.state = P(this.state || {}, this._update.bind(this));
+    this.state = d(this.state || {}, this._update.bind(this));
+  }
+  _setAttrs(n) {
+    this.attrs = n;
+  }
+  _notifyMounted(n) {
+    this._el = n, this._mounted = !0, this.onMounted();
   }
   _unmount() {
     this.beforeUnmount(), this._el = null;
   }
-  _notifyMounted(n) {
-    this._el = n, setTimeout(() => this.onMounted());
-  }
-  _notifyUpdated() {
-    setTimeout(() => this.onUpdated());
-  }
   onMounted() {
-  }
-  onUpdated() {
   }
   beforeUnmount() {
   }
-}
-class et extends U {
-  constructor() {
-    super();
-  }
-  _mount(n) {
-    this._el = n, this._mounted = !0, this._initState(), this._update();
+  onUpdated() {
   }
 }
-class Q extends U {
-  constructor() {
-    super();
-  }
-  _initProps(n) {
-    return this.props = n, this._vNode = this.render(), this._vNode;
-  }
-  _setProps(n) {
-    return this.props = n, this.willGetProps(this.props, this.state), this._getDiff();
-  }
-  willGetProps(n, e) {
-    return this.state;
-  }
-}
-const X = () => "FRAGMENT", Y = (t) => m(t) ? M(t) : t, Z = (t) => t.prototype instanceof Q, $ = (t) => t === X, N = (t, n, e) => {
-  n || (n = {});
-  const i = n.key;
-  return delete n.key, {
-    tag: t,
-    attrs: n,
-    children: e,
-    key: i,
-    kind: "element"
-  };
-}, w = (t, n) => {
-  const e = n.key;
-  return delete n.key, {
-    attrs: n,
-    key: e,
-    kind: "component",
-    component: t,
-    tag: void 0,
-    children: []
-  };
-}, V = (t, n, e) => {
-  const i = n.key;
-  return delete n.key, {
-    attrs: n,
-    key: i,
-    kind: "function",
-    component: t,
-    tag: void 0,
-    children: e
-  };
-}, M = (t, n = "") => ({
-  key: n,
-  kind: "text",
-  value: t.toString(),
-  children: []
-}), tt = (t, n, e) => {
-  n || (n = {});
-  const i = n.key;
-  return delete n.key, {
-    key: i,
-    tag: t,
-    kind: "fragment",
-    attrs: n,
-    children: e
-  };
-}, it = (t, n, ...e) => {
-  if (m(t) && v(t)) {
-    const i = e.map(Y);
-    return N(t, n, i);
-  } else
-    return f(t) ? $(t) ? tt(t(), n, e) : Z(t) ? w(t, n || {}) : V(t, n || {}, e) : M(t);
-}, rt = (t, n) => {
-  const e = new t();
-  return e._mount(n), e;
-}, st = "1.1.0";
+const J = "1.1.1";
 export {
-  Q as Component,
-  X as Fragment,
-  et as Suika,
-  y as diff,
-  it as h,
-  rt as mount,
-  P as observable,
-  C as patch,
-  a as render,
-  nt as utils,
-  st as version
+  H as Component,
+  P as Fragment,
+  B as h,
+  I as mount,
+  J as version
 };

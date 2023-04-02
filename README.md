@@ -1,6 +1,6 @@
 # Suika ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/JonWatkins/suika/main.yml) ![npm](https://img.shields.io/npm/v/suika) ![GitHub](https://img.shields.io/github/license/JonWatkins/suika) [![codecov](https://codecov.io/gh/JonWatkins/suika/branch/main/graph/badge.svg?token=CZ8QB5X8S5)](https://codecov.io/gh/JonWatkins/suika)
 
-Suika is a lightweight component based `Javascript` library for building user interfaces, that relies on a virtual DOM with keyed diffs with `JSX` support.
+Suika is a lightweight component based `Javascript` library for building user interfaces, that relies on a virtual DOM with `JSX` support.
 
 ## Installation
 
@@ -46,37 +46,37 @@ export default defineConfig(() => {
 
 ```jsx
 import { App, Component, mount } from "suika";
-import logoImg from './public/images/logo.png'
-import './scss/styles.scss'
+import logoImg from "./public/images/logo.png";
+import "./scss/styles.scss";
 
-const root = document.getElementById("app");
+const Title = (props, children) => <h1 className="title">{...children}</h1>;
 
-class Counter extends Component {
+const Button = ({ inc, text }, children) => (
+  <button onclick={() => inc()}>{...children}</button>
+);
+
+const Counter = ({ count, inc }) => (
+  <div id="counter">
+    <Title>Count: {count.toString()}</Title>
+    <Button inc={inc}>Inc</Button>
+  </div>
+);
+
+export default class App extends Component {
   constructor() {
     super();
   }
   state = {
     count: 0,
-  }
-  render() {
-    return (
-      <div id="counter">
-        <h1>Count: {this.state.count}</h1>
-        <button onclick={() => ++this.state.count}>inc</button>
-      </div>
-    );
-  }
-}
-
-class App extends Suika {
-  constructor() {
-    super();
+  };
+  inc() {
+    this.state.count++;
   }
   render() {
     return (
       <div id="container">
         <img src={logoImg}>
-        <Counter />
+        <Counter count={this.state.count} inc={() => this.inc()} />
       </div>
     );
   }
@@ -94,53 +94,18 @@ You don't have to use `Typescript` to use Suika, you can use plain old `JavaScri
 <script type="text/javascript">
   const root = document.getElementById("app");
 
-  class App extends suika.App {
+  class App extends suika.Component {
     render() {
       return suika.h(
         "div",
         { key: "container" },
-        suika.h("h1", { key: "title" }, "Hello World")
+        suika.h("h1", { id: "title" }, "Hello World")
       );
     }
   }
 
   suika.mount(App, root);
 </script>
-```
-
-## Stateless components
-
-You can also use functions as components instead of extending the `Component` class if you just need a stateless component.
-
-```jsx
-const Header = ({ title }) => <h1>{title}</h1>;
-
-const Body = ({ content }) => <p>{content}</p>;
-
-const Footer = ({ text }) => <small>{text}</small>;
-
-const Page = ({ title, content, text }) => (
-  <div id="page">
-    <Header title={title} />
-    <Body content={content} />
-    <Footer text={text} />
-  </div>
-);
-```
-
-```js
-const Header = ({ title }) => h("h1", {}, title);
-const Body = ({ content }) => h("p", {}, content);
-const Footer = ({ text }) => h("small", {}, text);
-
-const Page = ({ title, content, text }) =>
-  h(
-    "div",
-    { id: "page" },
-    h(Header, { title }),
-    h(Body, { content }),
-    h(Footer, { text })
-  );
 ```
 
 Suika is [MIT licensed](./LICENSE).

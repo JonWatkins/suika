@@ -50,6 +50,10 @@ export const isString = (value: any): boolean => {
   return typeof value === "string";
 };
 
+export const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 export default function makeMap(str: string, lowerCase?: boolean): MapHas {
   const map = new Map();
   const list = str.split(",");

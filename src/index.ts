@@ -1,10 +1,4 @@
-export { Suika } from "./core/Suika";
-export { Component } from "./core/Component";
-export { h, Fragment } from "./vdom/h";
-export { render } from "./vdom/render";
-export { mount } from "./vdom/mount";
-export { diff } from "./vdom/diff";
-export { patch } from "./vdom/patch";
-export { observable } from "./lib/observable";
-export * as utils from "./lib/utils";
+export { Component } from "./Component";
+export { h, Fragment } from "./vdom";
+export { mount } from "./render";
 export { version } from "../package.json";

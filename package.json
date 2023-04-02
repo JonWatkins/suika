@@ -21,7 +21,6 @@
     "lint:fix": "eslint ./src --ext .jsx,.js,.ts,.tsx --quiet --fix",
     "lint": "npm run lint:format && npm run lint:fix ",
     "test": "jest",
-    "dev": "cross-env NODE_ENV=development vite",
     "producion": "cross-env NODE_ENV=production vite build",
     "preview": "cross-env NODE_ENV=production vite preview",
     "build": "npm run lint && npm run test && npm run producion"
