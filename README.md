@@ -7,7 +7,7 @@ Suika is a lightweight component based `Javascript` library for building user in
 You can use as a `suika` package on `npm`
 
 ```bash
-npm install@latest suika
+npm install suika@latest
 ```
 
 Or you can use Suika as a `<script>` tag from a CDN.
