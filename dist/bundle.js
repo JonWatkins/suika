@@ -244,7 +244,7 @@ class H {
   onUpdated() {
   }
 }
-const J = "1.1.1";
+const J = "1.2.4";
 export {
   H as Component,
   P as Fragment,
