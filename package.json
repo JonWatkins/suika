@@ -1,6 +1,6 @@
 {
   "name": "suika",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Suika is a lightweight component based Javascript library for building user interfaces",
   "homepage": "https://jonwatkins.github.io/suika/",
   "author": "Jon Watkins <jwatkins@gmail.com>",
@@ -14,7 +14,8 @@
   },
   "main": "dist/bundle.umd.cjs",
   "browser": "dist/bundle.umd.cjs",
-  "module": "src/index.ts",
+  "module": "src/bundle.js",
+  "types": "types/index.d.ts",
   "type": "module",
   "scripts": {
     "lint:format": "prettier  --loglevel warn --write \"./**/*.{js,jsx,ts,tsx,css,md,json}\" ",
@@ -23,7 +24,8 @@
     "test": "jest",
     "production": "cross-env NODE_ENV=production vite build",
     "preview": "cross-env NODE_ENV=production vite preview",
-    "build": "npm run lint && npm run test && npm run production"
+    "build": "npm run lint && npm run test && npm run production",
+    "types": "tsc"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
@@ -44,7 +46,7 @@
   },
   "files": [
     "dist",
-    "src"
+    "types"
   ],
   "keywords": [
     "suika",
