@@ -1,6 +1,6 @@
 {
   "name": "suika",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Suika is a lightweight component based Javascript library for building user interfaces",
   "homepage": "https://jonwatkins.github.io/suika/",
   "author": "Jon Watkins <jwatkins@gmail.com>",
@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/JonWatkins/suika/issues"
   },
-  "main": "dist/bundle.umd.js",
+  "main": "dist/bundle.umd.cjs",
   "browser": "dist/bundle.umd.js",
   "module": "src/index.ts",
   "type": "module",
