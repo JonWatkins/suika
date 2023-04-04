@@ -1,19 +1,16 @@
-import { h } from "../src/vdom";
+import { h, vComponent } from "../src/vdom";
 import { render, mount } from "../src/render";
 import { Component } from "../src/Component";
 
 describe("render", () => {
   it("Should render a basic vDomNode", () => {
-    // @ts-ignore:next-line
     const vDomNode = h("div");
-    const el = render(vDomNode);
+    const el = render(vDomNode) as HTMLElement;
     expect(el.nodeName).toEqual("DIV");
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 
   it("should be able to render text nodes", () => {
-    // @ts-ignore:next-line
     const vDomNode = h("hello");
     const el = render(vDomNode);
     expect(el.nodeName).toEqual("#text");
@@ -22,38 +19,31 @@ describe("render", () => {
 
   it("should be able to add attributes to a node", () => {
     const vDomNode = h("div", { id: "container" });
-    const el = render(vDomNode);
+    const el = render(vDomNode) as HTMLElement;
     expect(el.nodeName).toEqual("DIV");
-    // @ts-ignore:next-line
     expect(el.id).toEqual("container");
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 
   it("should be able to add event handlers to a node", () => {
     const spy = jest.fn();
     const vDomNode = h("button", { onclick: spy });
-    const el = render(vDomNode);
+    const el = render(vDomNode) as HTMLElement;
 
-    // @ts-ignore:next-line
     el.click();
     expect(spy).toHaveBeenCalled();
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 
   it("should be able to render child nodes", () => {
-    // @ts-ignore:next-line
     const vDomNode = h("div", { id: "container" }, h("h1", {}, "Hello World"));
-    const el = render(vDomNode);
-    // @ts-ignore:next-line
+    const el = render(vDomNode) as HTMLElement;
     expect(el.outerHTML).toMatchSnapshot();
   });
 
   it("should be able to handle function child nodes", () => {
     const Title = ({ id, text }) => h("h1", { id }, text);
-    const el = render(h(Title, { id: "1", text: "hello" }));
-    // @ts-ignore:next-line
+    const el = render(h(Title, { id: "1", text: "hello" })) as HTMLElement;
     expect(el.outerHTML).toMatchSnapshot();
   });
 
@@ -61,7 +51,6 @@ describe("render", () => {
     const mountedSpy = jest.fn();
     const stateSpy = jest.fn();
 
-    // @ts-ignore:next-line
     class Ctx extends Component {
       constructor() {
         super();
@@ -76,38 +65,31 @@ describe("render", () => {
         mountedSpy();
       }
     }
-    // @ts-ignore:next-line
     const vDomNode = h(Ctx);
-    const el = render(vDomNode);
+    const el = render(vDomNode) as HTMLElement;
     expect(stateSpy).toHaveBeenCalled();
     expect(mountedSpy).toHaveBeenCalled();
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 
   it("should be able to render a component that already has an instance", () => {
     const mountedSpy = jest.fn();
-    // @ts-ignore:next-line
     class Ctx extends Component {
       constructor() {
         super();
       }
       render() {
-        // @ts-ignore:next-line
         return h("div", {}, h("h1", {}, "Hello World"));
       }
       _notifyMounted() {
         mountedSpy();
       }
     }
-    // @ts-ignore:next-line
-    const vDomNode = h(Ctx);
-    // @ts-ignore:next-line
+    const vDomNode = h(Ctx) as vComponent;
     vDomNode.instance = new vDomNode.component();
 
-    const el = render(vDomNode);
+    const el = render(vDomNode) as HTMLElement;
     expect(mountedSpy).toHaveBeenCalled();
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 

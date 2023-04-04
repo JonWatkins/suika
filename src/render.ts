@@ -21,13 +21,13 @@ export const render = (rootNode: vNode): HTMLElement | Text => {
       return el;
     }
 
-    rootNode.instance = new rootNode.component();
+    rootNode.instance = new rootNode.component() as Component;
     rootNode.instance._initState();
 
     const vNode = rootNode.instance._initVnode(rootNode.attrs);
     const el = render(vNode);
 
-    rootNode.instance._notifyMounted(el);
+    rootNode.instance._notifyMounted(el as HTMLElement);
     return el;
   }
 

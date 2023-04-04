@@ -1,8 +1,9 @@
-import { string } from "yargs";
 import { Component } from "./Component";
 import { isReservedTag, isDef } from "./utils";
 
-export type vAttrs = object;
+export type vAttrs = {
+  [_: string]: string | number | boolean | Function;
+};
 
 export interface vText {
   kind: "text";
@@ -35,7 +36,7 @@ export interface vComponent {
   attrs: vAttrs;
 }
 
-export type vNode = vText | vElement | vFragment | vFunction | vComponent;
+export type vNode = vText | vElement | vFunction | vComponent;
 
 export const Fragment = (): string => "fragment";
 
@@ -124,7 +125,10 @@ export const h = (
     return createElement(tag, attrs, normalized);
   } else if (typeof tag === "function") {
     if (isFragment(tag)) {
-      return createFragment(normalized);
+      // for now we are going to treat fragments as <fragment>
+      //elements untill fragments get a proper implementation.
+      //return createFragment(normalized);
+      return createElement("fragment", attrs, normalized);
     } else if (isComponent(tag)) {
       return createComponent(tag, attrs);
     } else {

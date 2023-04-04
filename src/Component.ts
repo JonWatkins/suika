@@ -1,17 +1,17 @@
 import { observable } from "./observable";
 import { diff } from "./diff";
-import type { vNode } from "./vdom";
+import type { vNode, vAttrs } from "./vdom";
 
 let uid = 0;
 
 export abstract class Component {
-  protected _uid: number;
-  protected _el: HTMLElement | Text | null;
-  protected _vNode: object | null;
-  protected _mounted: boolean;
-  protected state: object;
-  protected attrs: object;
-  protected _isSuika: boolean;
+  public _el: HTMLElement | Text | null;
+  public _vNode: object | null;
+  public _mounted: boolean;
+  public state: object;
+  public attrs: vAttrs;
+  public _isSuika: boolean;
+  public _uid: number;
 
   constructor() {
     this._uid = uid++;
@@ -38,17 +38,18 @@ export abstract class Component {
     return patch;
   }
 
-  public _initVnode(attrs: object) {
+  public _initVnode(attrs: vAttrs): vNode {
     this._setAttrs(attrs);
-    this._vNode = this.render();
-    return this._vNode;
+    const vNode = this.render();
+    this._vNode = vNode;
+    return vNode;
   }
 
   public _initState() {
     this.state = observable(this.state, this._update.bind(this));
   }
 
-  public _setAttrs(attrs: object) {
+  public _setAttrs(attrs: vAttrs) {
     this.attrs = attrs;
   }
 

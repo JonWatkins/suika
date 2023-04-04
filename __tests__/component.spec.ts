@@ -37,7 +37,7 @@ describe("Component", () => {
       }
     }
 
-    const el = render(h(Ctx, {}));
+    const el = render(h(Ctx, {})) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
   });
@@ -55,7 +55,7 @@ describe("Component", () => {
       }
     }
 
-    const vDom = h(Ctx, {});
+    const vDom = h(Ctx, {}) as vComponent;
 
     el = render(vDom);
 
@@ -74,7 +74,7 @@ describe("Component", () => {
       }
     }
 
-    const vDom = h(Ctx, {});
+    const vDom = h(Ctx, {}) as vComponent;
 
     el = render(vDom);
 
@@ -101,7 +101,7 @@ describe("Component", () => {
       }
     }
 
-    const vDom = h(Ctx, {});
+    const vDom = h(Ctx, {}) as vComponent;
 
     el = render(vDom);
 
@@ -126,7 +126,7 @@ describe("Component", () => {
       }
     }
 
-    const vDom = h(Ctx, {});
+    const vDom = h(Ctx, {}) as vComponent;
 
     el = render(vDom);
 
@@ -149,7 +149,7 @@ describe("Component", () => {
 
     const newVnode = h("div", {});
 
-    let el = (render(oldVnode) as HTMLElement);
+    let el = render(oldVnode) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
 
@@ -207,8 +207,8 @@ describe("Component", () => {
       }
     }
 
-    const vDom = (h(Ctx, {}) as vComponent);
-    const el = (render(vDom) as HTMLElement);
+    const vDom = h(Ctx, {}) as vComponent;
+    const el = render(vDom) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
 

@@ -24,7 +24,7 @@
     "test": "jest",
     "production": "cross-env NODE_ENV=production vite build",
     "preview": "cross-env NODE_ENV=production vite preview",
-    "build": "npm run lint && npm run test && npm run production",
+    "build": "npm run lint && npm run test && npm run types && npm run production",
     "types": "tsc"
   },
   "devDependencies": {
