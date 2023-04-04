@@ -9,7 +9,7 @@ export function isDef(value: any): boolean {
 }
 
 export const isObject = (value: any): boolean => {
-  return value !== null && typeof value === "object";
+  return isDef(value) && typeof value === "object";
 };
 
 export const isEqual = (a: any, b: any): boolean => {

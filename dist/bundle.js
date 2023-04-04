@@ -4,10 +4,10 @@ var d = (t, n, e) => (P(t, typeof n != "symbol" ? n + "" : n, e), e);
 function M(t) {
   return t == null;
 }
-function m(t) {
+function h(t) {
   return t != null;
 }
-const _ = (t) => t !== null && typeof t == "object", y = (t, n) => t && n && _(t) && _(n) && typeof t == typeof n ? Object.keys(t).length === Object.keys(n).length && Object.keys(t).every((e) => y(t[e], n[e])) : t === n;
+const _ = (t) => h(t) && typeof t == "object", y = (t, n) => t && n && _(t) && _(n) && typeof t == typeof n ? Object.keys(t).length === Object.keys(n).length && Object.keys(t).every((e) => y(t[e], n[e])) : t === n;
 function b(t, n) {
   const e = /* @__PURE__ */ new Map(), i = t.split(",");
   for (let s = 0; s < i.length; s++)
@@ -26,7 +26,7 @@ const x = b(
 ), J = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: b,
-  isDef: m,
+  isDef: h,
   isEqual: y,
   isHTMLTag: x,
   isObject: _,
@@ -64,11 +64,11 @@ function g(t, n, e = []) {
       name: a,
       value: l
     }), u;
-  }, h = (o, a, l) => Reflect.get(o, a, l);
+  }, m = (o, a, l) => Reflect.get(o, a, l);
   return new Proxy(t, {
     deleteProperty: s,
     set: c,
-    get: h
+    get: m
   });
 }
 const z = () => "fragment", S = (t) => t.prototype instanceof G, A = (t) => t === z && t() === t(), U = (t, n, e) => ({
@@ -94,7 +94,7 @@ const z = () => "fragment", S = (t) => t.prototype instanceof G, A = (t) => t ==
 }), E = (t) => ({
   kind: "text",
   value: t.toString()
-}), R = (t) => t.filter((n) => m(n)).map((n) => {
+}), R = (t) => t.filter((n) => h(n)).map((n) => {
   let e;
   return typeof n == "string" ? e = E(n) : e = n, e;
 }), K = (t, n = {}, ...e) => {
@@ -121,9 +121,9 @@ const z = () => "fragment", S = (t) => t.prototype instanceof G, A = (t) => t ==
     n.appendChild(f(e));
   }), n;
 }, Q = (t, n) => {
-  if (!m(t) || !S(t))
+  if (!h(t) || !S(t))
     throw new Error("Must pass a component to mount");
-  if (!m(t) || !(n instanceof HTMLElement))
+  if (!h(t) || !(n instanceof HTMLElement))
     throw new Error("Must pass a dom node to mount");
   const e = new t();
   e._initState();
@@ -168,7 +168,7 @@ function k(t, n) {
     attrs: s
   } = t, {
     tag: c,
-    children: h,
+    children: m,
     attrs: o
   } = n;
   if (e !== c)
@@ -176,14 +176,14 @@ function k(t, n) {
       const u = f(n);
       return r.replaceWith(u), u;
     };
-  const a = q(s, o), l = L(i, h);
+  const a = q(s, o), l = L(i, m);
   return (r) => (a(r), l(r), r);
 }
 function q(t, n) {
   const e = {
     remove: Object.keys(t).filter((i) => M(n[i])),
     set: Object.keys(n).filter(
-      (i) => t[i] !== n[i] && m(n[i])
+      (i) => t[i] !== n[i] && h(n[i])
     ).reduce((i, s) => ({ ...i, [s]: n[s] }), {})
   };
   return (i) => {
@@ -201,11 +201,11 @@ function L(t, n) {
   for (const s of n.slice(t.length))
     i.push((c) => (c.appendChild(f(s)), c));
   return (s) => {
-    for (const [c, h] of H(
+    for (const [c, m] of H(
       e,
       Array.from(s.childNodes)
     ))
-      c(h);
+      c(m);
     for (const c of i)
       c(s);
     return s;
@@ -220,13 +220,13 @@ const H = (t, n) => {
 let B = 0;
 class G {
   constructor() {
+    d(this, "_uid");
     d(this, "_el");
     d(this, "_vNode");
     d(this, "_mounted");
+    d(this, "_isSuika");
     d(this, "state");
     d(this, "attrs");
-    d(this, "_isSuika");
-    d(this, "_uid");
     this._uid = B++, this._el = null, this._vNode = null, this._mounted = !1, this._isSuika = !0, this.state = {}, this.attrs = {};
   }
   _update() {

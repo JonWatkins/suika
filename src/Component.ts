@@ -11,13 +11,13 @@ export interface BaseState {
 let uid = 0;
 
 export abstract class Component {
+  public _uid: number;
   public _el: HTMLElement | Text | null;
   public _vNode: vNode | null;
   public _mounted: boolean;
+  public _isSuika: boolean;
   public state: Observable | BaseState;
   public attrs: vAttrs;
-  public _isSuika: boolean;
-  public _uid: number;
 
   constructor() {
     this._uid = uid++;

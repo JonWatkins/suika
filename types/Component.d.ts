@@ -5,13 +5,13 @@ export interface BaseState {
     [_: string]: any;
 }
 export declare abstract class Component {
+    _uid: number;
     _el: HTMLElement | Text | null;
     _vNode: vNode | null;
     _mounted: boolean;
+    _isSuika: boolean;
     state: Observable | BaseState;
     attrs: vAttrs;
-    _isSuika: boolean;
-    _uid: number;
     constructor();
     _update(): void;
     _getDiff(): Function;
