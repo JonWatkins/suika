@@ -1,23 +1,12 @@
 var O = Object.defineProperty;
 var P = (t, n, e) => n in t ? O(t, n, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[n] = e;
 var d = (t, n, e) => (P(t, typeof n != "symbol" ? n + "" : n, e), e);
-function M(t) {
-  return t == null;
-}
-function h(t) {
-  return t != null;
-}
-const _ = (t) => h(t) && typeof t == "object", y = (t, n) => t && n && _(t) && _(n) && typeof t == typeof n ? Object.keys(t).length === Object.keys(n).length && Object.keys(t).every((e) => y(t[e], n[e])) : t === n;
-function b(t, n) {
-  const e = /* @__PURE__ */ new Map(), i = t.split(",");
-  for (let s = 0; s < i.length; s++)
-    e.set(i[s], !0);
-  return (s) => e.has(n ? s.toLowerCase() : s);
-}
-function j(t) {
-  return x(t) || C(t);
-}
-const x = b(
+const M = (t) => t == null, h = (t) => t != null, _ = (t) => h(t) && typeof t == "object", y = (t, n) => t && n && _(t) && _(n) && typeof t == typeof n ? Object.keys(t).length === Object.keys(n).length && Object.keys(t).every((e) => y(t[e], n[e])) : t === n, b = (t, n) => {
+  const e = /* @__PURE__ */ new Map(), s = t.split(",");
+  for (let i = 0; i < s.length; i++)
+    e.set(s[i], !0);
+  return (i) => e.has(n ? i.toLowerCase() : i);
+}, j = (t) => x(t) || C(t), x = b(
   "html,body,base,head,link,meta,style,title,address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,s,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,embed,object,param,source,canvas,script,noscript,del,ins,caption,col,colgroup,table,thead,tbody,td,th,tr,button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,output,progress,select,textarea,details,dialog,menu,menuitem,summary,content,element,shadow,template,blockquote,iframe,tfoot",
   !0
 ), C = b(
@@ -25,53 +14,51 @@ const x = b(
   !0
 ), J = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: b,
   isDef: h,
   isEqual: y,
   isHTMLTag: x,
   isObject: _,
   isReservedTag: j,
   isSVG: C,
-  isUndef: M
-}, Symbol.toStringTag, { value: "Module" }));
-function g(t, n, e = []) {
+  isUndef: M,
+  makeMap: b
+}, Symbol.toStringTag, { value: "Module" })), g = (t, n, e = []) => {
   if (!_(t))
     return t;
-  const i = (o) => e.concat(o).join(".");
+  const s = (o) => e.concat(o).join(".");
   for (const o in t)
     t[o] = g(
       t[o],
       n,
       e.concat(o)
     );
-  const s = (o, a) => {
-    const l = Reflect.deleteProperty(o, a);
+  const i = (o, u) => {
+    const f = Reflect.deleteProperty(o, u);
     return typeof n == "function" && n({
-      path: i(a),
+      path: s(u),
       target: o,
-      name: a
-    }), l;
-  }, c = (o, a, l, r) => {
-    const u = Reflect.set(
+      name: u
+    }), f;
+  }, c = (o, u, f, r) => {
+    const a = Reflect.set(
       o,
-      a,
-      g(l, n),
+      u,
+      g(f, n),
       r
     );
     return typeof n == "function" && n({
-      path: i(a),
+      path: s(u),
       target: o,
-      name: a,
-      value: l
-    }), u;
-  }, m = (o, a, l) => Reflect.get(o, a, l);
+      name: u,
+      value: f
+    }), a;
+  }, m = (o, u, f) => Reflect.get(o, u, f);
   return new Proxy(t, {
-    deleteProperty: s,
+    deleteProperty: i,
     set: c,
     get: m
   });
-}
-const z = () => "fragment", S = (t) => t.prototype instanceof G, A = (t) => t === z && t() === t(), U = (t, n, e) => ({
+}, z = () => "fragment", S = (t) => t.prototype instanceof G, A = (t) => t === z && t() === t(), U = (t, n, e) => ({
   kind: "element",
   tag: t,
   attrs: n,
@@ -98,27 +85,27 @@ const z = () => "fragment", S = (t) => t.prototype instanceof G, A = (t) => t ==
   let e;
   return typeof n == "string" ? e = E(n) : e = n, e;
 }), K = (t, n = {}, ...e) => {
-  const i = R(e);
-  return typeof t == "string" && j(t) ? U(t, n, i) : typeof t == "function" ? A(t) ? F(i) : S(t) ? W(t, n) : D(t, n, i) : E(t);
-}, f = (t) => {
+  const s = R(e);
+  return typeof t == "string" && j(t) ? U(t, n, s) : typeof t == "function" ? A(t) ? F(s) : S(t) ? W(t, n) : D(t, n, s) : E(t);
+}, l = (t) => {
   if (t.kind === "text")
     return document.createTextNode(t.value);
   if (t.kind === "function")
-    return f(t.component(t.attrs, t.children));
+    return l(t.component(t.attrs, t.children));
   if (t.kind === "component") {
     if (t.instance) {
-      const s = f(t.instance.render());
-      return t.instance._notifyMounted(s), s;
+      const i = l(t.instance.render());
+      return t.instance._notifyMounted(i), i;
     }
     t.instance = new t.component(), t.instance._initState();
-    const e = t.instance._initVnode(t.attrs), i = f(e);
-    return t.instance._notifyMounted(i), i;
+    const e = t.instance._initVnode(t.attrs), s = l(e);
+    return t.instance._notifyMounted(s), s;
   }
   const n = document.createElement(t.tag);
   for (const e in t.attrs)
     n[e] = t.attrs[e];
   return t.children.forEach((e) => {
-    n.appendChild(f(e));
+    n.appendChild(l(e));
   }), n;
 }, Q = (t, n) => {
   if (!h(t) || !S(t))
@@ -127,24 +114,23 @@ const z = () => "fragment", S = (t) => t.prototype instanceof G, A = (t) => t ==
     throw new Error("Must pass a dom node to mount");
   const e = new t();
   e._initState();
-  const i = f(e._initVnode({}));
-  return e._notifyMounted(i), n.replaceWith(i), e;
-};
-function k(t, n) {
+  const s = l(e._initVnode({}));
+  return e._notifyMounted(s), n.replaceWith(s), e;
+}, k = (t, n) => {
   if (!t)
     return (r) => {
       if (n) {
-        const u = f(n);
-        return r.replaceWith(u), u;
+        const a = l(n);
+        return r.replaceWith(a), a;
       } else
         return r;
     };
   if (!n)
     return (r) => (t.kind, r.remove(), null);
   if (t.kind === "text" || n.kind === "text") {
-    const { value: r } = t, { value: u } = n;
-    return r !== u ? (p) => {
-      const v = f(n);
+    const { value: r } = t, { value: a } = n;
+    return r !== a ? (p) => {
+      const v = l(n);
       return p.replaceWith(v), v;
     } : (p) => p;
   }
@@ -157,15 +143,15 @@ function k(t, n) {
     return n.instance = t.instance, y(t.attrs, n.attrs) ? (r) => r : (n.instance._setAttrs(n.attrs), n.instance._getDiff());
   if (n.kind === "component") {
     const r = new n.component();
-    return n.instance, r._initState(), r._initVnode(n.attrs), (u) => {
-      const p = f(n);
-      return u.replaceWith(p), r._notifyMounted(u), p;
+    return n.instance, r._initState(), r._initVnode(n.attrs), (a) => {
+      const p = l(n);
+      return a.replaceWith(p), r._notifyMounted(a), p;
     };
   }
   const {
     tag: e,
-    children: i,
-    attrs: s
+    children: s,
+    attrs: i
   } = t, {
     tag: c,
     children: m,
@@ -173,48 +159,45 @@ function k(t, n) {
   } = n;
   if (e !== c)
     return (r) => {
-      const u = f(n);
-      return r.replaceWith(u), u;
+      const a = l(n);
+      return r.replaceWith(a), a;
     };
-  const a = q(s, o), l = L(i, m);
-  return (r) => (a(r), l(r), r);
-}
-function q(t, n) {
+  const u = q(i, o), f = L(s, m);
+  return (r) => (u(r), f(r), r);
+}, q = (t, n) => {
   const e = {
-    remove: Object.keys(t).filter((i) => M(n[i])),
+    remove: Object.keys(t).filter((s) => M(n[s])),
     set: Object.keys(n).filter(
-      (i) => t[i] !== n[i] && h(n[i])
-    ).reduce((i, s) => ({ ...i, [s]: n[s] }), {})
+      (s) => t[s] !== n[s] && h(n[s])
+    ).reduce((s, i) => ({ ...s, [i]: n[i] }), {})
   };
-  return (i) => {
-    for (const s of e.remove)
-      i.removeAttribute(s);
-    for (const s in e.set)
-      i[s] = e.set[s];
-  };
-}
-function L(t, n) {
-  const e = [], i = [];
-  t.forEach((s, c) => {
-    e.push(k(s, n[c]));
-  });
-  for (const s of n.slice(t.length))
-    i.push((c) => (c.appendChild(f(s)), c));
   return (s) => {
+    for (const i of e.remove)
+      s.removeAttribute(i);
+    for (const i in e.set)
+      s[i] = e.set[i];
+  };
+}, L = (t, n) => {
+  const e = [], s = [];
+  t.forEach((i, c) => {
+    e.push(k(i, n[c]));
+  });
+  for (const i of n.slice(t.length))
+    s.push((c) => (c.appendChild(l(i)), c));
+  return (i) => {
     for (const [c, m] of H(
       e,
-      Array.from(s.childNodes)
+      Array.from(i.childNodes)
     ))
       c(m);
-    for (const c of i)
-      c(s);
-    return s;
+    for (const c of s)
+      c(i);
+    return i;
   };
-}
-const H = (t, n) => {
+}, H = (t, n) => {
   const e = [];
-  for (let i = 0; i < Math.min(t.length, n.length); i++)
-    e.push([t[i], n[i]]);
+  for (let s = 0; s < Math.min(t.length, n.length); s++)
+    e.push([t[s], n[s]]);
   return e;
 };
 let B = 0;

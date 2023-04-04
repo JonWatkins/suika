@@ -1,13 +1,16 @@
 import { render } from "./render";
 import { isDef, isUndef, isEqual } from "./utils";
-import { vNode, vAttrs, vText, vElement } from "./vdom";
+import { vNode, vAttrs, vText, vElement, vComponent } from "./vdom";
 
 export type AttrsUpdater = {
   set: vAttrs;
   remove: string[];
 };
 
-export function diff(oldVTree: vNode | null, newVTree: vNode | null): Function {
+export const diff = (
+  oldVTree: vNode | null,
+  newVTree: vNode | null
+): Function => {
   if (!oldVTree) {
     return (node: HTMLElement): HTMLElement => {
       if (newVTree) {
@@ -112,9 +115,9 @@ export function diff(oldVTree: vNode | null, newVTree: vNode | null): Function {
     patchChildNodes(node);
     return node;
   };
-}
+};
 
-export function diffAttrs(oldAttrs: vAttrs, newAttrs: vAttrs) {
+export const diffAttrs = (oldAttrs: vAttrs, newAttrs: vAttrs) => {
   const attrs: AttrsUpdater = {
     remove: Object.keys(oldAttrs).filter((attr) => isUndef(newAttrs[attr])),
     set: Object.keys(newAttrs)
@@ -133,9 +136,12 @@ export function diffAttrs(oldAttrs: vAttrs, newAttrs: vAttrs) {
       (node as any)[attr] = attrs.set[attr];
     }
   };
-}
+};
 
-export function diffChildNodes(oldChildNodes: vNode[], newChildNodes: vNode[]) {
+export const diffChildNodes = (
+  oldChildNodes: vNode[],
+  newChildNodes: vNode[]
+) => {
   const childNodePatches: Array<Function> = [];
   const additionalPatches: Array<Function> = [];
 
@@ -164,11 +170,15 @@ export function diffChildNodes(oldChildNodes: vNode[], newChildNodes: vNode[]) {
 
     return parent;
   };
-}
+};
 
-export function unmountChildNodes(oldNode: vNode, newNode: vNode | null) {
-  //console.log(oldNode, newNode);
-}
+export const unmountChildNodes = (
+  oldTree: vNode,
+  newTree: vNode | null,
+  toUnmount: Array<vComponent> = []
+) => {
+  // TODO: implment unmount hooks
+};
 
 export const zip = (xs: Array<any>, ys: Array<any>) => {
   const zipped = [];

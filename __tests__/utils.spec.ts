@@ -1,4 +1,4 @@
-import makeMap, * as utils from "../src/utils";
+import * as utils from "../src/utils";
 
 const HTML_ELEMENTS = [
   "html",
@@ -193,7 +193,7 @@ describe("utils", () => {
   describe("utils.makeMap", () => {
     it("should be able to make a map object from a string", () => {
       const str = "one,two,four";
-      const map = makeMap(str);
+      const map = utils.makeMap(str);
       expect(map("one")).toEqual(true);
       expect(map("two")).toEqual(true);
       expect(map("three")).toEqual(false);
@@ -202,7 +202,7 @@ describe("utils", () => {
 
     it("should be able to check with lowercase", () => {
       const str = "one,two,four";
-      const map = makeMap(str, true);
+      const map = utils.makeMap(str, true);
       expect(map("One")).toEqual(true);
       expect(map("Two")).toEqual(true);
       expect(map("Three")).toEqual(false);

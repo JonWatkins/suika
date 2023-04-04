@@ -1,12 +1,12 @@
 export type MapHas = (value: any) => boolean;
 
-export function isUndef(value: any): boolean {
+export const isUndef = (value: any): boolean => {
   return value === undefined || value === null;
-}
+};
 
-export function isDef(value: any): boolean {
+export const isDef = (value: any): boolean => {
   return value !== undefined && value !== null;
-}
+};
 
 export const isObject = (value: any): boolean => {
   return isDef(value) && typeof value === "object";
@@ -19,7 +19,7 @@ export const isEqual = (a: any, b: any): boolean => {
     : a === b;
 };
 
-export default function makeMap(str: string, lowerCase?: boolean): MapHas {
+export const makeMap = (str: string, lowerCase?: boolean): MapHas => {
   const map = new Map();
   const list = str.split(",");
 
@@ -30,11 +30,11 @@ export default function makeMap(str: string, lowerCase?: boolean): MapHas {
   return (i: string): boolean => {
     return map.has(lowerCase ? i.toLowerCase() : i);
   };
-}
+};
 
-export function isReservedTag(value: any): boolean {
+export const isReservedTag = (value: any): boolean => {
   return isHTMLTag(value) || isSVG(value);
-}
+};
 
 export const isHTMLTag: MapHas = makeMap(
   "html,body,base,head,link,meta,style,title," +

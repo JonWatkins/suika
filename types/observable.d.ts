@@ -4,4 +4,4 @@ export interface Observable {
     set: Function;
     get: Function;
 }
-export declare function observable(target: any, listener?: Function, tree?: Array<String>): Observable;
+export declare const observable: (target: any, listener?: Function, tree?: Array<String>) => Observable;

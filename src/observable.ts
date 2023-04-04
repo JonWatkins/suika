@@ -7,11 +7,11 @@ export interface Observable {
   get: Function;
 }
 
-export function observable(
+export const observable = (
   target: any,
   listener?: Function,
   tree: Array<String> = []
-): Observable {
+): Observable => {
   if (!isObject(target)) return target;
 
   const getPath = (prop: String): String => tree.concat(prop).join(".");
@@ -67,4 +67,4 @@ export function observable(
     set,
     get,
   });
-}
+};
