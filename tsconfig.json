@@ -2,17 +2,15 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Node 18",
   "compilerOptions": {
-    "lib": ["es2022"],
-    "module": "commonjs",
+    "lib": ["es2022", "dom"],
+    "module": "ESNext",
     "target": "es2022",
     "strict": true,
+    "sourceMap": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "types"
+    "outDir": "dist",
+    "rootDir": "src"
   },
-
   "include": ["src/**/*"]
 }
