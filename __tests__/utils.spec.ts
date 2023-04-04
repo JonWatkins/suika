@@ -164,58 +164,6 @@ describe("utils", () => {
     });
   });
 
-  describe("utils.isPlainObject", () => {
-    it("should have be able to check if a value is an object", () => {
-      expect(utils.isPlainObject(1)).toEqual(false);
-      expect(utils.isPlainObject("1")).toEqual(false);
-      expect(utils.isPlainObject(() => ({}))).toEqual(false);
-      expect(utils.isPlainObject([])).toEqual(false);
-      expect(utils.isPlainObject(/a/i)).toEqual(false);
-      expect(utils.isPlainObject({})).toEqual(true);
-    });
-  });
-
-  describe("utils.isArray", () => {
-    it("should have be able to check if a value is an array", () => {
-      expect(utils.isArray(1)).toEqual(false);
-      expect(utils.isArray("1")).toEqual(false);
-      expect(utils.isArray({})).toEqual(false);
-      expect(utils.isArray(() => ({}))).toEqual(false);
-      expect(utils.isArray([])).toEqual(true);
-    });
-  });
-
-  describe("utils.isFunction", () => {
-    it("should have be able to check if a value is a function", () => {
-      expect(utils.isFunction(1)).toEqual(false);
-      expect(utils.isFunction("1")).toEqual(false);
-      expect(utils.isFunction({})).toEqual(false);
-      expect(utils.isFunction([])).toEqual(false);
-      expect(utils.isFunction(() => ({}))).toEqual(true);
-    });
-  });
-
-  describe("utils.isString", () => {
-    it("should have be able to check if a value is a function", () => {
-      expect(utils.isString(1)).toEqual(false);
-      expect(utils.isString({})).toEqual(false);
-      expect(utils.isString([])).toEqual(false);
-      expect(utils.isString(() => ({}))).toEqual(false);
-      expect(utils.isString("1")).toEqual(true);
-    });
-  });
-
-  describe("utils.isRegExp", () => {
-    it("should have be able to check if a value is a function", () => {
-      expect(utils.isRegExp(1)).toEqual(false);
-      expect(utils.isRegExp({})).toEqual(false);
-      expect(utils.isRegExp([])).toEqual(false);
-      expect(utils.isRegExp(() => ({}))).toEqual(false);
-      expect(utils.isRegExp("1")).toEqual(false);
-      expect(utils.isRegExp(/a/i)).toEqual(true);
-    });
-  });
-
   describe("utils.isUndef", () => {
     it("should have be able to check if a value is a function", () => {
       expect(utils.isUndef(1)).toEqual(false);
@@ -239,49 +187,6 @@ describe("utils", () => {
       expect(utils.isDef(() => ({}))).toEqual(true);
       expect(utils.isDef("1")).toEqual(true);
       expect(utils.isDef(/a/i)).toEqual(true);
-    });
-  });
-
-  describe("utils.isTrue", () => {
-    it("should have be able to check if a value is a function", () => {
-      expect(utils.isTrue(null)).toEqual(false);
-      expect(utils.isTrue(undefined)).toEqual(false);
-      expect(utils.isTrue(1)).toEqual(false);
-      expect(utils.isTrue({})).toEqual(false);
-      expect(utils.isTrue([])).toEqual(false);
-      expect(utils.isTrue(() => ({}))).toEqual(false);
-      expect(utils.isTrue("1")).toEqual(false);
-      expect(utils.isTrue(/a/i)).toEqual(false);
-      expect(utils.isTrue(false)).toEqual(false);
-      expect(utils.isTrue(true)).toEqual(true);
-    });
-  });
-
-  describe("utils.isFalse", () => {
-    it("should have be able to check if a value is a function", () => {
-      expect(utils.isFalse(null)).toEqual(false);
-      expect(utils.isFalse(undefined)).toEqual(false);
-      expect(utils.isFalse(1)).toEqual(false);
-      expect(utils.isFalse({})).toEqual(false);
-      expect(utils.isFalse([])).toEqual(false);
-      expect(utils.isFalse(() => ({}))).toEqual(false);
-      expect(utils.isFalse("1")).toEqual(false);
-      expect(utils.isFalse(/a/i)).toEqual(false);
-      expect(utils.isFalse(true)).toEqual(false);
-      expect(utils.isFalse(false)).toEqual(true);
-    });
-  });
-
-  describe("hasOwn", () => {
-    it("should return true if an object has a property of its own", () => {
-      const obj = { foo: "bar" };
-      expect(utils.hasOwn(obj, "foo")).toBe(true);
-    });
-
-    it("should return false if an object does not have a property of its own", () => {
-      const obj = { foo: "bar" };
-      expect(utils.hasOwn(obj, "bar")).toBe(false);
-      expect(utils.hasOwn(obj, "hasOwnProperty")).toBe(false);
     });
   });
 
@@ -344,12 +249,6 @@ describe("utils", () => {
 
     it("should return false for non reserved tag", () => {
       expect(utils.isReservedTag("my-tag")).toBe(false);
-    });
-  });
-
-  describe("utils.sleep", () => {
-    it("should be able to wait", async () => {
-      await utils.sleep(10);
     });
   });
 

@@ -1,6 +1,7 @@
 export interface Observable {
+    [_: string]: any;
     deleteProperty: Function;
     set: Function;
     get: Function;
 }
-export declare function observable(target: any, listener?: Function, tree?: Array<String>): Observable | any;
+export declare function observable(target: any, listener?: Function, tree?: Array<String>): Observable;

@@ -1,4 +1,4 @@
-import { Component } from "./Component";
+import { Component, Ctor } from "./Component";
 import { isReservedTag, isDef } from "./utils";
 
 export type vAttrs = {
@@ -19,7 +19,9 @@ export interface vElement {
 
 export interface vFragment {
   kind: "fragment";
+  tag: "fragment";
   children: vNode[];
+  attrs: vAttrs;
 }
 
 export interface vFunction {
@@ -31,12 +33,12 @@ export interface vFunction {
 
 export interface vComponent {
   kind: "component";
-  component: Function;
+  component: Ctor;
   instance?: Component;
   attrs: vAttrs;
 }
 
-export type vNode = vText | vElement | vFunction | vComponent;
+export type vNode = vText | vElement | vFunction | vComponent | vFragment;
 
 export const Fragment = (): string => "fragment";
 
@@ -61,10 +63,7 @@ export const createElement = (
   };
 };
 
-export const createComponent = (
-  component: Function,
-  attrs: vAttrs
-): vComponent => {
+export const createComponent = (component: Ctor, attrs: vAttrs): vComponent => {
   return {
     kind: "component",
     instance: undefined,
@@ -89,7 +88,9 @@ export const createFunction = (
 export const createFragment = (children: vNode[]): vFragment => {
   return {
     kind: "fragment",
+    tag: "fragment",
     children,
+    attrs: {},
   };
 };
 
@@ -115,7 +116,7 @@ export const normalizeChildNodes = (
 };
 
 export const h = (
-  tag: string | Function,
+  tag: string | Ctor | Function,
   attrs: vAttrs = {},
   ...children: Array<vNode | string>
 ): vNode => {
@@ -123,18 +124,17 @@ export const h = (
 
   if (typeof tag === "string" && isReservedTag(tag)) {
     return createElement(tag, attrs, normalized);
-  } else if (typeof tag === "function") {
+  }
+
+  if (typeof tag === "function") {
     if (isFragment(tag)) {
-      // for now we are going to treat fragments as <fragment>
-      //elements untill fragments get a proper implementation.
-      //return createFragment(normalized);
-      return createElement("fragment", attrs, normalized);
+      return createFragment(normalized);
     } else if (isComponent(tag)) {
-      return createComponent(tag, attrs);
+      return createComponent(tag as Ctor, attrs);
     } else {
       return createFunction(tag, attrs, normalized);
     }
-  } else {
-    return createText(tag);
   }
+
+  return createText(tag);
 };

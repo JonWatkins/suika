@@ -1,13 +1,5 @@
 export type MapHas = (value: any) => boolean;
 
-export function toString(value: any): string {
-  return Object.prototype.toString.call(value);
-}
-
-export function isArray(value: any): boolean {
-  return Array.isArray(value);
-}
-
 export function isUndef(value: any): boolean {
   return value === undefined || value === null;
 }
@@ -16,42 +8,15 @@ export function isDef(value: any): boolean {
   return value !== undefined && value !== null;
 }
 
-export function isTrue(value: any): boolean {
-  return value === true;
-}
-
-export function isFalse(value: any): boolean {
-  return value === false;
-}
-
-export function hasOwn(obj: object, key: string) {
-  return Object.prototype.hasOwnProperty.call(obj, key);
-}
-
 export const isObject = (value: any): boolean => {
   return value !== null && typeof value === "object";
 };
 
-export const isFunction = (value: any): boolean => {
-  return typeof value === "function";
-};
-
-export function isPlainObject(value: any): boolean {
-  return (
-    !isArray(value) && !isArray(value) && toString(value) === "[object Object]"
-  );
-}
-
-export function isRegExp(value: any): boolean {
-  return toString(value) === "[object RegExp]";
-}
-
-export const isString = (value: any): boolean => {
-  return typeof value === "string";
-};
-
-export const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export const isEqual = (a: any, b: any): boolean => {
+  return a && b && isObject(a) && isObject(b) && typeof a === typeof b
+    ? Object.keys(a).length === Object.keys(b).length &&
+        Object.keys(a).every((key) => isEqual(a[key], b[key]))
+    : a === b;
 };
 
 export default function makeMap(str: string, lowerCase?: boolean): MapHas {
@@ -92,10 +57,3 @@ export const isSVG: MapHas = makeMap(
     "polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view",
   true
 );
-
-export const isEqual = (a: any, b: any): boolean => {
-  return a && b && isObject(a) && isObject(b) && typeof a === typeof b
-    ? Object.keys(a).length === Object.keys(b).length &&
-        Object.keys(a).every((key) => isEqual(a[key], b[key]))
-    : a === b;
-};

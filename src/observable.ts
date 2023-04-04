@@ -1,6 +1,7 @@
 import { isObject } from "./utils";
 
 export interface Observable {
+  [_: string]: any;
   deleteProperty: Function;
   set: Function;
   get: Function;
@@ -10,7 +11,7 @@ export function observable(
   target: any,
   listener?: Function,
   tree: Array<String> = []
-): Observable | any {
+): Observable {
   if (!isObject(target)) return target;
 
   const getPath = (prop: String): String => tree.concat(prop).join(".");

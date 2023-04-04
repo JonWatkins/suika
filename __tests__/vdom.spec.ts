@@ -31,21 +31,18 @@ describe("vdom", () => {
     expect(el.children.length).toEqual(1);
   });
 
-  // For now fragments are treated as elements until they get
-  // a proper implementation
-  //
-  // it("should be able to make a fragment", () => {
-  //   const vDomNode = vdom.h(vdom.Fragment);
-  //   expect(vDomNode.kind).toEqual("fragment");
-  // });
-  //
-  // it("should have a funciton to make an fragment", () => {
-  //   const el = vdom.createFragment([
-  //     vdom.createElement("h1", {}, [vdom.createText("hello")]),
-  //   ]);
-  //   expect(el.kind).toEqual("fragment");
-  //   expect(el.children.length).toEqual(1);
-  // });
+  it("should be able to make a fragment", () => {
+    const vDomNode = vdom.h(vdom.Fragment);
+    expect(vDomNode.kind).toEqual("fragment");
+  });
+
+  it("should have a funciton to make an fragment", () => {
+    const el = vdom.createFragment([
+      vdom.createElement("h1", {}, [vdom.createText("hello")]),
+    ]);
+    expect(el.kind).toEqual("fragment");
+    expect(el.children.length).toEqual(1);
+  });
 
   it("should be able to make a vDomNode", () => {
     const vDomNode = vdom.h("div") as vdom.vElement;

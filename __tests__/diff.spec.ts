@@ -1,27 +1,46 @@
-import { h } from "../src/vdom";
+import { h, vComponent, vElement, vNode } from "../src/vdom";
 import { Component } from "../src/Component";
 import { render, mount } from "../src/render";
 import { diff } from "../src/diff";
 
 describe("diff", () => {
+  it("should return the old element if old and new nodes are null", () => {
+    const el = document.createElement("div");
+    const patch = diff(null, null);
+    expect(patch(document.createElement("div"))).toEqual(el);
+  });
+
   it("should be replace the node if the old vnode is null", () => {
     const newVnode = h("div", { id: "test" });
 
     const patch = diff(null, newVnode);
-    let el = patch(document.createElement("div"));
+    let el = patch(document.createElement("div")) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.id).toEqual("test");
   });
 
-  it("should remove the node if the new vnode is undefined", () => {
+  it("should remove the node if the new vnode is null", () => {
     const oldVnode = h("div", { id: "test" });
     let el = render(oldVnode);
 
     const patch = diff(oldVnode, null);
     el = patch(el);
 
-    expect(el).toBe(undefined);
+    expect(el).toBe(null);
+  });
+
+  it("can remove text nodes", () => {
+    const oldVnode = h("div", {}, "Hi");
+    const newVnode = h("div", {});
+    let el = render(oldVnode);
+
+    expect(el.childNodes.length).toBe(1);
+
+    const patch = diff(oldVnode, newVnode);
+    el = patch(el);
+
+    expect(el.childNodes.length).toBe(0);
   });
 
   it("should be able to update child nodes", () => {
@@ -33,16 +52,18 @@ describe("diff", () => {
 
     const newVnode = h("div", { id: "test" }, h("h1", {}, "Hello"));
 
-    let el = render(oldVnode);
+    let el = render(oldVnode) as HTMLElement;
+    let childNode = el.childNodes[0] as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
-    expect(el.childNodes[0].id).toEqual("title");
+    expect(childNode.id).toEqual("title");
 
     const patch = diff(oldVnode, newVnode);
-    el = patch(el);
+    el = patch(el) as HTMLElement;
+    childNode = el.childNodes[0] as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
-    expect(el.childNodes[0].id).toEqual("");
+    expect(childNode.id).toEqual("");
   });
 
   it("should be able to add child nodes", () => {
@@ -59,13 +80,13 @@ describe("diff", () => {
       h("p", {}, "Lorem ipsum")
     );
 
-    let el = render(oldVnode);
+    let el = render(oldVnode) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.childNodes.length).toEqual(1);
 
     const patch = diff(oldVnode, newVnode);
-    el = patch(el);
+    el = patch(el) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.childNodes.length).toEqual(2);
@@ -85,13 +106,13 @@ describe("diff", () => {
       h("h1", { id: "header" }, "Hello")
     );
 
-    let el = render(oldVnode);
+    let el = render(oldVnode) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.childNodes.length).toEqual(2);
 
     const patch = diff(oldVnode, newVnode);
-    el = patch(el);
+    el = patch(el) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.childNodes.length).toEqual(1);
@@ -110,13 +131,13 @@ describe("diff", () => {
       h("h1", { id: "header" }, "World")
     );
 
-    let el = render(oldVnode);
+    let el = render(oldVnode) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.childNodes[0].childNodes[0].textContent).toEqual("Hello");
 
     const patch = diff(oldVnode, newVnode);
-    el = patch(el);
+    el = patch(el) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.childNodes[0].childNodes[0].textContent).toEqual("World");
@@ -126,13 +147,13 @@ describe("diff", () => {
     const Header = ({ title }) => h("h1", {}, title);
     const oldVnode = h(Header, { title: "test" });
     const newVnode = h(Header, { title: "updated" });
-    let el = render(oldVnode);
+    let el = render(oldVnode) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.innerHTML).toEqual("test");
 
     const patch = diff(oldVnode, newVnode);
-    el = patch(el);
+    el = patch(el) as HTMLElement;
 
     expect(el.outerHTML).toMatchSnapshot();
     expect(el.innerHTML).toEqual("updated");
@@ -148,22 +169,23 @@ describe("diff", () => {
     }
 
     let instance = mount(Ctx, document.createElement("div"));
+    let _el = instance._el as HTMLElement;
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(instance._el.innerHTML).toEqual("Hello");
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_el.innerHTML).toEqual("Hello");
 
     text = "World";
     const patch = instance._getDiff();
-    patch(instance._el);
+    patch(_el);
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(instance._el.innerHTML).toEqual("World");
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_el.innerHTML).toEqual("World");
   });
 
   it("should be able to diff child components", () => {
     class Btn extends Component {
       render() {
-        return h("button", {}, this.attrs.text);
+        return h("button", {}, this.attrs.text as string);
       }
     }
 
@@ -182,17 +204,21 @@ describe("diff", () => {
     }
 
     let instance = mount(Ctx, document.createElement("div"));
-    let childInstance = instance._vNode.children[0].instance;
+    let _el = instance._el as HTMLElement;
+    let vNode = instance._vNode as vElement;
+    let childNode = vNode.children[0] as vComponent;
+    let childInstance = childNode.instance;
+    let _elChild = childInstance?._el as HTMLElement;
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(childInstance._el.innerHTML).toEqual("Hello");
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_elChild.innerHTML).toEqual("Hello");
 
     instance.state.text = "World";
     const patch = instance._getDiff();
     patch(instance._el);
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(childInstance._el.innerHTML).toEqual("World");
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_elChild.innerHTML).toEqual("World");
   });
 
   it("should handle adding new components", () => {
@@ -211,22 +237,23 @@ describe("diff", () => {
     }
 
     let instance = mount(Ctx, document.createElement("div"));
+    let _el = instance._el as HTMLElement;
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(instance._el.firstChild.innerHTML).toEqual("hi");
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_el.firstChild?.textContent).toEqual("hi");
 
     render = h("div", {}, h(Btn, {}));
     const patch = instance._getDiff();
     patch(instance._el);
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(instance._el.firstChild.innerHTML).toEqual("Hello");
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_el.firstChild?.textContent).toEqual("Hello");
   });
 
   it("should be able to diff multiple child components", () => {
     class Btn extends Component {
       render() {
-        return h("button", {}, this.attrs.text);
+        return h("button", {}, this.attrs.text as string);
       }
     }
 
@@ -246,17 +273,25 @@ describe("diff", () => {
     }
 
     let instance = mount(Ctx, document.createElement("div"));
-    let childInstance =
-      instance._vNode.children[0].instance._vNode.children[0].instance;
+    let vNode = instance._vNode as vElement;
+    let [childNode1] = vNode.children as Array<vComponent>;
+    let child1Instance = childNode1.instance as Component;
+    let child1Vnode = child1Instance._vNode as vElement;
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(childInstance._el.innerHTML).toEqual("Hello");
+    let [childNode2] = child1Vnode.children as Array<vComponent>;
+    let child2instance = childNode2.instance as Component;
+
+    let _el = instance._el as HTMLElement;
+    let _childEl = child2instance._el as HTMLElement;
+
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_childEl.innerHTML).toEqual("Hello");
 
     instance.state.text = "World";
     const patch = instance._getDiff();
     patch(instance._el);
 
-    expect(instance._el.outerHTML).toMatchSnapshot();
-    expect(childInstance._el.innerHTML).toEqual("World");
+    expect(_el.outerHTML).toMatchSnapshot();
+    expect(_childEl.innerHTML).toEqual("World");
   });
 });

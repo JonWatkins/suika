@@ -56,10 +56,10 @@ describe("Component", () => {
     }
 
     const vDom = h(Ctx, {}) as vComponent;
-
     el = render(vDom);
+    const instance = vDom.instance as Component;
 
-    vDom.instance._update();
+    instance._update();
   });
 
   it("calls the onUpdated function when state changes", () => {
@@ -75,12 +75,12 @@ describe("Component", () => {
     }
 
     const vDom = h(Ctx, {}) as vComponent;
-
     el = render(vDom);
+    const instance = vDom.instance as Component;
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    vDom.instance.state.greeting = "World";
+    instance.state.greeting = "World";
 
     expect(el.outerHTML).toMatchSnapshot();
   });
@@ -104,10 +104,11 @@ describe("Component", () => {
     const vDom = h(Ctx, {}) as vComponent;
 
     el = render(vDom);
+    const instance = vDom.instance as Component;
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    vDom.instance.state.greeting = "World";
+    instance.state.greeting = "World";
   });
 
   it("should not patch a component when the _el is not defined", () => {
@@ -129,11 +130,12 @@ describe("Component", () => {
     const vDom = h(Ctx, {}) as vComponent;
 
     el = render(vDom);
+    const instance = vDom.instance as Component;
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    vDom.instance._el = null;
-    vDom.instance.state.greeting = "World";
+    instance._el = null;
+    instance.state.greeting = "World";
 
     expect(spy).toHaveBeenCalledTimes(0);
   });
@@ -209,17 +211,18 @@ describe("Component", () => {
 
     const vDom = h(Ctx, {}) as vComponent;
     const el = render(vDom) as HTMLElement;
+    const instance = vDom.instance as Component;
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    vDom.instance.render = () => {
+    instance.render = () => {
       return h("h1", {}, "Hello World");
     };
 
-    vDom.instance._update();
+    instance._update();
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    expect(el === vDom.instance._el).toBe(false);
+    expect(el === instance._el).toBe(false);
   });
 });

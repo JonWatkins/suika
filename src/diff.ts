@@ -1,37 +1,48 @@
 import { render } from "./render";
-import { isArray, isDef, isEqual } from "./utils";
+import { isDef, isUndef, isEqual } from "./utils";
+import { vNode, vAttrs, vText, vElement } from "./vdom";
 
-export function diff(
-  oldVTree: object | null,
-  newVTree: object | null
-): Function {
+export type AttrsUpdater = {
+  set: vAttrs;
+  remove: string[];
+};
+
+export function diff(oldVTree: vNode | null, newVTree: vNode | null): Function {
   if (!oldVTree) {
-    return (node) => {
-      const newNode = render(newVTree);
-      node.replaceWith(newNode);
-      return newNode;
+    return (node: HTMLElement): HTMLElement => {
+      if (newVTree) {
+        const newNode = render(newVTree) as HTMLElement;
+        node.replaceWith(newNode);
+        return newNode;
+      } else {
+        return node;
+      }
     };
   }
 
   if (!newVTree) {
-    return (node) => {
-      if (isArray(oldVTree.children)) {
-        unmountChildNodes(oldVTree.children, []);
+    return (node: HTMLElement): null => {
+      if (oldVTree.kind !== "text") {
+        unmountChildNodes(oldVTree, null);
       }
+
       node.remove();
-      return undefined;
+      return null;
     };
   }
 
   if (oldVTree.kind === "text" || newVTree.kind === "text") {
-    if (oldVTree.value !== newVTree.value) {
-      return (node) => {
-        const newNode = render(newVTree);
+    const { value: valueA } = oldVTree as vText;
+    const { value: valueB } = newVTree as vText;
+
+    if (valueA !== valueB) {
+      return (node: Text): Text => {
+        const newNode = render(newVTree) as Text;
         node.replaceWith(newNode);
         return newNode;
       };
     } else {
-      return (node) => node;
+      return (node: Text): Text => node;
     }
   }
 
@@ -49,58 +60,71 @@ export function diff(
     oldVTree.instance
   ) {
     newVTree.instance = oldVTree.instance;
-    if (isEqual(oldVTree.attrs, newVTree.attrs)) return (node) => node;
+
+    if (isEqual(oldVTree.attrs, newVTree.attrs)) {
+      return (node: HTMLElement): HTMLElement => node;
+    }
     newVTree.instance._setAttrs(newVTree.attrs);
+
     return newVTree.instance._getDiff();
   }
 
   if (newVTree.kind === "component") {
-    newVTree.instance = new newVTree.component();
-    newVTree.instance._initState();
-    newVTree.instance._initVnode(newVTree.attrs);
-    return (node) => {
-      const newNode = render(newVTree);
+    const instance = new newVTree.component();
+    newVTree.instance;
+    instance._initState();
+    instance._initVnode(newVTree.attrs);
+
+    return (node: HTMLElement): HTMLElement => {
+      const newNode = render(newVTree) as HTMLElement;
       node.replaceWith(newNode);
-      newVTree.instance._notifyMounted(node);
+      instance._notifyMounted(node);
       return newNode;
     };
   }
 
-  if (oldVTree.tag !== newVTree.tag) {
-    return (node) => {
-      const newNode = render(newVTree);
-      if (isArray(oldVTree.children)) {
-        unmountChildNodes(oldVTree.children, newVTree.children);
-      }
+  const {
+    tag: oldTag,
+    children: oldChildNodes,
+    attrs: oldAttrs,
+  } = oldVTree as vElement;
+
+  const {
+    tag: newTag,
+    children: newChildNodes,
+    attrs: newAttrs,
+  } = newVTree as vElement;
+
+  if (oldTag !== newTag) {
+    return (node: HTMLElement): HTMLElement => {
+      const newNode = render(newVTree) as HTMLElement;
+      unmountChildNodes(oldVTree, newVTree);
       node.replaceWith(newNode);
       return newNode;
     };
   }
 
-  const patchAttrs = diffAttrs(oldVTree.attrs, newVTree.attrs);
+  const patchAttrs = diffAttrs(oldAttrs, newAttrs);
+  const patchChildNodes = diffChildNodes(oldChildNodes, newChildNodes);
 
-  const patchChildNodes = diffChildNodes(oldVTree.children, newVTree.children);
-
-  return (node) => {
+  return (node: HTMLElement): HTMLElement => {
     patchAttrs(node);
     patchChildNodes(node);
     return node;
   };
 }
 
-export function diffAttrs(oldAttrs = {}, newAttrs = {}) {
-  const attrs = {
-    remove: Object.keys(oldAttrs || {}).filter(
-      (attr) => !isDef(newAttrs[attr])
-    ),
-    set: Object.keys(newAttrs || {})
+export function diffAttrs(oldAttrs: vAttrs, newAttrs: vAttrs) {
+  const attrs: AttrsUpdater = {
+    remove: Object.keys(oldAttrs).filter((attr) => isUndef(newAttrs[attr])),
+    set: Object.keys(newAttrs)
       .filter(
         (attr) => oldAttrs[attr] !== newAttrs[attr] && isDef(newAttrs[attr])
       )
       .reduce((updated, attr) => ({ ...updated, [attr]: newAttrs[attr] }), {}),
   };
 
-  return (node) => {
+  return (node: HTMLElement) => {
     for (const attr of attrs.remove) {
       node.removeAttribute(attr);
     }
@@ -111,65 +135,42 @@ export function diffAttrs(oldAttrs = {}, newAttrs = {}) {
   };
 }
 
-export function diffChildNodes(oldChildNodes, newChildNodes) {
+export function diffChildNodes(oldChildNodes: vNode[], newChildNodes: vNode[]) {
   const childNodePatches: Array<Function> = [];
   const additionalPatches: Array<Function> = [];
 
-  oldChildNodes.forEach((oldChild, i) => {
+  oldChildNodes.forEach((oldChild: vNode, i: number) => {
     childNodePatches.push(diff(oldChild, newChildNodes[i]));
   });
 
   for (const additionalChild of newChildNodes.slice(oldChildNodes.length)) {
-    additionalPatches.push((node) => {
+    additionalPatches.push((node: HTMLElement): HTMLElement => {
       node.appendChild(render(additionalChild));
       return node;
     });
   }
 
   return (parent: HTMLElement) => {
-    if (parent) {
-      for (const [patch, childNode] of zip(
-        childNodePatches,
-        parent.childNodes
-      )) {
-        patch(childNode);
-      }
+    for (const [patch, childNode] of zip(
+      childNodePatches,
+      Array.from(parent.childNodes)
+    )) {
+      patch(childNode);
+    }
 
-      for (const patch of additionalPatches) {
-        patch(parent);
-      }
+    for (const patch of additionalPatches) {
+      patch(parent);
     }
 
     return parent;
   };
 }
 
-export function unmountChildNodes(oldChildNodes, newChildNodes) {
-  let i = oldChildNodes.length;
-  while (i--) {
-    const oldNode = oldChildNodes[i];
-    if (oldNode.kind === "component") {
-      const newNode = findNewChildComponent(oldNode, newChildNodes);
-      if (newNode) {
-        unmountChildNodes(
-          oldNode.instance._vNode.children,
-          newNode.instance._vNode.children
-        );
-      }
-      if (!newNode) {
-        oldNode.instance._unmount();
-      }
-    }
-  }
+export function unmountChildNodes(oldNode: vNode, newNode: vNode | null) {
+  //console.log(oldNode, newNode);
 }
 
-export function findNewChildComponent(oldNode, newChildNodes) {
-  return newChildNodes.find(
-    (newNode) => oldNode.component === newNode.component
-  );
-}
-
-export const zip = (xs, ys) => {
+export const zip = (xs: Array<any>, ys: Array<any>) => {
   const zipped = [];
   for (let i = 0; i < Math.min(xs.length, ys.length); i++) {
     zipped.push([xs[i], ys[i]]);

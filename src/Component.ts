@@ -1,14 +1,20 @@
-import { observable } from "./observable";
+import { observable, Observable } from "./observable";
 import { diff } from "./diff";
 import type { vNode, vAttrs } from "./vdom";
+
+export type Ctor = new () => Component;
+
+export interface BaseState {
+  [_: string]: any;
+}
 
 let uid = 0;
 
 export abstract class Component {
   public _el: HTMLElement | Text | null;
-  public _vNode: object | null;
+  public _vNode: vNode | null;
   public _mounted: boolean;
-  public state: object;
+  public state: Observable | BaseState;
   public attrs: vAttrs;
   public _isSuika: boolean;
   public _uid: number;
@@ -19,21 +25,21 @@ export abstract class Component {
     this._vNode = null;
     this._mounted = false;
     this._isSuika = true;
-    this.state = {};
+    this.state = {} as BaseState;
     this.attrs = {};
   }
 
-  private _update() {
+  public _update(): void {
     if (this._el) {
       const patch = this._getDiff();
-      this._el = patch(this._el);
+      this._el = patch(this._el as HTMLElement);
       this.onUpdated();
     }
   }
 
-  public _getDiff() {
+  public _getDiff(): Function {
     const vNode = this.render();
-    const patch = diff(this._vNode, vNode);
+    const patch = diff(this._vNode as vNode, vNode);
     this._vNode = vNode;
     return patch;
   }
@@ -45,7 +51,7 @@ export abstract class Component {
     return vNode;
   }
 
-  public _initState() {
+  public _initState(): void {
     this.state = observable(this.state, this._update.bind(this));
   }
 
@@ -53,19 +59,19 @@ export abstract class Component {
     this.attrs = attrs;
   }
 
-  public _notifyMounted(el: HTMLElement) {
+  public _notifyMounted(el: HTMLElement): void {
     this._el = el;
     this._mounted = true;
     this.onMounted();
   }
 
-  public _unmount() {
+  public _unmount(): void {
     this.beforeUnmount();
     this._el = null;
   }
 
-  public onMounted() {}
-  public beforeUnmount() {}
-  public onUpdated() {}
+  public onMounted(): void {}
+  public beforeUnmount(): void {}
+  public onUpdated(): void {}
   public abstract render(): vNode;
 }

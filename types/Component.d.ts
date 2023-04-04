@@ -1,14 +1,19 @@
+import { Observable } from "./observable";
 import type { vNode, vAttrs } from "./vdom";
+export type Ctor = new () => Component;
+export interface BaseState {
+    [_: string]: any;
+}
 export declare abstract class Component {
     _el: HTMLElement | Text | null;
-    _vNode: object | null;
+    _vNode: vNode | null;
     _mounted: boolean;
-    state: object;
+    state: Observable | BaseState;
     attrs: vAttrs;
     _isSuika: boolean;
     _uid: number;
     constructor();
-    private _update;
+    _update(): void;
     _getDiff(): Function;
     _initVnode(attrs: vAttrs): vNode;
     _initState(): void;

@@ -44,7 +44,7 @@ export const render = (rootNode: vNode): HTMLElement | Text => {
   return el;
 };
 
-export const mount = (component: Component, root: HTMLElement) => {
+export const mount = (component: new () => Component, root: HTMLElement) => {
   if (!isDef(component) || !isComponent(component)) {
     throw new Error("Must pass a component to mount");
   }
@@ -56,7 +56,7 @@ export const mount = (component: Component, root: HTMLElement) => {
   const instance = new component();
   instance._initState();
 
-  const el = render(instance._initVnode({}));
+  const el = render(instance._initVnode({})) as HTMLElement;
 
   instance._notifyMounted(el);
   root.replaceWith(el);
