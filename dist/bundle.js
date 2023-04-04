@@ -1,72 +1,73 @@
-var F = Object.defineProperty;
-var R = (t, n, e) => n in t ? F(t, n, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[n] = e;
-var a = (t, n, e) => (R(t, typeof n != "symbol" ? n + "" : n, e), e);
-function b(t) {
+var E = Object.defineProperty;
+var P = (t, n, e) => n in t ? E(t, n, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[n] = e;
+var a = (t, n, e) => (P(t, typeof n != "symbol" ? n + "" : n, e), e);
+function y(t) {
   return Object.prototype.toString.call(t);
 }
 function p(t) {
   return Array.isArray(t);
 }
-function z(t) {
+function F(t) {
   return t == null;
 }
 function l(t) {
   return t != null;
 }
-function U(t) {
+function R(t) {
   return t === !0;
 }
-function W(t) {
+function z(t) {
   return t === !1;
 }
-function A(t, n) {
+function U(t, n) {
   return Object.prototype.hasOwnProperty.call(t, n);
 }
-const v = (t) => t !== null && typeof t == "object", d = (t) => typeof t == "function";
+const h = (t) => t !== null && typeof t == "object", W = (t) => typeof t == "function";
+function A(t) {
+  return !p(t) && !p(t) && y(t) === "[object Object]";
+}
 function D(t) {
-  return !p(t) && !p(t) && b(t) === "[object Object]";
+  return y(t) === "[object RegExp]";
 }
-function q(t) {
-  return b(t) === "[object RegExp]";
-}
-const g = (t) => typeof t == "string", L = (t) => new Promise((n) => setTimeout(n, t));
-function y(t, n) {
+const q = (t) => typeof t == "string", L = (t) => new Promise((n) => setTimeout(n, t));
+function g(t, n) {
   const e = /* @__PURE__ */ new Map(), s = t.split(",");
   for (let i = 0; i < s.length; i++)
     e.set(s[i], !0);
   return (i) => e.has(n ? i.toLowerCase() : i);
 }
-function j(t) {
-  return M(t) || x(t);
+function v(t) {
+  return j(t) || M(t);
 }
-const M = y(
-  "html,body,base,head,link,meta,style,title,address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,s,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,embed,object,param,source,canvas,script,noscript,del,ins,caption,col,colgroup,table,thead,tbody,td,th,tr,button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,output,progress,select,textarea,details,dialog,menu,menuitem,summary,content,element,shadow,template,blockquote,iframe,tfoot"
-), x = y(
+const j = g(
+  "html,body,base,head,link,meta,style,title,address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,s,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,embed,object,param,source,canvas,script,noscript,del,ins,caption,col,colgroup,table,thead,tbody,td,th,tr,button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,output,progress,select,textarea,details,dialog,menu,menuitem,summary,content,element,shadow,template,blockquote,iframe,tfoot",
+  !0
+), M = g(
   "svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,foreignobject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view",
   !0
-), S = (t, n) => !1, V = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+), b = (t, n) => t && n && h(t) && h(n) && typeof t == typeof n ? Object.keys(t).length === Object.keys(n).length && Object.keys(t).every((e) => b(t[e], n[e])) : t === n, V = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: y,
-  hasOwn: A,
+  default: g,
+  hasOwn: U,
   isArray: p,
   isDef: l,
-  isEqual: S,
-  isFalse: W,
-  isFunction: d,
-  isHTMLTag: M,
-  isObject: v,
-  isPlainObject: D,
-  isRegExp: q,
-  isReservedTag: j,
-  isSVG: x,
-  isString: g,
-  isTrue: U,
-  isUndef: z,
+  isEqual: b,
+  isFalse: z,
+  isFunction: W,
+  isHTMLTag: j,
+  isObject: h,
+  isPlainObject: A,
+  isRegExp: D,
+  isReservedTag: v,
+  isSVG: M,
+  isString: q,
+  isTrue: R,
+  isUndef: F,
   sleep: L,
-  toString: b
+  toString: y
 }, Symbol.toStringTag, { value: "Module" }));
 function m(t, n, e = []) {
-  if (!v(t))
+  if (!h(t))
     return t;
   const s = (c) => e.concat(c).join(".");
   for (const c in t)
@@ -77,56 +78,58 @@ function m(t, n, e = []) {
     );
   const i = (c, u) => {
     const f = Reflect.deleteProperty(c, u);
-    return d(n) && n({
+    return typeof n == "function" && n({
       path: s(u),
       target: c,
       name: u
     }), f;
-  }, r = (c, u, f, E) => {
-    const P = Reflect.set(
+  }, r = (c, u, f, x) => {
+    const C = Reflect.set(
       c,
       u,
       m(f, n),
-      E
+      x
     );
-    return d(n) && n({
+    return typeof n == "function" && n({
       path: s(u),
       target: c,
       name: u,
       value: f
-    }), P;
-  }, h = (c, u, f) => Reflect.get(c, u, f);
+    }), C;
+  }, d = (c, u, f) => Reflect.get(c, u, f);
   return new Proxy(t, {
     deleteProperty: i,
     set: r,
-    get: h
+    get: d
   });
 }
-const G = () => "fragment", O = (t) => t.prototype instanceof w, H = (t) => t === G && t() === t(), B = (t, n, e) => ({
+const H = () => "fragment", O = (t) => t.prototype instanceof w, G = (t) => t === H && t() === t(), N = (t, n, e) => ({
   kind: "element",
   tag: t,
   attrs: n,
   children: e
-}), I = (t, n) => ({
+}), B = (t, n) => ({
   kind: "component",
+  instance: void 0,
   attrs: n,
   component: t
-}), J = (t, n, e) => ({
+}), I = (t, n, e) => ({
   kind: "function",
   attrs: n,
   component: t,
   children: e
-}), K = (t) => ({
+}), J = (t) => ({
   kind: "fragment",
   children: t
-}), C = (t) => ({
+}), S = (t) => ({
   kind: "text",
   value: t.toString()
-}), N = (t) => t.filter((n) => l(n)).map(
-  (n) => g(n) ? C(n) : n
-), tt = (t, n = {}, ...e) => {
-  const s = N(e);
-  return g(t) && j(t) ? B(t, n, s) : d(t) ? H(t) ? K(s) : O(t) ? I(t, n) : J(t, n, s) : C(t);
+}), K = (t) => t.filter((n) => l(n)).map((n) => {
+  let e;
+  return typeof n == "string" ? e = S(n) : e = n, e;
+}), tt = (t, n = {}, ...e) => {
+  const s = K(e);
+  return typeof t == "string" && v(t) ? N(t, n, s) : typeof t == "function" ? G(t) ? J(s) : O(t) ? B(t, n) : I(t, n, s) : S(t);
 }, o = (t) => {
   if (t.kind === "text")
     return document.createTextNode(t.value);
@@ -149,8 +152,8 @@ const G = () => "fragment", O = (t) => t.prototype instanceof w, H = (t) => t ==
   }), n;
 }, nt = (t, n) => {
   if (!l(t) || !O(t))
-    throw new Error("Must pass a component to render");
-  if (!l(t) || !(n instanceof Element))
+    throw new Error("Must pass a component to mount");
+  if (!l(t) || !(n instanceof HTMLElement))
     throw new Error("Must pass a dom node to mount");
   const e = new t();
   e._initState();
@@ -178,7 +181,7 @@ function k(t, n) {
       n.component(n.attrs, n.children)
     );
   if (t.kind === "component" && n.kind === "component" && t.component === n.component && t.instance)
-    return n.instance = t.instance, S(t.attrs, n.attrs), n.instance._setAttrs(n.attrs), n.instance._getDiff();
+    return n.instance = t.instance, b(t.attrs, n.attrs) ? (i) => i : (n.instance._setAttrs(n.attrs), n.instance._getDiff());
   if (n.kind === "component")
     return n.instance = new n.component(), n.instance._initState(), n.instance._initVnode(n.attrs), (i) => {
       const r = o(n);
@@ -192,7 +195,7 @@ function k(t, n) {
   const e = Q(t.attrs, n.attrs), s = X(t.children, n.children);
   return (i) => (e(i), s(i), i);
 }
-function Q(t, n) {
+function Q(t = {}, n = {}) {
   const e = {
     remove: Object.keys(t || {}).filter(
       (s) => !l(n[s])
@@ -217,11 +220,11 @@ function X(t, n) {
     s.push((r) => (r.appendChild(o(i)), r));
   return (i) => {
     if (i) {
-      for (const [r, h] of Z(
+      for (const [r, d] of Z(
         e,
         i.childNodes
       ))
-        r(h);
+        r(d);
       for (const r of s)
         r(i);
     }
@@ -261,8 +264,8 @@ class w {
     a(this, "_mounted");
     a(this, "state");
     a(this, "attrs");
-    a(this, "_isSuika", !0);
-    this._uid = $++;
+    a(this, "_isSuika");
+    this._uid = $++, this._el = null, this._vNode = null, this._mounted = !1, this._isSuika = !0, this.state = {}, this.attrs = {};
   }
   _update() {
     if (this._el) {
@@ -278,7 +281,7 @@ class w {
     return this._setAttrs(n), this._vNode = this.render(), this._vNode;
   }
   _initState() {
-    this.state = m(this.state || {}, this._update.bind(this));
+    this.state = m(this.state, this._update.bind(this));
   }
   _setAttrs(n) {
     this.attrs = n;
@@ -298,7 +301,7 @@ class w {
 }
 export {
   w as Component,
-  G as Fragment,
+  H as Fragment,
   tt as h,
   nt as mount,
   V as utils

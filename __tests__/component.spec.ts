@@ -1,11 +1,10 @@
 import { Component } from "../src/Component";
-import { h } from "../src/vdom";
+import { h, vComponent } from "../src/vdom";
 import { render, mount } from "../src/render";
 import { diff } from "../src/diff";
 
 describe("Component", () => {
   it("Should be able to make a simpe component", () => {
-    // @ts-ignore:next-line
     class Ctx extends Component {
       render() {
         return h("div", {}, "Hi");
@@ -14,12 +13,10 @@ describe("Component", () => {
 
     const ctx = new Ctx();
 
-    // @ts-ignore:next-line
     expect(typeof ctx._uid).toBe("number");
   });
 
   it("should have a function to get a new diff", () => {
-    // @ts-ignore:next-line
     class Ctx extends Component {
       render() {
         return h("div", {}, "Hi");
@@ -28,14 +25,12 @@ describe("Component", () => {
 
     const ctx = new Ctx();
 
-    // @ts-ignore:next-line
     const patches = ctx._getDiff();
 
     expect(typeof patches).toEqual("function");
   });
 
   it("should be able to render a component", () => {
-    // @ts-ignore:next-line
     class Ctx extends Component {
       render() {
         return h("div", {}, h("h1", {}, "Hello World"));
@@ -44,14 +39,12 @@ describe("Component", () => {
 
     const el = render(h(Ctx, {}));
 
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 
   it("should be able to patch a component", (done) => {
     let el;
 
-    // @ts-ignore:next-line
     class Ctx extends Component {
       render() {
         return h("div", {}, h("h1", {}, "Hello World"));
@@ -66,14 +59,12 @@ describe("Component", () => {
 
     el = render(vDom);
 
-    // @ts-ignore:next-line
     vDom.instance._update();
   });
 
   it("calls the onUpdated function when state changes", () => {
     let el;
 
-    // @ts-ignore:next-line
     class Ctx extends Component {
       state = {
         greeting: "Hello",
@@ -89,17 +80,14 @@ describe("Component", () => {
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    // @ts-ignore:next-line
     vDom.instance.state.greeting = "World";
 
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 
   it("should patch a component when the state changes", (done) => {
     let el;
 
-    // @ts-ignore:next-line
     class Ctx extends Component {
       state = {
         greeting: "Hello",
@@ -119,7 +107,6 @@ describe("Component", () => {
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    // @ts-ignore:next-line
     vDom.instance.state.greeting = "World";
   });
 
@@ -127,7 +114,6 @@ describe("Component", () => {
     let el;
     const spy = jest.fn();
 
-    // @ts-ignore:next-line
     class Ctx extends Component {
       state = {
         greeting: "Hello",
@@ -146,16 +132,13 @@ describe("Component", () => {
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    // @ts-ignore:next-line
     vDom.instance._el = null;
-    // @ts-ignore:next-line
     vDom.instance.state.greeting = "World";
 
     expect(spy).toHaveBeenCalledTimes(0);
   });
 
   it("the _unmount function should be called when unmounting a child component", () => {
-    // @ts-ignore:next-line
     class Ctx extends Component {
       render() {
         return h("div", {}, h("h1", {}, "Hello World"));
@@ -166,16 +149,14 @@ describe("Component", () => {
 
     const newVnode = h("div", {});
 
-    let el = render(oldVnode);
+    let el = (render(oldVnode) as HTMLElement);
 
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
 
     const patch = diff(oldVnode, newVnode);
 
     patch(el);
 
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
   });
 
@@ -220,31 +201,25 @@ describe("Component", () => {
   // });
 
   it("should change the _el when replacing the root node", () => {
-    // @ts-ignore:next-line
     class Ctx extends Component {
       render() {
         return h("div", {}, h("h1", {}, "Hello World"));
       }
     }
 
-    const vDom = h(Ctx, {});
-    const el = render(vDom);
+    const vDom = (h(Ctx, {}) as vComponent);
+    const el = (render(vDom) as HTMLElement);
 
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
 
-    // @ts-ignore:next-line
     vDom.instance.render = () => {
       return h("h1", {}, "Hello World");
     };
 
-    // @ts-ignore:next-line
     vDom.instance._update();
 
-    // @ts-ignore:next-line
     expect(el.outerHTML).toMatchSnapshot();
 
-    // @ts-ignore:next-line
     expect(el === vDom.instance._el).toBe(false);
   });
 });

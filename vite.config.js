@@ -8,6 +8,7 @@ export default defineConfig(() => {
         entry: resolve(__dirname, "src/index.ts"),
         name: "suika",
         fileName: "bundle",
+        format: ["es", "umd"],
       },
     },
     esbuild: {

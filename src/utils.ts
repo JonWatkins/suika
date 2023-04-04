@@ -62,7 +62,7 @@ export default function makeMap(str: string, lowerCase?: boolean): MapHas {
     map.set(list[i], true);
   }
 
-  return (i: string) => {
+  return (i: string): boolean => {
     return map.has(lowerCase ? i.toLowerCase() : i);
   };
 }
@@ -82,7 +82,8 @@ export const isHTMLTag: MapHas = makeMap(
     "button,datalist,fieldset,form,input,label,legend,meter,optgroup,option," +
     "output,progress,select,textarea," +
     "details,dialog,menu,menuitem,summary," +
-    "content,element,shadow,template,blockquote,iframe,tfoot"
+    "content,element,shadow,template,blockquote,iframe,tfoot",
+  true
 );
 
 export const isSVG: MapHas = makeMap(
@@ -92,6 +93,9 @@ export const isSVG: MapHas = makeMap(
   true
 );
 
-export const isEqual = (value1: any, value2: any): boolean => {
-  return false;
+export const isEqual = (a: any, b: any): boolean => {
+  return a && b && isObject(a) && isObject(b) && typeof a === typeof b
+    ? Object.keys(a).length === Object.keys(b).length &&
+        Object.keys(a).every((key) => isEqual(a[key], b[key]))
+    : a === b;
 };

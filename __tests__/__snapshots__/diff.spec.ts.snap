@@ -4,9 +4,9 @@ exports[`diff should be able to add child nodes 1`] = `"<div id="test"><h1 id="t
 
 exports[`diff should be able to add child nodes 2`] = `"<div id="test"><h1 id="header">Hello</h1><p>Lorem ipsum</p></div>"`;
 
-exports[`diff should be able to diff child components 1`] = `"<div><button>Hello</button></div>"`;
+exports[`diff should be able to diff child components 1`] = `"<div><button>Hello</button><button>Hello</button></div>"`;
 
-exports[`diff should be able to diff child components 2`] = `"<div><button>World</button></div>"`;
+exports[`diff should be able to diff child components 2`] = `"<div><button>World</button><button>World</button></div>"`;
 
 exports[`diff should be able to diff functional components 1`] = `"<h1>test</h1>"`;
 
@@ -26,10 +26,14 @@ exports[`diff should be able to remove child nodes 2`] = `"<div id="test"><h1 id
 
 exports[`diff should be able to update child nodes 1`] = `"<div id="test"><h1 id="title">Hello</h1></div>"`;
 
-exports[`diff should be able to update child nodes 2`] = `"<div id="test"><h1 id="header">Hello</h1></div>"`;
+exports[`diff should be able to update child nodes 2`] = `"<div id="test"><h1>Hello</h1></div>"`;
 
 exports[`diff should be able to update text child nodes 1`] = `"<div id="test"><h1 id="title">Hello</h1></div>"`;
 
 exports[`diff should be able to update text child nodes 2`] = `"<div id="test"><h1 id="header">World</h1></div>"`;
 
 exports[`diff should be replace the node if the old vnode is null 1`] = `"<div id="test"></div>"`;
+
+exports[`diff should handle adding new components 1`] = `"<div><p>hi</p></div>"`;
+
+exports[`diff should handle adding new components 2`] = `"<div><button>Hello</button></div>"`;

@@ -352,4 +352,13 @@ describe("utils", () => {
       await utils.sleep(10);
     });
   });
+
+  describe("isEqual", () => {
+    it("should be able to compare 2 objects", () => {
+      expect(utils.isEqual({}, {})).toBe(true);
+      expect(utils.isEqual({}, { test: 1 })).toBe(false);
+      expect(utils.isEqual({ test: 2 }, { test: 1 })).toBe(false);
+      expect(utils.isEqual({ test: 1 }, { test: 1 })).toBe(true);
+    });
+  });
 });

@@ -1,17 +1,57 @@
+import { string } from "yargs";
 import { Component } from "./Component";
-import { isFunction, isString, isReservedTag, isDef } from "./utils";
+import { isReservedTag, isDef } from "./utils";
 
-export const Fragment = () => "fragment";
+export type vAttrs = object;
 
-export const isComponent = (value) => {
+export interface vText {
+  kind: "text";
+  value: string;
+}
+
+export interface vElement {
+  kind: "element";
+  children: vNode[];
+  tag: string;
+  attrs: vAttrs;
+}
+
+export interface vFragment {
+  kind: "fragment";
+  children: vNode[];
+}
+
+export interface vFunction {
+  kind: "function";
+  children: vNode[];
+  component: Function;
+  attrs: vAttrs;
+}
+
+export interface vComponent {
+  kind: "component";
+  component: Function;
+  instance?: Component;
+  attrs: vAttrs;
+}
+
+export type vNode = vText | vElement | vFragment | vFunction | vComponent;
+
+export const Fragment = (): string => "fragment";
+
+export const isComponent = (value: any): boolean => {
   return value.prototype instanceof Component;
 };
 
-export const isFragment = (value) => {
+export const isFragment = (value: Function): boolean => {
   return value === Fragment && value() === value();
 };
 
-export const createElement = (tag, attrs, children) => {
+export const createElement = (
+  tag: string,
+  attrs: vAttrs,
+  children: vNode[]
+): vElement => {
   return {
     kind: "element",
     tag,
@@ -20,15 +60,23 @@ export const createElement = (tag, attrs, children) => {
   };
 };
 
-export const createComponent = (component, attrs) => {
+export const createComponent = (
+  component: Function,
+  attrs: vAttrs
+): vComponent => {
   return {
     kind: "component",
+    instance: undefined,
     attrs,
     component,
   };
 };
 
-export const createFunction = (component, attrs, children) => {
+export const createFunction = (
+  component: Function,
+  attrs: vAttrs,
+  children: vNode[]
+): vFunction => {
   return {
     kind: "function",
     attrs,
@@ -37,32 +85,44 @@ export const createFunction = (component, attrs, children) => {
   };
 };
 
-export const createFragment = (children) => {
+export const createFragment = (children: vNode[]): vFragment => {
   return {
     kind: "fragment",
     children,
   };
 };
 
-export const createText = (value) => ({
+export const createText = (value: string): vText => ({
   kind: "text",
   value: value.toString(),
 });
 
-export const normalizeChildNodes = (childNodes) => {
+export const normalizeChildNodes = (
+  childNodes: Array<vNode | string>
+): vNode[] => {
   return childNodes
     .filter((i) => isDef(i))
-    .map((childNode) =>
-      isString(childNode) ? createText(childNode) : childNode
-    );
+    .map((childNode: vNode | string): vNode => {
+      let res: vNode;
+      if (typeof childNode === "string") {
+        res = createText(childNode as string);
+      } else {
+        res = childNode;
+      }
+      return res;
+    });
 };
 
-export const h = (tag, attrs = {}, ...children) => {
+export const h = (
+  tag: string | Function,
+  attrs: vAttrs = {},
+  ...children: Array<vNode | string>
+): vNode => {
   const normalized = normalizeChildNodes(children);
 
-  if (isString(tag) && isReservedTag(tag)) {
+  if (typeof tag === "string" && isReservedTag(tag)) {
     return createElement(tag, attrs, normalized);
-  } else if (isFunction(tag)) {
+  } else if (typeof tag === "function") {
     if (isFragment(tag)) {
       return createFragment(normalized);
     } else if (isComponent(tag)) {

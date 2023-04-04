@@ -31,11 +31,7 @@ describe("diff", () => {
       h("h1", { id: "title" }, "Hello")
     );
 
-    const newVnode = h(
-      "div",
-      { id: "test" },
-      h("h1", { id: "header" }, "Hello")
-    );
+    const newVnode = h("div", { id: "test" }, h("h1", {}, "Hello"));
 
     let el = render(oldVnode);
 
@@ -46,7 +42,7 @@ describe("diff", () => {
     el = patch(el);
 
     expect(el.outerHTML).toMatchSnapshot();
-    expect(el.childNodes[0].id).toEqual("header");
+    expect(el.childNodes[0].id).toEqual("");
   });
 
   it("should be able to add child nodes", () => {
@@ -165,17 +161,23 @@ describe("diff", () => {
   });
 
   it("should be able to diff child components", () => {
-    let text = "Hello";
-
     class Btn extends Component {
       render() {
-        return h("button", {}, text);
+        return h("button", {}, this.attrs.text);
       }
     }
 
     class Ctx extends Component {
+      state = {
+        text: "Hello",
+      };
       render() {
-        return h("div", {}, h(Btn, {}));
+        return h(
+          "div",
+          {},
+          h(Btn, { text: this.state.text }),
+          h(Btn, { text: this.state.text })
+        );
       }
     }
 
@@ -185,7 +187,7 @@ describe("diff", () => {
     expect(instance._el.outerHTML).toMatchSnapshot();
     expect(childInstance._el.innerHTML).toEqual("Hello");
 
-    text = "World";
+    instance.state.text = "World";
     const patch = instance._getDiff();
     patch(instance._el);
 
@@ -193,24 +195,53 @@ describe("diff", () => {
     expect(childInstance._el.innerHTML).toEqual("World");
   });
 
-  it("should be able to diff multiple child components", () => {
-    let text = "Hello";
+  it("should handle adding new components", () => {
+    let render = h("div", {}, h("p", {}, "hi"));
 
     class Btn extends Component {
       render() {
-        return h("button", {}, text);
-      }
-    }
-
-    class Container extends Component {
-      render() {
-        return h("div", {}, h(Btn, {}));
+        return h("button", {}, "Hello");
       }
     }
 
     class Ctx extends Component {
       render() {
-        return h("div", {}, h(Container, {}));
+        return render;
+      }
+    }
+
+    let instance = mount(Ctx, document.createElement("div"));
+
+    expect(instance._el.outerHTML).toMatchSnapshot();
+    expect(instance._el.firstChild.innerHTML).toEqual("hi");
+
+    render = h("div", {}, h(Btn, {}));
+    const patch = instance._getDiff();
+    patch(instance._el);
+
+    expect(instance._el.outerHTML).toMatchSnapshot();
+    expect(instance._el.firstChild.innerHTML).toEqual("Hello");
+  });
+
+  it("should be able to diff multiple child components", () => {
+    class Btn extends Component {
+      render() {
+        return h("button", {}, this.attrs.text);
+      }
+    }
+
+    class Container extends Component {
+      render() {
+        return h("div", {}, h(Btn, { text: this.attrs.text }));
+      }
+    }
+
+    class Ctx extends Component {
+      state = {
+        text: "Hello",
+      };
+      render() {
+        return h("div", {}, h(Container, { text: this.state.text }));
       }
     }
 
@@ -221,7 +252,7 @@ describe("diff", () => {
     expect(instance._el.outerHTML).toMatchSnapshot();
     expect(childInstance._el.innerHTML).toEqual("Hello");
 
-    text = "World";
+    instance.state.text = "World";
     const patch = instance._getDiff();
     patch(instance._el);
 

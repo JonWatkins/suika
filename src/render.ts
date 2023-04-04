@@ -1,7 +1,10 @@
 import { isDef } from "./utils";
 import { isComponent } from "./vdom";
+import { Component } from "./Component";
 
-export const render = (rootNode) => {
+import type { vNode } from "./vdom";
+
+export const render = (rootNode: vNode): HTMLElement | Text => {
   if (rootNode.kind === "text") {
     return document.createTextNode(rootNode.value);
   }
@@ -14,7 +17,7 @@ export const render = (rootNode) => {
   if (rootNode.kind === "component") {
     if (rootNode.instance) {
       const el = render(rootNode.instance.render());
-      rootNode.instance._notifyMounted(el);
+      rootNode.instance._notifyMounted(el as HTMLElement);
       return el;
     }
 
@@ -41,12 +44,12 @@ export const render = (rootNode) => {
   return el;
 };
 
-export const mount = (component, root) => {
+export const mount = (component: Component, root: HTMLElement) => {
   if (!isDef(component) || !isComponent(component)) {
-    throw new Error("Must pass a component to render");
+    throw new Error("Must pass a component to mount");
   }
 
-  if (!isDef(component) || !(root instanceof Element)) {
+  if (!isDef(component) || !(root instanceof HTMLElement)) {
     throw new Error("Must pass a dom node to mount");
   }
 

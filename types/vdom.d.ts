@@ -1,40 +1,56 @@
+import { Component } from "./Component";
+export type vAttrs = object;
+export interface vText {
+  kind: "text";
+  value: string;
+}
+export interface vElement {
+  kind: "element";
+  children: vNode[];
+  tag: string;
+  attrs: vAttrs;
+}
+export interface vFragment {
+  kind: "fragment";
+  children: vNode[];
+}
+export interface vFunction {
+  kind: "function";
+  children: vNode[];
+  component: Function;
+  attrs: vAttrs;
+}
+export interface vComponent {
+  kind: "component";
+  component: Function;
+  instance?: Component;
+  attrs: vAttrs;
+}
+export type vNode = vText | vElement | vFragment | vFunction | vComponent;
 export declare const Fragment: () => string;
 export declare const isComponent: (value: any) => boolean;
-export declare const isFragment: (value: any) => boolean;
-export declare const createElement: (tag: any, attrs: any, children: any) => {
-    kind: string;
-    tag: any;
-    attrs: any;
-    children: any;
-};
-export declare const createComponent: (component: any, attrs: any) => {
-    kind: string;
-    attrs: any;
-    component: any;
-};
-export declare const createFunction: (component: any, attrs: any, children: any) => {
-    kind: string;
-    attrs: any;
-    component: any;
-    children: any;
-};
-export declare const createFragment: (children: any) => {
-    kind: string;
-    children: any;
-};
-export declare const createText: (value: any) => {
-    kind: string;
-    value: any;
-};
-export declare const normalizeChildNodes: (childNodes: any) => any;
-export declare const h: (tag: any, attrs?: {}, ...children: any[]) => {
-    kind: string;
-    attrs: any;
-    component: any;
-} | {
-    kind: string;
-    children: any;
-} | {
-    kind: string;
-    value: any;
-};
+export declare const isFragment: (value: Function) => boolean;
+export declare const createElement: (
+  tag: string,
+  attrs: vAttrs,
+  children: vNode[]
+) => vElement;
+export declare const createComponent: (
+  component: Function,
+  attrs: vAttrs
+) => vComponent;
+export declare const createFunction: (
+  component: Function,
+  attrs: vAttrs,
+  children: vNode[]
+) => vFunction;
+export declare const createFragment: (children: vNode[]) => vFragment;
+export declare const createText: (value: string) => vText;
+export declare const normalizeChildNodes: (
+  childNodes: Array<vNode | string>
+) => vNode[];
+export declare const h: (
+  tag: string | Function,
+  attrs?: vAttrs,
+  ...children: Array<vNode | string>
+) => vNode;

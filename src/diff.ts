@@ -1,7 +1,10 @@
 import { render } from "./render";
 import { isArray, isDef, isEqual } from "./utils";
 
-export function diff(oldVTree, newVTree) {
+export function diff(
+  oldVTree: object | null,
+  newVTree: object | null
+): Function {
   if (!oldVTree) {
     return (node) => {
       const newNode = render(newVTree);
@@ -85,7 +88,7 @@ export function diff(oldVTree, newVTree) {
   };
 }
 
-export function diffAttrs(oldAttrs, newAttrs) {
+export function diffAttrs(oldAttrs = {}, newAttrs = {}) {
   const attrs = {
     remove: Object.keys(oldAttrs || {}).filter(
       (attr) => !isDef(newAttrs[attr])
@@ -109,8 +112,8 @@ export function diffAttrs(oldAttrs, newAttrs) {
 }
 
 export function diffChildNodes(oldChildNodes, newChildNodes) {
-  const childNodePatches: Array<object> = [];
-  const additionalPatches: Array<object> = [];
+  const childNodePatches: Array<Function> = [];
+  const additionalPatches: Array<Function> = [];
 
   oldChildNodes.forEach((oldChild, i) => {
     childNodePatches.push(diff(oldChild, newChildNodes[i]));
@@ -123,7 +126,7 @@ export function diffChildNodes(oldChildNodes, newChildNodes) {
     });
   }
 
-  return (parent) => {
+  return (parent: HTMLElement) => {
     if (parent) {
       for (const [patch, childNode] of zip(
         childNodePatches,

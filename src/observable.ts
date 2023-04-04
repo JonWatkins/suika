@@ -1,10 +1,16 @@
-import { isObject, isFunction } from "./utils";
+import { isObject } from "./utils";
+
+export interface Observable {
+  deleteProperty: Function;
+  set: Function;
+  get: Function;
+}
 
 export function observable(
-  target: object,
-  listener: Function,
+  target: any,
+  listener?: Function,
   tree: Array<String> = []
-): object {
+): Observable | any {
   if (!isObject(target)) return target;
 
   const getPath = (prop: String): String => tree.concat(prop).join(".");
@@ -20,7 +26,7 @@ export function observable(
   const deleteProperty = (target: object, name: string) => {
     const res = Reflect.deleteProperty(target, name);
 
-    if (isFunction(listener)) {
+    if (typeof listener === "function") {
       listener({
         path: getPath(name),
         target,
@@ -39,7 +45,7 @@ export function observable(
       receiver
     );
 
-    if (isFunction(listener)) {
+    if (typeof listener === "function") {
       listener({
         path: getPath(name),
         target,
