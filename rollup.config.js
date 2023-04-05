@@ -16,7 +16,6 @@ export default formats.map((format) => ({
   input: "./src/index.ts",
   output: {
     format: format,
-    sourcemap: true,
     name: "suika",
     file: `dist/bundle.${format}.js`,
   },

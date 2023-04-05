@@ -13,7 +13,7 @@ npm install suika@latest
 Or you can use Suika as a `<script>` tag from a CDN.
 
 ```html
-<script src="https://unpkg.com/suika@1.3.1/dist/bundle.esm.js"></script>
+<script src="https://unpkg.com/suika@1.3.2/dist/bundle.umd.js"></script>
 ```
 
 ## Documentation
@@ -87,7 +87,26 @@ mount(App, root);
 
 ## JavaScript
 
-You don't have to use `Typescript` to use Suika, you can use plain old `JavaScript`.
+You don't have to use `Typescript` to use Suika, you can use plain old `JavaScript`. You can use the `UMD` or `ESM` bundle.
+
+```html
+<div id="app"></div>
+<script
+  src="https://unpkg.com/suika@1.3.2/dist/bundle.umd.js"
+  type="text/javascript"
+></script>
+<script type="text/javascript">
+  const root = document.getElementById("app");
+
+  class App extends suika.Component {
+    render() {
+      return suika.h("div", {}, suika.h("h1", {}, "Hello World"));
+    }
+  }
+
+  suika.mount(App, root);
+</script>
+```
 
 ```html
 <div id="app"></div>
@@ -96,7 +115,7 @@ You don't have to use `Typescript` to use Suika, you can use plain old `JavaScri
     Component,
     mount,
     h,
-  } from "https://unpkg.com/suika@1.3.1/dist/bundle.ems.js";
+  } from "https://unpkg.com/suika@1.3.2/dist/bundle.esm.js";
 
   const root = document.getElementById("app");
 

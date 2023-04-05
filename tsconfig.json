@@ -6,7 +6,6 @@
     "module": "ESNext",
     "target": "es2022",
     "strict": true,
-    "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
