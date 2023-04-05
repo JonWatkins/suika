@@ -11,6 +11,8 @@ export {
   isReservedTag,
   isHTMLTag,
   isSVG,
+  mergeClassNames,
+  fixOptions,
 } from "./utils";
 
 declare global {

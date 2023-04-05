@@ -1,5 +1,9 @@
 export type MapHas = (value: any) => boolean;
 
+export type ElementOptions = {
+  [_: string]: any;
+};
+
 export const isUndef = (value: any): boolean => {
   return value === undefined || value === null;
 };
@@ -57,3 +61,34 @@ export const isSVG: MapHas = makeMap(
     "polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view",
   true
 );
+
+export const mergeClassNames = (className: string, classNames: string) => {
+  return `${className} ${classNames}`;
+};
+
+export const fixOptions = (
+  options: ElementOptions,
+  defaultOptions: ElementOptions
+): ElementOptions => {
+  const merged: ElementOptions = {};
+  const defaults = isObject(defaultOptions)
+    ? defaultOptions
+    : ({} as ElementOptions);
+
+  for (const [key, value] of Object.entries(defaults)) {
+    merged[key] = value;
+  }
+
+  if (isObject(options)) {
+    for (const [key, value] of Object.entries(options)) {
+      if (key === "is") continue;
+      if (key === "className") {
+        merged[key] = mergeClassNames(value, merged[key]);
+      } else {
+        merged[key] = value;
+      }
+    }
+  }
+
+  return merged;
+};

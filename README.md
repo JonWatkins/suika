@@ -67,7 +67,7 @@ export default class App extends Component {
   }
   state = {
     count: 0,
-  };
+  }
   inc() {
     this.state.count++;
   }
