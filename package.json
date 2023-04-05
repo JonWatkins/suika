@@ -1,6 +1,6 @@
 {
   "name": "suika",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Suika is a lightweight component based Javascript library for building user interfaces",
   "homepage": "https://jonwatkins.github.io/suika/",
   "author": "Jon Watkins <jwatkins@gmail.com>",
