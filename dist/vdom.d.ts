@@ -1,6 +1,6 @@
 import { Component, Ctor } from "./Component";
 export type vAttrs = {
-    [_: string]: string | number | boolean | Function;
+    [_: string]: any;
 };
 export interface vText {
     kind: "text";

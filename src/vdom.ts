@@ -2,7 +2,7 @@ import { Component, Ctor } from "./Component";
 import { isReservedTag, isDef } from "./utils";
 
 export type vAttrs = {
-  [_: string]: string | number | boolean | Function;
+  [_: string]: any;
 };
 
 export interface vText {

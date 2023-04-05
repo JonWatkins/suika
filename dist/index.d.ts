@@ -5,7 +5,7 @@ export * as utils from "./utils";
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            [elemName: string]: HTMLElement;
+            [elemName: string]: any;
         }
     }
 }
