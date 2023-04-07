@@ -43,7 +43,18 @@ export type vNode = vText | vElement | vFunction | vComponent | vFragment;
 export const Fragment = (): string => "fragment";
 
 export const isComponent = (value: any): boolean => {
-  return value.prototype instanceof Component;
+  if (
+    value.prototype &&
+    typeof value.prototype._getDiff === "function" &&
+    typeof value.prototype._initState === "function" &&
+    typeof value.prototype._initVnode === "function" &&
+    typeof value.prototype._setAttrs === "function" &&
+    typeof value.prototype._update === "function"
+  ) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 export const isFragment = (value: Function): boolean => {
