@@ -88,12 +88,14 @@ export const fixOptions = (
     merged[key] = value;
   }
 
-  for (const [key, value] of Object.entries(options)) {
-    if (key === "is") continue;
-    if (key === "className") {
-      merged[key] = mergeClassNames(value, merged[key]);
-    } else {
-      merged[key] = value;
+  if (isObject(options)) {
+    for (const [key, value] of Object.entries(options)) {
+      if (key === "is") continue;
+      if (key === "className") {
+        merged[key] = mergeClassNames(value, merged[key]);
+      } else {
+        merged[key] = value;
+      }
     }
   }
 

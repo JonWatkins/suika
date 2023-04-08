@@ -322,8 +322,8 @@ describe("diff", () => {
           {},
           // @ts-ignore:next-line
           this.state.value.showBtn
-            // @ts-ignore:next-line
-            ? h(Btn, { text: this.state.value.text })
+            ? // @ts-ignore:next-line
+              h(Btn, { text: this.state.value.text })
             : h(Input)
         );
       }

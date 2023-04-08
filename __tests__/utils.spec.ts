@@ -276,6 +276,11 @@ describe("utils", () => {
   });
 
   describe("fixOptions", () => {
+    it("shouolld return an object", () => {
+      // @ts-ignore:next-line
+      expect(typeof utils.fixOptions()).toBe("object");
+    });
+
     it("should be able to merge options", () => {
       const a = { test: true };
       const b = { env: "dev" };
