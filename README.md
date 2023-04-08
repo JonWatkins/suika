@@ -13,7 +13,7 @@ npm install suika@latest
 Or you can use Suika as a `<script>` tag from a CDN.
 
 ```html
-<script src="https://unpkg.com/suika@1.4.0/dist/bundle.umd.js"></script>
+<script src="https://unpkg.com/suika@1.4.1/dist/bundle.umd.js"></script>
 ```
 
 ## Documentation
@@ -91,7 +91,7 @@ You don't have to use `Typescript` to use Suika, you can use plain old `JavaScri
 ```html
 <div id="app"></div>
 <script
-  src="https://unpkg.com/suika@1.4.0/dist/bundle.umd.js"
+  src="https://unpkg.com/suika@1.4.1/dist/bundle.umd.js"
   type="text/javascript"
 ></script>
 <script type="text/javascript">
@@ -114,7 +114,7 @@ You don't have to use `Typescript` to use Suika, you can use plain old `JavaScri
     Component,
     mount,
     h,
-  } from "https://unpkg.com/suika@1.4.0/dist/bundle.esm.js";
+  } from "https://unpkg.com/suika@1.4.1/dist/bundle.esm.js";
 
   const root = document.getElementById("app");
 
