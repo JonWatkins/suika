@@ -31,8 +31,8 @@ describe("observable", () => {
   it("should trigger the listener on write", (done) => {
     const ob = observable({ a: { b: 1 } }, (e) => {
       expect(e.value).toBe(2);
-      expect(e.name).toBe("b");
-      expect(e.target[e.name]).toBe(2);
+      expect(e.key).toBe("b");
+      expect(e.target[e.key]).toBe(2);
       expect(e.path).toBe("a.b");
       done();
     });
@@ -43,7 +43,7 @@ describe("observable", () => {
 
   it("should trigger the listener on delete", (done) => {
     const ob = observable({ a: { b: 1 } }, (e) => {
-      expect(e.name).toBe("b");
+      expect(e.key).toBe("b");
       expect(e.target[e.name]).toBe(undefined);
       expect(e.path).toBe("a.b");
       done();

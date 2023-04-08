@@ -1,4 +1,4 @@
-import { h, vComponent, vElement, vNode } from "../src/vdom";
+import { h, vComponent, vElement } from "../src/vdom";
 import { Component } from "../src/Component";
 import { render, mount } from "../src/render";
 import { diff } from "../src/diff";
@@ -197,8 +197,10 @@ describe("diff", () => {
         return h(
           "div",
           {},
-          h(Btn, { text: this.state.text }),
-          h(Btn, { text: this.state.text })
+          // @ts-ignore:next-line
+          h(Btn, { text: this.state.value.text }),
+          // @ts-ignore:next-line
+          h(Btn, { text: this.state.value.text })
         );
       }
     }
@@ -213,7 +215,7 @@ describe("diff", () => {
     expect(_el.outerHTML).toMatchSnapshot();
     expect(_elChild.innerHTML).toEqual("Hello");
 
-    instance.state.text = "World";
+    instance.state.value.text = "World";
     const patch = instance._getDiff();
     patch(instance._el);
 
@@ -268,7 +270,8 @@ describe("diff", () => {
         text: "Hello",
       };
       render() {
-        return h("div", {}, h(Container, { text: this.state.text }));
+        // @ts-ignore:next-line
+        return h("div", {}, h(Container, { text: this.state.value.text }));
       }
     }
 
@@ -287,11 +290,55 @@ describe("diff", () => {
     expect(_el.outerHTML).toMatchSnapshot();
     expect(_childEl.innerHTML).toEqual("Hello");
 
-    instance.state.text = "World";
+    instance.state.value.text = "World";
     const patch = instance._getDiff();
     patch(instance._el);
 
     expect(_el.outerHTML).toMatchSnapshot();
     expect(_childEl.innerHTML).toEqual("World");
+  });
+
+  it("can will unmount a component if needed", () => {
+    class Btn extends Component {
+      render() {
+        return h("button", {}, this.attrs.text as string);
+      }
+    }
+
+    class Input extends Component {
+      render() {
+        return h("button", {});
+      }
+    }
+
+    class Ctx extends Component {
+      state = {
+        text: "Hello",
+        showBtn: true,
+      };
+      render() {
+        return h(
+          "div",
+          {},
+          // @ts-ignore:next-line
+          this.state.value.showBtn
+            // @ts-ignore:next-line
+            ? h(Btn, { text: this.state.value.text })
+            : h(Input)
+        );
+      }
+    }
+
+    let instance = mount(Ctx, document.createElement("div"));
+    let _el = instance._el as HTMLElement;
+
+    expect(_el.outerHTML).toMatchSnapshot();
+
+    instance.state.value.showBtn = false;
+
+    const patch = instance._getDiff();
+    patch(instance._el);
+
+    expect(_el.outerHTML).toMatchSnapshot();
   });
 });

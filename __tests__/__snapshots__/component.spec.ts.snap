@@ -14,6 +14,10 @@ exports[`Component should change the _el when replacing the root node 2`] = `"<d
 
 exports[`Component should not patch a component when the _el is not defined 1`] = `"<div><h1>Hello</h1></div>"`;
 
+exports[`Component should not try to make a reactive state if one was provided 1`] = `"<div><h1>Hello</h1></div>"`;
+
+exports[`Component should not try to make a reactive state if one was provided 2`] = `"<div><h1>World</h1></div>"`;
+
 exports[`Component should patch a component when the state changes 1`] = `"<div><h1>Hello</h1></div>"`;
 
 exports[`Component should patch a component when the state changes 2`] = `"<div><h1>World</h1></div>"`;

@@ -1,17 +1,15 @@
-import { Observable } from "./observable";
+import { ReactiveState } from "./Reactive";
 import type { vNode, vAttrs } from "./vdom";
 export type Ctor = new () => Component;
-export interface BaseState {
-    [_: string]: any;
-}
 export declare abstract class Component {
     _uid: number;
     _el: HTMLElement | Text | null;
     _vNode: vNode | null;
     _mounted: boolean;
     _isSuika: boolean;
-    state: Observable | BaseState;
+    _onChange: () => void;
     attrs: vAttrs;
+    state: ReactiveState;
     constructor();
     _update(): void;
     _getDiff(): Function;

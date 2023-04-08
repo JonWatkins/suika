@@ -2,6 +2,7 @@ import { Component } from "../src/Component";
 import { h, vComponent } from "../src/vdom";
 import { render, mount } from "../src/render";
 import { diff } from "../src/diff";
+import { Reactive } from "../src/Reactive";
 
 describe("Component", () => {
   it("Should be able to make a simpe component", () => {
@@ -70,7 +71,8 @@ describe("Component", () => {
         greeting: "Hello",
       };
       render() {
-        return h("div", {}, h("h1", {}, this.state.greeting));
+        // @ts-ignore:next-line
+        return h("div", {}, h("h1", {}, this.state.value.greeting));
       }
     }
 
@@ -80,7 +82,31 @@ describe("Component", () => {
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    instance.state.greeting = "World";
+    instance.state.value.greeting = "World";
+
+    expect(el.outerHTML).toMatchSnapshot();
+  });
+
+  it("should not try to make a reactive state if one was provided", () => {
+    let el;
+
+    class Ctx extends Component {
+      state = new Reactive({
+        greeting: "Hello",
+      });
+      render() {
+        // @ts-ignore:next-line
+        return h("div", {}, h("h1", {}, this.state.value.greeting));
+      }
+    }
+
+    const vDom = h(Ctx, {}) as vComponent;
+    el = render(vDom);
+    const instance = vDom.instance as Component;
+
+    expect(el.outerHTML).toMatchSnapshot();
+
+    instance.state.value.greeting = "World";
 
     expect(el.outerHTML).toMatchSnapshot();
   });
@@ -93,7 +119,8 @@ describe("Component", () => {
         greeting: "Hello",
       };
       render() {
-        return h("div", {}, h("h1", {}, this.state.greeting));
+        // @ts-ignore:next-line
+        return h("div", {}, h("h1", {}, this.state.value.greeting));
       }
       onUpdated() {
         expect(el.outerHTML).toMatchSnapshot();
@@ -108,7 +135,7 @@ describe("Component", () => {
 
     expect(el.outerHTML).toMatchSnapshot();
 
-    instance.state.greeting = "World";
+    instance.state.value.greeting = "World";
   });
 
   it("should not patch a component when the _el is not defined", () => {
@@ -120,7 +147,8 @@ describe("Component", () => {
         greeting: "Hello",
       };
       render() {
-        return h("div", {}, h("h1", {}, this.state.greeting));
+        // @ts-ignore:next-line
+        return h("div", {}, h("h1", {}, this.state.value.greeting));
       }
       onUpdated() {
         spy();
@@ -135,7 +163,7 @@ describe("Component", () => {
     expect(el.outerHTML).toMatchSnapshot();
 
     instance._el = null;
-    instance.state.greeting = "World";
+    instance.state.value.greeting = "World";
 
     expect(spy).toHaveBeenCalledTimes(0);
   });

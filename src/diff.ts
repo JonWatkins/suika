@@ -1,6 +1,6 @@
 import { render } from "./render";
-import { isDef, isUndef, isEqual } from "./utils";
-import { vNode, vAttrs, vText, vElement, vComponent } from "./vdom";
+import { isDef, isUndef, isEqual, zip } from "./utils";
+import { vNode, vAttrs, vText, vElement, vFunction, vComponent } from "./vdom";
 
 export type AttrsUpdater = {
   set: vAttrs;
@@ -26,7 +26,7 @@ export const diff = (
   if (!newVTree) {
     return (node: HTMLElement): null => {
       if (oldVTree.kind !== "text") {
-        unmountChildNodes(oldVTree, null);
+        unmountChildNodes(oldVTree, undefined);
       }
 
       node.remove();
@@ -63,7 +63,6 @@ export const diff = (
     oldVTree.instance
   ) {
     newVTree.instance = oldVTree.instance;
-
     if (isEqual(oldVTree.attrs, newVTree.attrs)) {
       return (node: HTMLElement): HTMLElement => node;
     }
@@ -74,11 +73,12 @@ export const diff = (
 
   if (newVTree.kind === "component") {
     const instance = new newVTree.component();
-    newVTree.instance;
+    newVTree.instance = instance;
     instance._initState();
     instance._initVnode(newVTree.attrs);
 
     return (node: HTMLElement): HTMLElement => {
+      unmountChildNodes(oldVTree, newVTree);
       const newNode = render(newVTree) as HTMLElement;
       node.replaceWith(newNode);
       instance._notifyMounted(node);
@@ -100,8 +100,8 @@ export const diff = (
 
   if (oldTag !== newTag) {
     return (node: HTMLElement): HTMLElement => {
-      const newNode = render(newVTree) as HTMLElement;
       unmountChildNodes(oldVTree, newVTree);
+      const newNode = render(newVTree) as HTMLElement;
       node.replaceWith(newNode);
       return newNode;
     };
@@ -174,16 +174,57 @@ export const diffChildNodes = (
 
 export const unmountChildNodes = (
   oldTree: vNode,
-  newTree: vNode | null,
-  toUnmount: Array<vComponent> = []
+  newTree: vNode | undefined
 ) => {
-  // TODO: implment unmount hooks
+  const toUnmount = getToUnmount(oldTree, newTree);
+  let i = toUnmount.length;
+
+  while (i--) {
+    toUnmount[i]._unmount();
+  }
 };
 
-export const zip = (xs: Array<any>, ys: Array<any>) => {
-  const zipped = [];
-  for (let i = 0; i < Math.min(xs.length, ys.length); i++) {
-    zipped.push([xs[i], ys[i]]);
+export const getToUnmount = (
+  oldTree: vNode,
+  newTree: vNode | undefined,
+  toUnmount: Array<any> = []
+) => {
+  if (oldTree.kind === "element" || oldTree.kind === "function") {
+    const oldChildNodes = oldTree.children;
+
+    if (oldTree.children.length) {
+      for (const [index, childNode] of oldChildNodes.entries()) {
+        const newChildNode = getNewChildNode(index, newTree);
+        getToUnmount(childNode, newChildNode, toUnmount);
+      }
+    }
   }
-  return zipped;
+
+  if (oldTree.kind === "component") {
+    const childNodes = oldTree.instance && oldTree.instance._vNode;
+
+    if (!newTree) {
+      toUnmount.push(oldTree.instance);
+      getToUnmount(childNodes as vNode, undefined, toUnmount);
+    } else if (
+      newTree.kind === "component" &&
+      oldTree.component !== newTree.component
+    ) {
+      const newChildNodes = newTree.instance && newTree.instance._vNode;
+      toUnmount.push(oldTree.instance);
+      getToUnmount(childNodes as vNode, newChildNodes as vNode, toUnmount);
+    }
+  }
+
+  return toUnmount;
+};
+
+export const getNewChildNode = (
+  index: number,
+  newTree: vNode | undefined
+): vNode | undefined => {
+  if (newTree && (newTree.kind === "element" || newTree.kind === "function")) {
+    return (newTree as vElement | vFunction).children[index];
+  }
+  return undefined;
 };

@@ -1,12 +1,8 @@
-import { observable, Observable } from "./observable";
+import { Reactive, ReactiveState } from "./Reactive";
 import { diff } from "./diff";
 import type { vNode, vAttrs } from "./vdom";
 
 export type Ctor = new () => Component;
-
-export interface BaseState {
-  [_: string]: any;
-}
 
 let uid = 0;
 
@@ -16,8 +12,9 @@ export abstract class Component {
   public _vNode: vNode | null;
   public _mounted: boolean;
   public _isSuika: boolean;
-  public state: Observable | BaseState;
+  public _onChange = () => this._update();
   public attrs: vAttrs;
+  public state;
 
   constructor() {
     this._uid = uid++;
@@ -25,7 +22,7 @@ export abstract class Component {
     this._vNode = null;
     this._mounted = false;
     this._isSuika = true;
-    this.state = {} as BaseState;
+    this.state = {} as ReactiveState;
     this.attrs = {};
   }
 
@@ -52,7 +49,11 @@ export abstract class Component {
   }
 
   public _initState(): void {
-    this.state = observable(this.state, this._update.bind(this));
+    if (!this.state._isReactive) {
+      this.state = new Reactive(this.state);
+    }
+
+    this.state.addListener(this._onChange);
   }
 
   public _setAttrs(attrs: vAttrs) {
@@ -60,12 +61,15 @@ export abstract class Component {
   }
 
   public _notifyMounted(el: HTMLElement): void {
-    this._el = el;
-    this._mounted = true;
-    this.onMounted();
+    if (!this._mounted) {
+      this._el = el;
+      this._mounted = true;
+      this.onMounted();
+    }
   }
 
   public _unmount(): void {
+    this.state.removeListener(this._onChange);
     this.beforeUnmount();
     this._el = null;
   }

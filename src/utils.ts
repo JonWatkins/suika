@@ -23,6 +23,14 @@ export const isEqual = (a: any, b: any): boolean => {
     : a === b;
 };
 
+export const zip = (xs: Array<any>, ys: Array<any>) => {
+  const zipped = [];
+  for (let i = 0; i < Math.min(xs.length, ys.length); i++) {
+    zipped.push([xs[i], ys[i]]);
+  }
+  return zipped;
+};
+
 export const makeMap = (str: string, lowerCase?: boolean): MapHas => {
   const map = new Map();
   const list = str.split(",");
@@ -68,25 +76,24 @@ export const mergeClassNames = (className: string, classNames: string) => {
 
 export const fixOptions = (
   options: ElementOptions,
-  defaultOptions: ElementOptions
+  defaultOptions?: ElementOptions | undefined
 ): ElementOptions => {
   const merged: ElementOptions = {};
-  const defaults = isObject(defaultOptions)
-    ? defaultOptions
-    : ({} as ElementOptions);
+  const defaults =
+    typeof defaultOptions === "object"
+      ? defaultOptions
+      : ({} as ElementOptions);
 
   for (const [key, value] of Object.entries(defaults)) {
     merged[key] = value;
   }
 
-  if (isObject(options)) {
-    for (const [key, value] of Object.entries(options)) {
-      if (key === "is") continue;
-      if (key === "className") {
-        merged[key] = mergeClassNames(value, merged[key]);
-      } else {
-        merged[key] = value;
-      }
+  for (const [key, value] of Object.entries(options)) {
+    if (key === "is") continue;
+    if (key === "className") {
+      merged[key] = mergeClassNames(value, merged[key]);
+    } else {
+      merged[key] = value;
     }
   }
 

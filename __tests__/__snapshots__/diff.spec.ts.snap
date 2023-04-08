@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`diff can will unmount a component if needed 1`] = `"<div><button>Hello</button></div>"`;
+
+exports[`diff can will unmount a component if needed 2`] = `"<div><button></button></div>"`;
+
 exports[`diff should be able to add child nodes 1`] = `"<div id="test"><h1 id="title">Hello</h1></div>"`;
 
 exports[`diff should be able to add child nodes 2`] = `"<div id="test"><h1 id="header">Hello</h1><p>Lorem ipsum</p></div>"`;

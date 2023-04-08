@@ -274,4 +274,33 @@ describe("utils", () => {
       expect(opts.b).toBe(2);
     });
   });
+
+  describe("fixOptions", () => {
+    it("should be able to merge options", () => {
+      const a = { test: true };
+      const b = { env: "dev" };
+      const res = utils.fixOptions(a, b);
+      expect(res.test).toBe(true);
+      expect(res.env).toBe("dev");
+    });
+
+    it("should be able to ommit the second param", () => {
+      const a = { test: true };
+      const res = utils.fixOptions(a);
+      expect(res.test).toBe(true);
+    });
+
+    it('should skip the "is" key', () => {
+      const a = { is: true };
+      const res = utils.fixOptions(a);
+      expect(res.test).toBe(undefined);
+    });
+
+    it("should be able to merge the className properties", () => {
+      const a = { className: "btn" };
+      const b = { className: "btn-default" };
+      const res = utils.fixOptions(a, b);
+      expect(res.className).toBe("btn btn-default");
+    });
+  });
 });

@@ -2,69 +2,80 @@ import { isObject } from "./utils";
 
 export interface Observable {
   [_: string]: any;
-  deleteProperty: Function;
-  set: Function;
-  get: Function;
 }
 
-export const observable = (
-  target: any,
-  listener?: Function,
-  tree: Array<String> = []
-): Observable => {
+export interface ProxyHandler {
+  get: (target: Target, key: string) => any;
+  set: (target: Target, key: string, value: any) => boolean;
+  deleteProperty: (target: Target, key: string) => boolean;
+}
+
+export interface Changes {
+  target: Target;
+  path: string;
+  key: string;
+  value?: any;
+}
+
+export type Target = {
+  [_: string]: any;
+};
+
+export const observable = (target: any, listener?: Function): Observable => {
   if (!isObject(target)) return target;
 
-  const getPath = (prop: String): String => tree.concat(prop).join(".");
+  const createHandler = (path: Array<String> = []): ProxyHandler => {
+    const getPath = (prop: String): String => {
+      return path.concat(prop).join(".");
+    };
 
-  for (const property in target) {
-    target[property] = observable(
-      target[property],
-      listener,
-      tree.concat(property)
-    );
-  }
+    return {
+      get(target: Target, key: string): any {
+        if (key == "isProxy") return true;
 
-  const deleteProperty = (target: object, name: string) => {
-    const res = Reflect.deleteProperty(target, name);
+        const prop = target[key];
 
-    if (typeof listener === "function") {
-      listener({
-        path: getPath(name),
-        target,
-        name,
-      });
-    }
+        if (typeof prop == "undefined") {
+          return;
+        }
 
-    return res;
+        if (!prop.isProxy && typeof prop === "object") {
+          target[key] = new Proxy(target[key], createHandler(path.concat(key)));
+        }
+
+        return target[key];
+      },
+
+      set(target: Target, key: string, value: any): boolean {
+        target[key] = value;
+
+        if (typeof listener === "function") {
+          listener({
+            path: getPath(key),
+            target,
+            key,
+            value,
+          } as Changes);
+        }
+
+        return true;
+      },
+
+      deleteProperty(target: Target, key: string): boolean {
+        delete target[key];
+
+        if (typeof listener === "function") {
+          listener({
+            path: getPath(key),
+            target,
+            key,
+          } as Changes);
+        }
+
+        return true;
+      },
+    };
   };
 
-  const set = (target: object, name: string, value: any, receiver: any) => {
-    const res = Reflect.set(
-      target,
-      name,
-      observable(value, listener),
-      receiver
-    );
-
-    if (typeof listener === "function") {
-      listener({
-        path: getPath(name),
-        target,
-        name,
-        value,
-      });
-    }
-
-    return res;
-  };
-
-  const get = (target: object, name: string, receiver: any) => {
-    return Reflect.get(target, name, receiver);
-  };
-
-  return new Proxy(target, {
-    deleteProperty,
-    set,
-    get,
-  });
+  return new Proxy(target, createHandler());
 };
