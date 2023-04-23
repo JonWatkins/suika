@@ -3,6 +3,5 @@
   "entryPoints": ["packages/*"],
   "name": "Suika",
   "exclude": ["**/node_modules/**"],
-  "entryPointStrategy": "packages",
-  "includeVersion": true
+  "entryPointStrategy": "packages"
 }

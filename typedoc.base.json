@@ -1,4 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "includeVersion": true
+  "includeVersion": true,
+  "plugin": ["suika-docs-theme"],
+  "theme": "suika-theme"
 }
