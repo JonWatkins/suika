@@ -15,5 +15,5 @@
     "moduleResolution": "node",
     "skipLibCheck": true
   },
-  "include": ["packages/*/src"]
+  "include": ["packages/*/src", "packages/global.d.ts"]
 }
