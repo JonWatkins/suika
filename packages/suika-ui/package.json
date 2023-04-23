@@ -2,7 +2,7 @@
   "name": "suika-ui",
   "version": "1.5.0",
   "description": "Suika UI is a lightweight UI library for the Suika framework",
-  "homepage": "https://jonwatkins.github.io/suika/",
+  "homepage": "https://github.com/JonWatkins/suika/tree/main/packages/suika-ui",
   "author": "Jon Watkins",
   "exports": "./dist/bundle.umd.js",
   "main": "dist/bundle.umd.js",

@@ -29,10 +29,8 @@ export {
   fixOptions,
 } from "./utils";
 
-export namespace global {
-  export namespace JSX {
-    export interface IntrinsicElements {
-      [elemName: string]: any;
-    }
+export declare namespace JSX {
+  interface IntrinsicElements {
+    [elemName: string]: any;
   }
 }
