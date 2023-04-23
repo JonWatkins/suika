@@ -1,0 +1,7 @@
+{
+  "extends": ["./typedoc.base.json"],
+  "entryPoints": ["packages/*"],
+  "name": "Packages Example",
+  "exclude": ["**/node_modules/**"],
+  "entryPointStrategy": "packages"
+}

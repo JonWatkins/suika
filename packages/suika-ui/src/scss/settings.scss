@@ -1,0 +1,63 @@
+$font-family-monospace: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+$font-family-serif: system-ui, sans-serif;
+
+$no-of-columns: 12;
+
+$primary: #626ED4;
+$secondary: #343549;
+$success: #2AA39A;
+$danger: #EC4561;
+$warning: #F8B425;
+$info: #38A5F8;
+$lightest: #F8F8FA;
+$light: lighten(#575C62, 50%);
+$dark: #575C62;
+$muted: #EDECF1;
+$white: white;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "danger": $danger,
+  "warning": $warning,
+  "info": $info,
+  "lightest": $lightest,
+  "light": $light,
+  "dark": $dark,
+  "muted": $muted, 
+  "white": $white,
+);
+
+$sm: 576px;
+$md: 768px;
+$lg: 992px;
+$xl: 1200px;
+
+$break-points: (
+  "sm": $sm,
+  "md": $md,
+  "lg": $lg, 
+  "xl": $xl,
+);
+
+$sides: (
+  "t": "top",
+  "b": "bottom",
+  "l": "left",
+  "r": "right",
+);
+
+$spacing: (
+  0, 1, 2, 3, 4,
+  5, 6, 7, 8, 9,
+  10, 11, 12, 13,
+  14, 15, 16, 17,
+  18, 19, 20, 21,
+  22, 23, 24 
+);
+
+$font-size: 1em;
+$font-ratio: 1.2;
+
+$border-radius: .25rem;

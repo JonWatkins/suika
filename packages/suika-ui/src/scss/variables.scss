@@ -1,0 +1,15 @@
+@use "sass:meta";
+
+:root {
+  --font-family-monospace: #{meta.inspect($font-family-monospace)};
+  --font-family-serif: #{meta.inspect($font-family-serif)};
+  --text-base-size: #{$font-size};
+  --text-scale-ratio: #{$font-ratio};
+
+  --baseline: 24px;
+
+  @each $name, $color in $theme-colors {
+    --#{$name}-color: #{$color};
+  }
+}
+

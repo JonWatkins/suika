@@ -1,0 +1,22 @@
+.list-group {
+  display: flex;
+  flex-direction: column;
+  padding-left: 0;
+  margin-bottom: 0;
+  border-radius: $border-radius;
+	border: 1px solid var(--muted-color);
+
+  .list-group-item {
+    position: relative;
+    display: block;
+    padding: 1rem;
+    border-bottom: 1px solid var(--muted-color);
+    +.list-group-item {
+      border-top-width: 0;
+    }
+  }
+
+  >:last-child{
+    border-bottom: 0;
+  }
+}

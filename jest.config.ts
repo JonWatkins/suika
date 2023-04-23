@@ -5,7 +5,8 @@
 
 export default {
   verbose: false,
+  testEnvironment: "jsdom",
   collectCoverage: true,
   coverageDirectory: "coverage",
-  testEnvironment: "jsdom",
+  collectCoverageFrom: ["**/*.ts", "!**/*.d.ts", "!jest.config.ts"],
 };

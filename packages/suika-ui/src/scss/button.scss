@@ -1,0 +1,71 @@
+.btn-group {
+  >:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  >:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.btn {
+	border-radius: $border-radius;
+	border-style: solid;
+	padding: 0.5rem 1rem;
+	text-decoration: none;
+	outline: none;
+	display: inline-block;
+  cursor: pointer;
+}
+
+.btn-sm {
+	font-size: 0.75rem;
+}
+
+.btn-lg {
+	font-size: 1.25rem;
+}
+
+@each $type, $class in $theme-colors {
+	.btn-#{$type} {
+		background-color: $class;
+		color: var(--white-color);
+		border-color: $class;
+
+		&:hover,
+		&:focus,
+		&:active {
+			background-color: darken($class, 15%);
+			border-color: darken($class, 15%);
+		}
+	}
+	@if ($type == "light") {
+		.btn-#{$type} {
+			background-color: $class;
+			color: var(--dark-color);
+			border-color: $class;
+
+			&:hover,
+			&:focus,
+			&:active {
+				background-color: darken($class, 15%);
+				border-color: darken($class, 15%);
+			}
+		}
+	} @else if ($type == "dark") {
+		.btn-#{$type} {
+			background-color: $class;
+			color: var(--white-color);
+			border-color: $class;
+
+			&:hover,
+			&:focus,
+			&:active {
+				background-color: lighten($class, 15%);
+				border-color: lighten($class, 15%);
+			}
+		}
+	}
+}

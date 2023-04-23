@@ -1,0 +1,22 @@
+@each $type, $class in $theme-colors {
+	.text-#{$type} {
+		color: $class;
+		&:hover,
+		&:focus,
+		&:active {
+			color: darken($class, 15%);
+      cursor: pointer;
+		}
+	}
+	@if ($type == "dark") {
+		.text-#{$type} {
+			color: $class;
+
+			&:hover,
+			&:focus,
+			&:active {
+				color: lighten($class, 45%);
+			}
+		}
+	}
+}
