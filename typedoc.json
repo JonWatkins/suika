@@ -1,7 +1,8 @@
 {
   "extends": ["./typedoc.base.json"],
   "entryPoints": ["packages/*"],
-  "name": "Packages Example",
+  "name": "Suika",
   "exclude": ["**/node_modules/**"],
-  "entryPointStrategy": "packages"
+  "entryPointStrategy": "packages",
+  "includeVersion": true
 }
