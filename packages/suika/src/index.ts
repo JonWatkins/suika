@@ -29,8 +29,12 @@ export {
   fixOptions,
 } from "./utils";
 
-export declare namespace JSX {
-  interface IntrinsicElements {
-    [elemName: string]: any;
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      // allow arbitrary elements
+      // @ts-ignore suppress ts:2374 = Duplicate string index signature.
+      [elemName: string]: any;
+    }
   }
 }

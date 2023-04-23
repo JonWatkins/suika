@@ -1,6 +1,6 @@
 {
   "name": "suika-router",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Suika Router is a lightweight routing library for the Suika framework",
   "homepage": "https://github.com/JonWatkins/suika/tree/main/packages/suika-router",
   "author": "Jon Watkins",
@@ -19,7 +19,7 @@
     "url": "https://github.com/JonWatkins/suika/issues"
   },
   "dependencies": {
-    "suika": "1.5.0"
+    "suika": "1.5.1"
   },
   "files": [
     "dist"
