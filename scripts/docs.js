@@ -8,13 +8,21 @@ const buildDocs = async () => {
   await execa("typedoc", ["--options", ["typedoc.json"]]);
 };
 
+const publicDocs = () => {
+  return new Promise((resolve) => {
+    ghpages.publish('docs', {
+      branch: 'docs',
+    }, resolve)
+  })
+}
+
 const run = async () => {
   const { deploy } = args;
 
   await buildDocs();
 
   if (deploy) {
-    console.log(args);
+    await publicDocs()
   }
 };
 
