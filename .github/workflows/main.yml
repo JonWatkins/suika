@@ -31,7 +31,7 @@ jobs:
       - run: pnpm install
 
       - name: Run unit tests
-        run: pnpm test
+        run: pnpm run ci
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3

@@ -8,6 +8,7 @@
     "build": "node scripts/build.js",
     "postinstall": "node scripts/setup.js",
     "docs": "typedoc --options typedoc.json",
+    "ci": "pnpm run build && pnpm test",
     "test": "jest"
   },
   "devDependencies": {
