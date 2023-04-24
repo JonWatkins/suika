@@ -25,7 +25,7 @@ const plugins = [
   terser(),
 ];
 
-export default formats.map((format) => {
+const mapped = formats.map((format) => {
   const config = {
     input: `packages/${TARGET}/src/index.ts`,
     output: {
@@ -45,3 +45,5 @@ export default formats.map((format) => {
 
   return config;
 });
+
+export default mapped;

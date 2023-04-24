@@ -2,5 +2,5 @@ lockfileVersion: '6.0'
 
 dependencies:
   suika:
-    specifier: 1.0.0
+    specifier: 1.5.1
     version: link:../suika
