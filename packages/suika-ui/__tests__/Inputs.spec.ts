@@ -14,6 +14,7 @@ describe("Inputs", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("INPUT");
       expect(el.className).toBe("form-control");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 
@@ -29,6 +30,7 @@ describe("Inputs", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("DIV");
       expect(el.className).toBe("input-group");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 });

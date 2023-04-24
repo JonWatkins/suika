@@ -1,6 +1,6 @@
 import { h, fixOptions, vNode, vAttrs } from "suika";
 
-export const Input = (options: vAttrs = {}): vNode => {
+export const Input = (options: vAttrs): vNode => {
   const props = fixOptions(options, {
     className: "form-control",
   });
@@ -9,8 +9,8 @@ export const Input = (options: vAttrs = {}): vNode => {
 };
 
 export const InputGroup = (
-  options: vAttrs = {},
-  children: vNode[] = []
+  options: vAttrs,
+  children: vNode[]
 ): vNode => {
   const props = fixOptions(options, {
     className: "input-group",

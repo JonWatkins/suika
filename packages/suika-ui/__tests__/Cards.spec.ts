@@ -20,6 +20,7 @@ describe("Cards", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("DIV");
       expect(el.className).toBe("card");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 
@@ -35,6 +36,7 @@ describe("Cards", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("DIV");
       expect(el.className).toBe("card-header");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 
@@ -50,6 +52,7 @@ describe("Cards", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("H1");
       expect(el.className).toBe("card-title");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 
@@ -65,6 +68,7 @@ describe("Cards", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("DIV");
       expect(el.className).toBe("card-body");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 
@@ -80,6 +84,7 @@ describe("Cards", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("DIV");
       expect(el.className).toBe("card-footer");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 });

@@ -14,6 +14,7 @@ describe("ListGroups", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("UL");
       expect(el.className).toBe("list-group");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 
@@ -29,6 +30,7 @@ describe("ListGroups", () => {
       const el = app._el as HTMLElement;
       expect(el.nodeName).toBe("LI");
       expect(el.className).toBe("list-group-item");
+      expect(el.outerHTML).toMatchSnapshot();
     });
   });
 });

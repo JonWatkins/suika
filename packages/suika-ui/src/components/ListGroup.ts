@@ -1,8 +1,8 @@
 import { h, fixOptions, vNode, vAttrs } from "suika";
 
 export const ListGroup = (
-  options: vAttrs = {},
-  children: vNode[] = []
+  options: vAttrs,
+  children: vNode[]
 ): vNode => {
   const props = fixOptions(options, {
     className: "list-group",
@@ -12,8 +12,8 @@ export const ListGroup = (
 };
 
 export const ListGroupItem = (
-  options: vAttrs = {},
-  children: vNode[] = []
+  options: vAttrs,
+  children: vNode[]
 ): vNode => {
   const props = fixOptions(options, {
     className: "list-group-item",
