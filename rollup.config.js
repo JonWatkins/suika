@@ -22,7 +22,7 @@ const plugins = [
   scss({
     fileName: "bundle.css",
   }),
-  terser(),
+  //terser(),
 ];
 
 const mapped = formats.map((format) => {
@@ -31,6 +31,7 @@ const mapped = formats.map((format) => {
     output: {
       file: `packages/${TARGET}/dist/bundle.${format}.js`,
       name: snakeToCamel(TARGET),
+      sourcemap: true,
       format,
     },
     plugins,

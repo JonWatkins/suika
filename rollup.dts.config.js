@@ -1,8 +1,11 @@
 import { readdirSync } from "node:fs";
 import dts from "rollup-plugin-dts";
-const packages = readdirSync("temp/packages");
+import { ignoreFilter } from "./scripts/utils.js";
 
-export default packages.map((pkg) => ({
+const packages = readdirSync("temp/packages");
+const filtered = packages.filter(ignoreFilter);
+
+export default filtered.map((pkg) => ({
   input: `./temp/packages/${pkg}/src/index.d.ts`,
   output: [{ file: `packages/${pkg}/dist/bundle.d.ts`, format: "es" }],
   external: [/\.scss$/],

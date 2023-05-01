@@ -13,7 +13,10 @@
     "declaration": true,
     "declarationMap": true,
     "moduleResolution": "node",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   },
   "include": ["packages/*/src", "packages/global.d.ts"]
 }
