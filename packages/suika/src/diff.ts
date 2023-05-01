@@ -1,5 +1,5 @@
 import { render, dangerouslySetHtmlContent } from "./render";
-import { isDef, isUndef, isEqual, zip } from "./utils";
+import { isDef, isUndef, isEqual, isObject, zip } from "./utils";
 import { vNode, vAttrs, vText, vElement, vFunction } from "./vdom";
 
 export type AttrsUpdater = {
@@ -109,7 +109,7 @@ export const diff = (
 
   const patchAttrs = diffAttrs(oldAttrs, newAttrs);
 
-  const patchChildNodes = newAttrs.dangerouslySetHtml
+  const patchChildNodes = isObject(newAttrs.dangerouslySetHtml)
     ? diffDangerouslySetHtml(oldAttrs, newAttrs)
     : diffChildNodes(oldChildNodes, newChildNodes);
 

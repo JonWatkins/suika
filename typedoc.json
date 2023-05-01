@@ -1,6 +1,10 @@
 {
   "extends": ["./typedoc.base.json"],
-  "entryPoints": ["packages/*"],
+  "entryPoints": [
+    "packages/suika",
+    "packages/suika-ui",
+    "packages/suika-router"
+  ],
   "name": "Suika",
   "exclude": ["**/node_modules/**"],
   "entryPointStrategy": "packages"

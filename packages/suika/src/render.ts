@@ -1,4 +1,4 @@
-import { isDef } from "./utils";
+import { isDef, isObject } from "./utils";
 import { isComponent, vNode, vAttrs } from "./vdom";
 import { Component } from "./Component";
 
@@ -32,7 +32,7 @@ export const render = (rootNode: vNode): HTMLElement | Text => {
   const el = document.createElement(rootNode.tag);
   applyAttributes(el, rootNode.attrs);
 
-  if (rootNode.attrs.dangerouslySetHtml) {
+  if (isObject(rootNode.attrs) && isObject(rootNode.attrs.dangerouslySetHtml)) {
     return dangerouslySetHtmlContent(el, rootNode.attrs);
   }
 

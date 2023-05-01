@@ -1,0 +1,20 @@
+{
+  "name": "suika-test",
+  "private": true,
+  "version": "1.5.4",
+  "description": "Suika Test is a simple internal playground for helping with development of features.",
+  "author": "Jon Watkins",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite --config vite.config.js --force"
+  },
+  "dependencies": {
+    "suika": "workspace:*",
+    "suika-router": "workspace:*",
+    "suika-ui": "workspace:*"
+  },
+  "devDependencies": {
+    "sass": "^1.62.1",
+    "vite": "^4.3.3"
+  }
+}

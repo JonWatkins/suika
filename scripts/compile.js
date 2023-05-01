@@ -1,9 +1,10 @@
 import { resolve } from "path";
 import { execa } from "execa";
 import { createRequire } from "module";
+import { ignoreFilter } from "./utils.js";
 
 const require = createRequire(import.meta.url);
-const env = "production";
+const { NODE_ENV } = process.env;
 
 export const build = async (target) => {
   const pkgDir = resolve(`packages/${target}`);
@@ -19,7 +20,7 @@ export const build = async (target) => {
       [
         `TARGET:${target}`,
         `SOURCE_MAP:true`,
-        `NODE_ENV:${env}`,
+        `NODE_ENV:${NODE_ENV}`,
         `FORMATS:${formats.join("|")}`,
       ]
         .filter(Boolean)
@@ -32,7 +33,7 @@ export const build = async (target) => {
 };
 
 export const buildAll = async (targets) => {
-  await runParallel(targets, build);
+  await runParallel(targets.filter(ignoreFilter), build);
 };
 
 export const runParallel = async (source, iteratorFn) => {

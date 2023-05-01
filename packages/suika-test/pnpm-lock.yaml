@@ -1,0 +1,12 @@
+lockfileVersion: '6.0'
+
+dependencies:
+  suika:
+    specifier: 1.5.4
+    version: link:../suika
+  suika-router:
+    specifier: 1.5.4
+    version: link:../suika-router
+  suika-ui:
+    specifier: 1.5.4
+    version: link:../suika-ui
