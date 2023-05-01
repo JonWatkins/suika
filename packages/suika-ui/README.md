@@ -7,22 +7,14 @@ Suika UI (WIP) is a lightweight UI library for the Suika framework.
 You can use `suika-ui` as a package on `npm`
 
 ```bash
-npm install suika-ui@latest
-```
-
-Or you can use Suika from a CDN.
-
-```html
-<link href="https://unpkg.com/suika-ui@1.1.7/dist/style.css" />
-<script src="https://unpkg.com/suika@1.4.1/dist/bundle.umd.js"></script>
-<script src="https://unpkg.com/suika-ui@1.1.7/dist/bundle.umd.js"></script>
+npm install suika@latest suika-ui@latest
 ```
 
 ## Documentation
 
-Documentation is comming soon.
+Please follow the documentation at [jonwatkins.github.io/suika/](https://jonwatkins.github.io/suika/).
 
-## TypeScript
+## Usage
 
 ```jsx
 import { Component, mount, h } from "suika";
@@ -43,10 +35,12 @@ class App extends Component {
     return (
       <Card>
         <CardHeader className="bg-light">
-          <CardTitle is="h2">{this.state.count}</CardTitle>
+          <CardTitle is="h2">
+            Count: {this.state.value.count.toString()}
+          </CardTitle>
         </CardHeader>
         <CardBody>
-          <Button onclick={() => this.inc()}>Inc</Button>
+          <Button onclick={() => this.state.value.count++}>Inc</Button>
         </CardBody>
       </Card>
     );
@@ -55,3 +49,9 @@ class App extends Component {
 
 mount(App, root);
 ```
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2023-present, Jon Watkins

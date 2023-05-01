@@ -20,7 +20,7 @@ describe("buttons", () => {
     it("should be able to render a button with text", () => {
       class Renderer extends Component {
         render() {
-          return h(Button, {}, 'Hello');
+          return h(Button, {}, "Hello");
         }
       }
 
@@ -47,12 +47,10 @@ describe("buttons", () => {
       expect(el.outerHTML).toMatchSnapshot();
     });
 
-    it('should be able to have nested buttons', () => {
+    it("should be able to have nested buttons", () => {
       class Renderer extends Component {
         render() {
-          return h(ButtonGroup, {},
-            h(Button, {}, 'Hello')
-          );
+          return h(ButtonGroup, {}, h(Button, {}, "Hello"));
         }
       }
 
@@ -61,6 +59,6 @@ describe("buttons", () => {
       expect(el.nodeName).toBe("DIV");
       expect(el.className).toBe("btn-group");
       expect(el.outerHTML).toMatchSnapshot();
-    })
+    });
   });
 });

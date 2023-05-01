@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.5.1",
+  "version": "1.5.2",
   "type": "module",
   "scripts": {
     "format": "prettier  --loglevel warn --write \"./**/*.{js,jsx,ts,tsx,css,md,json}\" ",
@@ -10,7 +10,7 @@
     "postinstall": "node ./scripts/setup.js",
     "docs": "node ./scripts/docs.js",
     "ci": "pnpm run build && pnpm test",
-    "test": "jest"
+    "test": "pnpm run lint && jest"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
