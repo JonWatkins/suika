@@ -6,7 +6,7 @@
   "author": "Jon Watkins",
   "license": "MIT",
   "scripts": {
-    "dev": "vite --config vite.config.js --force"
+    "dev": "vite --config vite.config.js"
   },
   "dependencies": {
     "suika": "workspace:*",

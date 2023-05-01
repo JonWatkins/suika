@@ -12,6 +12,7 @@ export default defineConfig(() => {
     },
     optimizeDeps: {
       include: ["suika", "suika-ui", "suika-router"],
+      force: true,
     },
     esbuild: {
       jsxFactory: "h",
