@@ -1,6 +1,6 @@
 export { Component, Ctor } from "./Component";
 export { mount } from "./render";
-export { Reactive, ReactiveState, Listener } from "./Reactive";
+export { Reactive, ReactiveState, Listener, reactive } from "./Reactive";
 export { Observable, Changes, Target } from "./observable";
 export { ElementOptions, MapHas } from "./utils";
 
