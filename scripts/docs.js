@@ -10,11 +10,15 @@ const buildDocs = async () => {
 
 const publicDocs = () => {
   return new Promise((resolve) => {
-    ghpages.publish('docs', {
-      branch: 'docs',
-    }, resolve)
-  })
-}
+    ghpages.publish(
+      "docs",
+      {
+        branch: "docs",
+      },
+      resolve
+    );
+  });
+};
 
 const run = async () => {
   const { deploy } = args;
@@ -22,7 +26,7 @@ const run = async () => {
   await buildDocs();
 
   if (deploy) {
-    await publicDocs()
+    await publicDocs();
   }
 };
 

@@ -10,15 +10,9 @@ You can use `suika` as a package on `npm`
 npm install suika@latest
 ```
 
-Or you can use Suika as a `<script>` tag from a CDN.
-
-```html
-<script src="https://unpkg.com/suika@1.4.1/dist/bundle.umd.js"></script>
-```
-
 ## Documentation
 
-Documentation is comming soon.
+Please follow the documentation at [jonwatkins.github.io/suika/](https://jonwatkins.github.io/suika/).
 
 ## Example
 
@@ -26,13 +20,16 @@ A simple todo example can be found [here](https://jonwatkins.github.io/suika-exa
 
 ## Usage
 
-The easiest way to use Suika is to use the [vite](https://vitejs.dev/) bundler, as this supports `SCSS` and `Typescript` out of the box. Below is an example `vite.config.js` for bundling a Suika application.
+The easiest way to use Suika is to use the [vite](https://vitejs.dev/) bundler.Below is an example `vite.config.js` for bundling a Suika application.
 
 ```js
 import { defineConfig } from "vite";
 
 export default defineConfig(() => {
   return {
+    build: {
+      outDir: "./dist",
+    },
     esbuild: {
       jsxFactory: "h",
       jsxFragment: "Fragment",
@@ -41,41 +38,29 @@ export default defineConfig(() => {
 });
 ```
 
-## TypeScript
+By default `Vite` will use the `src/index.ts` file for the bundle. Below is an example of a simple `index.ts` and `App.tsx` file for a Suika application.
+
+```ts
+import { mount } from "suika";
+import { App } from "./App";
+const el = document.querySelector("#app");
+mount(App, el as HTMLElement);
+```
+
+`App.tsx`
 
 ```jsx
-import { App, Component, mount, h } from "suika";
-import logoImg from "./public/images/logo.png";
-import "./scss/styles.scss";
-
-const Title = (props, children) => <h1 className="title">{...children}</h1>;
-
-const Button = ({ inc, text }, children) => (
-  <button onclick={() => inc()}>{...children}</button>
-);
-
-const Counter = ({ count, inc }) => (
-  <div id="counter">
-    <Title>Count: {count.toString()}</Title>
-    <Button inc={inc}>Inc</Button>
-  </div>
-);
+import { App, Component, mount, h, reactive } from "suika";
 
 export default class App extends Component {
-  constructor() {
-    super();
-  }
-  state = {
+  state = reactive({
     count: 0,
-  }
-  inc() {
-    this.state.value.count++;
-  }
+  });
   render() {
     return (
-      <div id="container">
-        <img src={logoImg}>
-        <Counter count={this.state.value.count} inc={() => this.inc()} />
+      <div id="counter">
+        <h1 className="title">Count: {this.state.value.count.toString()}</h1>
+        <button onclick={() => this.state.value.count++}>Inc</button>
       </div>
     );
   }
@@ -84,52 +69,8 @@ export default class App extends Component {
 mount(App, root);
 ```
 
-## JavaScript
+## License
 
-You don't have to use `Typescript` to use Suika, you can use plain old `JavaScript`. You can use the `UMD` or `ESM` bundle.
+[MIT](https://opensource.org/licenses/MIT)
 
-```html
-<div id="app"></div>
-<script
-  src="https://unpkg.com/suika@1.4.1/dist/bundle.umd.js"
-  type="text/javascript"
-></script>
-<script type="text/javascript">
-  const root = document.getElementById("app");
-
-  class App extends suika.Component {
-    render() {
-      return suika.h("div", {}, suika.h("h1", {}, "Hello World"));
-    }
-  }
-
-  suika.mount(App, root);
-</script>
-```
-
-```html
-<div id="app"></div>
-<script type="module">
-  import {
-    Component,
-    mount,
-    h,
-  } from "https://unpkg.com/suika@1.4.1/dist/bundle.esm.js";
-
-  const root = document.getElementById("app");
-
-  class App extends Component {
-    render() {
-      return h(
-        "div",
-        { className: "container" },
-        h("h1", { id: "title" }, "Hello World")
-      );
-    }
-  }
-
-  mount(App, root);
-</script>
-```
-
-Suika is [MIT licensed](./LICENSE).
+Copyright (c) 2023-present, Jon Watkins
