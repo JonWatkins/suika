@@ -7,17 +7,14 @@ Suika Router (WIP) is a lightweight routing library for the Suika framework.
 You can use `suika-router` as a package on `npm`
 
 ```bash
-npm install suika-router@latest
+npm install suika@latest suika-router@latest
 ```
 
-Or you can use Suika from a CDN.
+## Documentation
 
-```html
-<script src="https://unpkg.com/suika@1.4.1/dist/bundle.umd.js"></script>
-<script src="https://unpkg.com/suika-router@1.0.0/dist/bundle.umd.js"></script>
-```
+Please follow the documentation at [jonwatkins.github.io/suika/](https://jonwatkins.github.io/suika/).
 
-## TypeScript
+## Usage
 
 ```jsx
 import { Component, mount, h } from "suika";
@@ -69,3 +66,9 @@ class App extends Component {
 
 mount(App, root);
 ```
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2023-present, Jon Watkins

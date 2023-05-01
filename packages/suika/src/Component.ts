@@ -1,4 +1,4 @@
-import { Reactive, ReactiveState } from "./Reactive";
+import { reactive, ReactiveState } from "./Reactive";
 import { diff } from "./diff";
 import type { vNode, vAttrs } from "./vdom";
 
@@ -50,7 +50,7 @@ export abstract class Component {
 
   public _initState(): void {
     if (!this.state._isReactive) {
-      this.state = new Reactive(this.state);
+      this.state = reactive(this.state);
     }
 
     this.state.addListener(this._onChange);

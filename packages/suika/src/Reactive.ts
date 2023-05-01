@@ -45,3 +45,7 @@ export class Reactive implements ReactiveState {
     }
   }
 }
+
+export const reactive = (obj: any): ReactiveState => {
+  return new Reactive(obj);
+};

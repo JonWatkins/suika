@@ -8,10 +8,7 @@ export const Input = (options: vAttrs): vNode => {
   return h("input", props);
 };
 
-export const InputGroup = (
-  options: vAttrs,
-  children: vNode[]
-): vNode => {
+export const InputGroup = (options: vAttrs, children: vNode[]): vNode => {
   const props = fixOptions(options, {
     className: "input-group",
   });

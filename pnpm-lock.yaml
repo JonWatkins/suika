@@ -94,13 +94,13 @@ importers:
   packages/suika-router:
     dependencies:
       suika:
-        specifier: 1.5.1
+        specifier: 1.5.2
         version: link:../suika
 
   packages/suika-ui:
     dependencies:
       suika:
-        specifier: 1.5.1
+        specifier: 1.5.2
         version: link:../suika
 
 packages:
