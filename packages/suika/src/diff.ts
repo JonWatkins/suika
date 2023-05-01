@@ -1,4 +1,4 @@
-import { render } from "./render";
+import { render, dangerouslySetHtmlContent } from "./render";
 import { isDef, isUndef, isEqual, zip } from "./utils";
 import { vNode, vAttrs, vText, vElement, vFunction } from "./vdom";
 
@@ -108,7 +108,10 @@ export const diff = (
   }
 
   const patchAttrs = diffAttrs(oldAttrs, newAttrs);
-  const patchChildNodes = diffChildNodes(oldChildNodes, newChildNodes);
+
+  const patchChildNodes = newAttrs.dangerouslySetHtml
+    ? diffDangerouslySetHtml(oldAttrs, newAttrs)
+    : diffChildNodes(oldChildNodes, newChildNodes);
 
   return (node: HTMLElement): HTMLElement => {
     patchAttrs(node);
@@ -166,6 +169,19 @@ export const diffChildNodes = (
 
     for (const patch of additionalPatches) {
       patch(parent);
+    }
+
+    return parent;
+  };
+};
+
+export const diffDangerouslySetHtml = (
+  oldAttrs: vAttrs,
+  newAttrs: vAttrs
+): Function => {
+  return (parent: HTMLElement) => {
+    if (oldAttrs.dangerouslySetHtml !== newAttrs.dangerouslySetHtml) {
+      return dangerouslySetHtmlContent(parent, newAttrs);
     }
 
     return parent;

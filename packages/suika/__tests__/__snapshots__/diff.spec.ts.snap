@@ -12,6 +12,12 @@ exports[`diff should be able to diff child components 1`] = `"<div><button>Hello
 
 exports[`diff should be able to diff child components 2`] = `"<div><button>World</button><button>World</button></div>"`;
 
+exports[`diff should be able to diff elements with dangerouslySetHtml attribute 1`] = `"<div><h1>Hello World</h1></div>"`;
+
+exports[`diff should be able to diff elements with dangerouslySetHtml attribute 2`] = `"<div><h1>Hello World</h1></div>"`;
+
+exports[`diff should be able to diff elements with dangerouslySetHtml attribute 3`] = `"<div><h1>Hello Test</h1></div>"`;
+
 exports[`diff should be able to diff functional components 1`] = `"<h1>test</h1>"`;
 
 exports[`diff should be able to diff functional components 2`] = `"<h1>updated</h1>"`;
