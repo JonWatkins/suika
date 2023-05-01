@@ -22,7 +22,7 @@ const plugins = [
   scss({
     fileName: "bundle.css",
   }),
-  //terser(),
+  terser(),
 ];
 
 const mapped = formats.map((format) => {
