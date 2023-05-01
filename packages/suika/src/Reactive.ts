@@ -8,9 +8,7 @@ export interface ReactiveState {
   _listeners: Listener[];
   addListener: (fn: Listener) => void;
   removeListener: (fn: Listener) => void;
-  value?: {
-    [_: string]: any;
-  };
+  value: Observable
 }
 
 export class Reactive implements ReactiveState {
