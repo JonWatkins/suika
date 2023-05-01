@@ -45,16 +45,14 @@ body:
       placeholder: Steps to reproduce
     validations:
       required: true
-  - type:
+  - type: input
     id: browser
-    type: input
     label: Browser
     description: e.g. chrome 112.0.5615.138, safari 5.1.7
     validations:
       required: true
-  - type:
+  - type: input
     id: env
-    type: input
     label: Environment
     description: e.g. iPhone6 iOS8.1, macOS 10.14
     validations:
