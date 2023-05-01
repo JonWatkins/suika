@@ -143,6 +143,26 @@ describe("diff", () => {
     expect(el.childNodes[0].childNodes[0].textContent).toEqual("World");
   });
 
+  it("should be able to diff elements with dangerouslySetHtml attribute", () => {
+    const oldVnode = h("div", {
+      dangerouslySetHtml: { __html: "<h1>Hello World</h1>" },
+    });
+    const newVnode = h("div", {
+      dangerouslySetHtml: { __html: "<h1>Hello Test</h1>" },
+    });
+
+    let el = render(oldVnode) as HTMLElement;
+    expect(el.outerHTML).toMatchSnapshot();
+
+    let patch = diff(oldVnode, oldVnode);
+    el = patch(el) as HTMLElement;
+    expect(el.outerHTML).toMatchSnapshot();
+
+    patch = diff(oldVnode, newVnode);
+    el = patch(el) as HTMLElement;
+    expect(el.outerHTML).toMatchSnapshot();
+  });
+
   it("should be able to diff functional components", () => {
     const Header = ({ title }) => h("h1", {}, title);
     const oldVnode = h(Header, { title: "test" });

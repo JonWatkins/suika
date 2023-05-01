@@ -125,4 +125,22 @@ describe("render", () => {
       expect(instance._isSuika).toBe(true);
     });
   });
+
+  it("should be able too dangerously set html", () => {
+    class App extends Component {
+      render() {
+        return h("div", {
+          id: "page",
+          dangerouslySetHtml: { __html: "<h1>Hello World</h1>" },
+        });
+      }
+    }
+    const instance = mount(App, document.createElement("div"));
+    const el = instance._el as HTMLElement;
+
+    expect(instance._isSuika).toBe(true);
+    expect(el.outerHTML).toMatchSnapshot();
+    expect(el.firstChild?.nodeName).toBe("H1");
+    expect(el.firstChild?.textContent).toBe("Hello World");
+  });
 });

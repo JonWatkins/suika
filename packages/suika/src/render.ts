@@ -1,5 +1,5 @@
 import { isDef } from "./utils";
-import { isComponent, vNode } from "./vdom";
+import { isComponent, vNode, vAttrs } from "./vdom";
 import { Component } from "./Component";
 
 export const render = (rootNode: vNode): HTMLElement | Text => {
@@ -30,15 +30,40 @@ export const render = (rootNode: vNode): HTMLElement | Text => {
   }
 
   const el = document.createElement(rootNode.tag);
+  applyAttributes(el, rootNode.attrs);
 
-  for (const attr in rootNode.attrs) {
-    (el as any)[attr] = rootNode.attrs[attr];
+  if (rootNode.attrs.dangerouslySetHtml) {
+    return dangerouslySetHtmlContent(el, rootNode.attrs);
   }
 
   rootNode.children.forEach((child: vNode) => {
     el.appendChild(render(child));
   });
 
+  return el;
+};
+
+export const applyAttributes = (
+  el: HTMLElement,
+  attrs: vAttrs
+): HTMLElement => {
+  for (const attr in attrs) {
+    if (attr !== "dangerouslySetHtml") {
+      (el as any)[attr] = attrs[attr];
+    }
+  }
+
+  return el;
+};
+
+export const dangerouslySetHtmlContent = (
+  el: HTMLElement,
+  attrs: vAttrs
+): HTMLElement => {
+  const { __html } = attrs.dangerouslySetHtml;
+  const slotHTML = document.createRange().createContextualFragment(__html);
+  el.innerHTML = "";
+  el.appendChild(slotHTML);
   return el;
 };
 
