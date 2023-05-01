@@ -47,14 +47,16 @@ body:
       required: true
   - type: input
     id: browser
-    label: Browser
-    description: e.g. chrome 112.0.5615.138, safari 5.1.7
+    attributes:
+      label: Browser
+      description: e.g. chrome 112.0.5615.138, safari 5.1.7
     validations:
       required: true
   - type: input
     id: env
-    label: Environment
-    description: e.g. iPhone6 iOS8.1, macOS 10.14
+    attributes:
+      label: Environment
+      description: e.g. iPhone6 iOS8.1, macOS 10.14
     validations:
       required: true
   - type: textarea
