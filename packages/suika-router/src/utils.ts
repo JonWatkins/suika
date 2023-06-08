@@ -1,5 +1,10 @@
+export const escapeRegExp = (string: string): string => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 export const pathToRegex = (path: string): RegExp => {
-  return new RegExp(`^${path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)")}$`);
+  const escapedPath = escapeRegExp(path);
+  return new RegExp(`^${escapedPath.replace(/:\w+/g, "([^/]+)")}$`);
 };
 
 export const navigate = (path = "", mode = "hash"): void => {
