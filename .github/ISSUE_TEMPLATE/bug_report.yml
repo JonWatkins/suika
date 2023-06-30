@@ -27,7 +27,7 @@ body:
       label: Link to minimal reproduction
       description: |
         The easiest way to provide a reproduction is by reproducing it in [StackBlitz](https://stackblitz.com/github/JonWatkins/suika-starter?file=README.md).
-        you also provide a GitHub repository.
+        you can also provide a GitHub repository.
 
         The reproduction should be **minimal** - i.e. it should contain only the bare minimum amount of code needed
         to show the bug. See [Bug Reproduction Guidelines](https://jonwatkins.github.io/suika/core/blob/main/.github/bug-repro-guidelines.md) for more details.
