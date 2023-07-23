@@ -15,7 +15,7 @@ export class App extends Component {
               Suika
             </RouterLink>
             <ul className="flex">
-              <li className="mr-1.5">
+              <li className="ml-1.5">
                 <RouterLink
                   to="/"
                   className="inline-block text-primary-500 dark:text-light-500 dark:hover:text-light-700 hover:text-primary-800 py-1 pr-0.5"
@@ -23,7 +23,7 @@ export class App extends Component {
                   Home
                 </RouterLink>
               </li>
-              <li className="mr-1.5">
+              <li className="ml-1.5">
                 <RouterLink
                   to="/counter"
                   className="inline-block text-primary-500 dark:text-light-500 dark:hover:text-light-700 hover:text-primary-800 py-1 pr-0.5"
@@ -31,7 +31,7 @@ export class App extends Component {
                   Counter
                 </RouterLink>
               </li>
-              <li className="mr-1.5">
+              <li className="ml-1.5">
                 <RouterLink
                   to="/404"
                   className="inline-block text-primary-500 dark:text-light-500 dark:hover:text-light-700 hover:text-primary-800 py-1 pr-0.5"
