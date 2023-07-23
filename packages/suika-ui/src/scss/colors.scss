@@ -1,0 +1,151 @@
+// Define your color palette map
+$primary: #007bff;
+$secondary: #6c757d;
+$success: #28a745;
+$info: #17a2b8;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #343a40;
+
+$colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+);
+
+// Define your weight map with percentages
+$weights: (
+  100: 40%,
+  200: 30%,
+  300: 20%,
+  400: 10%,
+  500: 0%,
+  600: 10%,
+  700: 20%,
+  800: 30%,
+  900: 40%,
+);
+
+// Define the opacity options
+$opacities: (
+  100: 1,
+  75: 0.75,
+  50: 0.5,
+  25: 0.25,
+);
+
+// Mixin to apply color palette to a CSS property and generate utility classes
+@mixin applyColorPalette($property) {
+  @each $color, $hex in $colors {
+    @each $weight, $value in $weights {
+      $background-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+
+      &-#{$color}-#{$weight} {
+        #{$property}: $background-color;
+        // You can add more styles related to the property if needed
+        // e.g., padding, border-radius, etc.
+
+        @each $opacity, $alpha in $opacities {
+          &\/#{$opacity} {
+            #{$property}: rgba($background-color, $alpha);
+            // You can add more styles related to the property with opacity if needed
+          }
+        }
+      }
+    }
+  }
+}
+
+
+// Mixin to generate hover classes for background-color, color, and border-color properties
+@mixin generateHoverClasses {
+  @each $color, $hex in $colors {
+    @each $weight, $value in $weights {
+      .hover\:bg-#{$color}-#{$weight} {
+        &:hover {
+          background-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+        }
+      }
+      .hover\:text-#{$color}-#{$weight} {
+        &:hover {
+          color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+        }
+      }
+      .hover\:border-#{$color}-#{$weight} {
+        &:hover {
+          border-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+        }
+      }
+    }
+  }
+}
+
+// Mixin to generate .dark classes for background-color, color, and border-color properties
+@mixin generateDarkClasses {
+  @media (prefers-color-scheme: dark) {
+    @each $color, $hex in $colors {
+      @each $weight, $value in $weights {
+        .dark\:bg-#{$color}-#{$weight} {
+          background-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+        }
+        .dark\:text-#{$color}-#{$weight} {
+          color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+        }
+        .dark\:border-#{$color}-#{$weight} {
+          border-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+        }
+      }
+    }
+  }
+}
+
+@mixin generateDarkHoverClasses {
+  @media (prefers-color-scheme: dark) {
+    @each $color, $hex in $colors {
+      @each $weight, $value in $weights {
+        .dark\:hover\:bg-#{$color}-#{$weight} {
+          &:hover {
+            background-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+          }
+        }
+        .dark\:hover\:text-#{$color}-#{$weight} {
+          &:hover {
+            color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+          }
+        }
+        .dark\:hover\:border-#{$color}-#{$weight} {
+          &:hover {
+            border-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
+          }
+        }
+      }
+    }
+  }
+}
+
+// Example usage of mixins to generate utility classes, hover classes, and dark classes
+.bg {
+  @include applyColorPalette(background-color);
+}
+
+.text {
+  @include applyColorPalette(color);
+}
+
+.border {
+  @include applyColorPalette(border-color);
+}
+
+// Example usage of the hover class generator mixin
+@include generateHoverClasses;
+
+// Example usage of the dark class generator mixin
+@include generateDarkClasses;
+
+@include generateDarkHoverClasses;

@@ -1,0 +1,52 @@
+// Define your border style options
+$border-styles: (
+  "solid": solid,
+  "dashed": dashed,
+  "dotted": dotted,
+  "double": double,
+  "groove": groove,
+  "ridge": ridge,
+  "inset": inset,
+  "outset": outset,
+  "none": none,
+);
+
+// Define your border width options
+$border-widths: (
+  "0": 0,
+  "1": 1px,
+  "2": 2px,
+  "3": 3px,
+  "4": 4px,
+  "5": 5px,
+);
+
+// Define your border radius options
+$border-radii: (
+  "none": 0,
+  "sm": 0.2rem,
+  "md": 0.4rem,
+  "lg": 0.6rem,
+  "xl": 1rem,
+  "full": 9999px, // Use a large value for a circle
+);
+
+// Mixin to generate utility classes
+@each $style, $value in $border-styles {
+  .border-#{$style} {
+    border-style: #{$value};
+  }
+}
+
+@each $width, $widthValue in $border-widths {
+  .border-#{$width} {
+    border-width: #{$widthValue};
+  }
+}
+
+@each $radius, $radiusValue in $border-radii {
+  .rounded-#{$radius} {
+    border-radius: #{$radiusValue};
+  }
+}
+

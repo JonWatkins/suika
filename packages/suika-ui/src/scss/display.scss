@@ -1,0 +1,42 @@
+// Define your display options
+$display-utilities: (
+  "block": block,
+  "inline-block": inline-block,
+  "inline": inline,
+  "flex": flex,
+  "inline-flex": inline-flex,
+  "grid": grid,
+  "inline-grid": inline-grid,
+  "table": table,
+  "table-row": table-row,
+  "table-cell": table-cell,
+  "none": none,
+  "contents": contents,
+  "flow": flow,
+  "flow-root": flow-root,
+  "table-header-group": table-header-group,
+  "table-footer-group": table-footer-group,
+  "table-row-group": table-row-group,
+  "table-cell-group": table-cell-group,
+  "table-caption": table-caption,
+  "inherit": inherit,
+  "initial": initial,
+  "unset": unset,
+);
+
+// Mixin to generate display utility classes
+@each $display, $value in $display-utilities {
+  .#{$display} {
+    display: #{$value};
+  }
+}
+
+@each $bp-size, $bp-width in $breakpoints {
+  @media (min-width: $bp-width) {
+    @each $display, $value in $display-utilities {
+      .#{$bp-size}\:#{$display} {
+        display: #{$value};
+      }
+    }
+  }
+}

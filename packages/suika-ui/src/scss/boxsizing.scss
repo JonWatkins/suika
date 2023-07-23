@@ -1,0 +1,24 @@
+// Define the SCSS map for box-sizing utility classes
+$boxSizingValues: (
+  "border-box": border-box,
+  "content-box": content-box,
+  "inherit": inherit,
+  "initial": initial,
+  "revert": revert,
+  "revert-layer": revert-layer,
+  "unset": unset,
+);
+
+// Define the mixin for box-sizing utility
+@mixin box-sizing($boxModel: content-box) {
+  box-sizing: $boxModel;
+  -moz-box-sizing: $boxModel; // For older versions of Firefox
+  -webkit-box-sizing: $boxModel; // For older versions of Safari
+}
+
+// Loop through the map and generate utility classes dynamically
+@each $className, $boxModel in $boxSizingValues {
+  .#{$className} {
+    @include box-sizing($boxModel);
+  }
+}

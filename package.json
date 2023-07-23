@@ -50,5 +50,8 @@
     "packages/suika",
     "packages/suika-ui",
     "packages/suika-router"
-  ]
+  ],
+  "dependencies": {
+    "rfs": "^10.0.0"
+  }
 }

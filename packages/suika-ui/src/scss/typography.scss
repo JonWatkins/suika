@@ -1,0 +1,148 @@
+// Define your font families
+$font-families: (
+  "sans": '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  "serif": 'Georgia, "Times New Roman", Times, serif',
+  "mono": 'Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+);
+
+// Font smoothing utility classes
+$font-smoothing-styles: (
+  "antialiased": antialiased,
+  "subpixel-antialiased": subpixel-antialiased,
+);
+
+$breakpoints: (
+  "sm": 576px,
+  "md": 768px,
+  "lg": 992px,
+  "xl": 1200px
+);
+
+// Typography utility classes
+$typography-classes: (
+  "text-xs": 0.75rem,
+  "text-sm": 0.875rem,
+  "text-base": 1rem,
+  "text-lg": 1.125rem,
+  "text-xl": 1.25rem,
+  "text-2xl": 1.5rem,
+  "text-3xl": 1.875rem,
+  "text-4xl": 2.25rem,
+  "text-5xl": 3rem,
+  "font-semibold": bold,
+  "font-normal": normal,
+  "font-italic": italic,
+  "uppercase": uppercase,
+  "lowercase": lowercase,
+  "capitalize": capitalize,
+);
+
+// Tracking values
+$tracking-values: (
+  "tracking-wide": 0.05em,
+  "tracking-wider": 0.1em,
+  "tracking-widest": 0.2em,
+);
+
+// Define the SCSS map for text alignment utility classes
+$textAlignmentValues: (
+  "text-left": left,
+  "text-right": right,
+  "text-center": center,
+  "text-justify": justify,
+);
+
+// Generate typography utility classes
+@each $class, $value in $typography-classes {
+  .#{$class} {
+    @if (type-of($value) == 'number') {
+      font-size: $value;
+    } @else if ($class == "font-semibold") {
+      font-weight: bold;
+    } @else if ($class == "font-normal") {
+      font-weight: normal;
+    } @else if ($class == "font-italic") {
+      font-style: italic;
+    } @else if ($class == "uppercase" or $class == "lowercase" or $class == "capitalize") {
+      text-transform: $class;
+    } @else {
+      #{$value}: $value;
+    }
+  }
+}
+
+// Generate tracking utility classes
+@each $class, $value in $tracking-values {
+  .#{$class} {
+    letter-spacing: $value;
+  }
+}
+
+// Responsive utility classes
+@each $breakpoint, $size in $breakpoints {
+  @media (min-width: $size) {
+    // Generate responsive typography and tracking utility classes
+    @each $class, $value in $typography-classes {
+      .#{$breakpoint}\\:#{$class} {
+        @if (type-of($value) == 'number') {
+          font-size: $value;
+        } @else if ($class == "font-semibold") {
+          font-weight: bold;
+        } @else if ($class == "font-normal") {
+          font-weight: normal;
+        } @else if ($class == "font-italic") {
+          font-style: italic;
+        } @else if ($class == "uppercase" or $class == "lowercase" or $class == "capitalize") {
+          text-transform: $class;
+        } @else {
+          #{$value}: $value;
+        }
+      }
+    }
+
+    // Generate responsive tracking utility classes
+    @each $class, $value in $tracking-values {
+      .#{$breakpoint}\\:#{$class} {
+        letter-spacing: $value;
+      }
+    }
+  }
+}
+
+// Loop through the map and generate utility classes dynamically
+@each $className, $alignmentValue in $textAlignmentValues {
+  .#{$className} {
+    text-align: $alignmentValue;
+  }
+}
+
+
+// Mixin to generate font-family utility classes
+@mixin generateFontFamilyUtilities {
+  @each $class, $family in $font-families {
+    .font-#{$class} {
+      font-family: #{$family};
+    }
+  }
+}
+
+
+// Mixin to generate font smoothing utility classes
+@mixin generateFontSmoothingUtilities {
+  @each $class, $style in $font-smoothing-styles {
+    .font-smooth-#{$class} {
+      -webkit-font-smoothing: $style;
+      -moz-osx-font-smoothing: $style;
+      font-smoothing: $style;
+    }
+  }
+}
+
+// Apply the .font-sans class to the body
+body {
+  @extend .font-sans;
+}
+
+// Example usage of the mixin to generate font-family utility classes
+@include generateFontFamilyUtilities;
+@include generateFontSmoothingUtilities;

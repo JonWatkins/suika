@@ -1,13 +1,141 @@
-@each $side, $value in $sides {
-  .m#{$side}-auto{
-    margin-#{$value}: auto;
+// Sides map
+$sides: (
+  "t": "top",
+  "l": "left",
+  "r": "right",
+  "b": "bottom",
+  "x": "x",
+  "y": "y"
+);
+
+// Define the scale with steps of 0.5 from 0 to 20
+$scale: ();
+
+@for $i from 0 through 80 {
+  $value: $i * 0.25;
+  $scale: append($scale, $value, comma);
+}
+
+// Mixin to apply padding and margin
+@mixin padding-utilities($side, $value) {
+  $valueRem: $value * 1rem;
+  @if ($side == "top") {
+    @include padding-top($valueRem);
+  } @else if ($side == 'bottom') {
+    @include padding-bottom($valueRem);
+  } @else if ($side == 'left') {
+    @include padding-left($valueRem);
+  } @else if ($side == 'right') {
+    @include padding-right($valueRem);
+  } @else {
+    @include padding($valueRem);
   }
-  @each $space in $spacing {
-    .m#{$side}-#{$space} {
-      margin-#{$value}: #{calc($space/4)}rem!important;
+}
+
+@mixin margin-utilities($side, $value) {
+  $valueRem: $value * 1rem;
+  @if ($side == "top") {
+    @include margin-top($valueRem);
+  } @else if ($side == 'bottom') {
+    @include margin-bottom($valueRem);
+  } @else if ($side == 'left') {
+    @include margin-left($valueRem);
+  } @else if ($side == 'right') {
+    @include margin-right($valueRem);
+  } @else {
+    @include margin($valueRem);
+  }
+}
+
+// Spacing scale class generation
+@each $value in $scale {
+  $escaped-value: escape-number($value);
+
+  .p-#{$escaped-value} {
+    @include padding-utilities(all, $value);
+  }
+
+  @each $side, $prop in $sides {
+    .p#{$side}-#{$escaped-value} {
+      @if ($side == x) {
+        @include padding-utilities(left, $value);
+        @include padding-utilities(right, $value);
+      } @else if ($side == y) {
+        @include padding-utilities(top, $value);
+        @include padding-utilities(bottom, $value);
+      } @else {
+        @include padding-utilities($prop, $value);
+      }
     }
-    .p#{$side}-#{$space} {
-      margin-#{$value}: #{calc($space/4)}rem!important;
+  }
+
+  .m-#{$escaped-value} {
+    @include margin-utilities(all, $value);
+  }
+
+  @each $side, $prop in $sides {
+    .m#{$side}-#{$escaped-value} {
+      @if ($side == x) {
+        @include margin-utilities(left, $value);
+        @include margin-utilities(right, $value);
+      } @else if ($side == y) {
+        @include margin-utilities(top, $value);
+        @include margin-utilities(bottom, $value);
+      } @else {
+        @include margin-utilities($prop, $value);
+      }
     }
   }
 }
+
+@each $bp-size, $bp-width in $breakpoints {
+  @media (min-width: $bp-width) {
+    @each $value in $scale {
+      $escaped-value: escape-number($value);
+    
+      .#{$bp-size}\:p-#{$escaped-value} {
+        @include padding-utilities(all, $value);
+      }
+    
+      @each $side, $prop in $sides {
+        .#{$bp-size}\:p#{$side}-#{$escaped-value}  {
+          @if ($side == x) {
+            @include padding-utilities(left, $value);
+            @include padding-utilities(right, $value);
+          } @else if ($side == y) {
+            @include padding-utilities(top, $value);
+            @include padding-utilities(bottom, $value);
+          } @else {
+            @include padding-utilities($prop, $value);
+          }
+        }
+      }
+    
+      .#{$bp-size}\:m-#{$escaped-value} {
+        @include margin-utilities(all, $value);
+      }
+    
+      @each $side, $prop in $sides {
+        .#{$bp-size}\:m#{$side}-#{$escaped-value}  {
+          @if ($side == x) {
+            @include margin-utilities(left, $value);
+            @include margin-utilities(right, $value);
+          } @else if ($side == y) {
+            @include margin-utilities(top, $value);
+            @include margin-utilities(bottom, $value);
+          } @else {
+            @include margin-utilities($prop, $value);
+          }
+        }
+      }
+    }
+  }
+}
+
+.mx-auto {
+  margin: 0 auto;
+}
+.my-auto {
+  margin: auto 0;
+}
+
