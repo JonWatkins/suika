@@ -5,7 +5,8 @@ $sides: (
   "r": "right",
   "b": "bottom",
   "x": "x",
-  "y": "y"
+  "y": "y",
+  "xy": "xy",
 );
 
 // Define the scale with steps of 0.5 from 0 to 20
@@ -57,7 +58,12 @@ $scale: ();
 
   @each $side, $prop in $sides {
     .p#{$side}-#{$escaped-value} {
-      @if ($side == x) {
+      @if ($side == "xy") {
+        @include padding-utilities(left, $value);
+        @include padding-utilities(right, $value);
+        @include padding-utilities(top, $value);
+        @include padding-utilities(bottom, $value);
+      } @else if ($side == x) {
         @include padding-utilities(left, $value);
         @include padding-utilities(right, $value);
       } @else if ($side == y) {
@@ -75,7 +81,12 @@ $scale: ();
 
   @each $side, $prop in $sides {
     .m#{$side}-#{$escaped-value} {
-      @if ($side == x) {
+      @if ($side == "xy") {
+        @include margin-utilities(left, $value);
+        @include margin-utilities(right, $value);
+        @include margin-utilities(top, $value);
+        @include margin-utilities(bottom, $value);
+      } @else if ($side == x) {
         @include margin-utilities(left, $value);
         @include margin-utilities(right, $value);
       } @else if ($side == y) {
@@ -99,7 +110,12 @@ $scale: ();
     
       @each $side, $prop in $sides {
         .#{$bp-size}\:p#{$side}-#{$escaped-value}  {
-          @if ($side == x) {
+          @if ($side == "xy") {
+            @include padding-utilities(left, $value);
+            @include padding-utilities(right, $value);
+            @include padding-utilities(top, $value);
+            @include padding-utilities(bottom, $value);
+          } @else if ($side == x) {
             @include padding-utilities(left, $value);
             @include padding-utilities(right, $value);
           } @else if ($side == y) {
@@ -117,7 +133,12 @@ $scale: ();
     
       @each $side, $prop in $sides {
         .#{$bp-size}\:m#{$side}-#{$escaped-value}  {
-          @if ($side == x) {
+          @if ($side == "xy") {
+            @include margin-utilities(left, $value);
+            @include margin-utilities(right, $value);
+            @include margin-utilities(top, $value);
+            @include margin-utilities(bottom, $value);
+          } @else if ($side == x) {
             @include margin-utilities(left, $value);
             @include margin-utilities(right, $value);
           } @else if ($side == y) {

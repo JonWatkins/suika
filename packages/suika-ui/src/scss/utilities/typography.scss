@@ -118,23 +118,18 @@ $textAlignmentValues: (
 
 
 // Mixin to generate font-family utility classes
-@mixin generateFontFamilyUtilities {
-  @each $class, $family in $font-families {
-    .font-#{$class} {
-      font-family: #{$family};
-    }
+@each $class, $family in $font-families {
+  .font-#{$class} {
+    font-family: #{$family};
   }
 }
 
 
-// Mixin to generate font smoothing utility classes
-@mixin generateFontSmoothingUtilities {
-  @each $class, $style in $font-smoothing-styles {
-    .font-smooth-#{$class} {
-      -webkit-font-smoothing: $style;
-      -moz-osx-font-smoothing: $style;
-      font-smoothing: $style;
-    }
+// Generate font smoothing utility classes
+@each $class, $style in $font-smoothing-styles {
+  .font-smooth-#{$class} {
+    -webkit-font-smoothing: $style;
+    -moz-osx-font-smoothing: $style;
   }
 }
 
@@ -143,6 +138,3 @@ body {
   @extend .font-sans;
 }
 
-// Example usage of the mixin to generate font-family utility classes
-@include generateFontFamilyUtilities;
-@include generateFontSmoothingUtilities;

@@ -1,0 +1,27 @@
+.card {
+  @extend .bg-white;
+  @extend .border-1;
+  @extend .border-solid;
+  @extend .border-light-600;
+  @extend .rounded-md;
+
+  &-header {
+    @extend .bg-light-500;
+    @extend .text-2xl;
+    @extend .p-1\.5;
+  }
+
+  &-body {
+    @extend .p-1\.5;
+  }
+
+  &-title {
+    @extend .text-2xl;
+    @extend .inline-block;
+    @extend .pb-1\.5;
+  }
+
+  &-text {
+    @extend .pb-1\.5;
+  }
+}

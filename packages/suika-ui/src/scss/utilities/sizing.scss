@@ -9,76 +9,69 @@ $scale-values: ();
 // Add full height and width classes
 $scale-values: map-merge($scale-values, ("full": 100%));
 
-// Mixin to generate height utility classes
-@mixin generateHeightUtilities {
-  @each $class, $value in $scale-values {
-    .h-#{$class} {
-      height: $value;
-    }
+// Generate height utility classes
+@each $class, $value in $scale-values {
+  .h-#{$class} {
+    height: $value;
   }
+}
 
-  // Add h-screen class
-  .h-screen {
-    height: 100vh;
-  }
+// Add h-screen class
+.h-screen {
+  height: 100vh;
+}
 
-  // Add h-min class
-  .h-min {
-    height: min-content;
-  }
+// Add h-min class
+.h-min {
+  height: min-content;
+}
 
-  // Add h-max class
-  .h-max {
-    height: max-content;
-  }
+// Add h-max class
+.h-max {
+  height: max-content;
+}
 
-  // Add h-fit class
-  .h-fit {
-    height: fit-content;
-  }
+// Add h-fit class
+.h-fit {
+  height: fit-content;
+}
 
-  // Add h-auto class
-  .h-auto {
-    height: auto;
-  }
+// Add h-auto class
+.h-auto {
+  height: auto;
+}
 
 // Media Queries for Height Classes
-  @each $breakpoint, $size in $breakpoints {
-    @media (min-width: $size) {
-      @each $class, $value in $scale-values {
-        .#{$breakpoint}\:h-#{$class} {
-          height: $value; // Adjust the desired height for each breakpoint
-        }
+@each $breakpoint, $size in $breakpoints {
+  @media (min-width: $size) {
+    @each $class, $value in $scale-values {
+      .#{$breakpoint}\:h-#{$class} {
+        height: $value; // Adjust the desired height for each breakpoint
       }
     }
   }
 }
 
-// Mixin to generate width utility classes
-@mixin generateWidthUtilities {
-  @each $class, $value in $scale-values {
-    .w-#{$class} {
-      width: $value;
-    }
-  }
 
-  // Add w-screen class
-  .w-screen {
-    width: 100vw;
+// Generate width utility classes
+@each $class, $value in $scale-values {
+  .w-#{$class} {
+    width: $value;
   }
+}
+
+// Add w-screen class
+.w-screen {
+  width: 100vw;
+}
 
 // Media Queries for Width Classes
-  @each $breakpoint, $size in $breakpoints {
-    @media (min-width: $size) {
-      @each $class, $value in $scale-values {
-        .#{$breakpoint}\:w-#{$class} {
-          width: $value; // Adjust the desired width for each breakpoint
-        }
+@each $breakpoint, $size in $breakpoints {
+  @media (min-width: $size) {
+    @each $class, $value in $scale-values {
+      .#{$breakpoint}\:w-#{$class} {
+        width: $value; // Adjust the desired width for each breakpoint
       }
     }
   }
 }
-
-// Example usage of the mixins to generate height and width utility classes
-@include generateHeightUtilities;
-@include generateWidthUtilities;
