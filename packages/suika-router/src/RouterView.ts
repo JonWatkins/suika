@@ -18,6 +18,7 @@ export class RouterView extends Component {
   }
 
   public changeHandler(e: Event) {
+    e.preventDefault();
     this._update();
   }
 

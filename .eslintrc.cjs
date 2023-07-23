@@ -37,11 +37,17 @@ module.exports = {
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/ban-ts-comment": "off"
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        varsIgnorePattern: "^(h|Fragment)$",
+      },
+    ],
   },
   globals: {
     describe: true,
     it: true,
-    expect: true
-  }
+    expect: true,
+  },
 };

@@ -1,0 +1,33 @@
+@mixin button-background($type) {
+  &-#{$type} {
+    @extend .bg-#{$type}-500;
+    &:hover {
+      @extend .hover\:bg-#{$type}-700;
+    }
+  }
+}
+
+.btn {
+  @extend .py-0\.5;
+  @extend .px-1\.5;
+  @extend .rounded-md;
+  @extend .border-none;
+  @extend .text-light-500;
+  @extend .hover\:text-light-700;
+
+  @each $color, $hex in $colors {
+    @include button-background($color);
+  }
+
+  &-tiny {
+    @extend .text-sm;
+  }
+
+  &-md {
+    @extend .text-lg;
+  }
+
+  &-lg {
+    @extend .text-xl;
+  }
+}

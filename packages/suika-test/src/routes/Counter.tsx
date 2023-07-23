@@ -1,4 +1,4 @@
-import { Component, vNode, h, Fragment, reactive } from "suika";
+import { Component, vNode, h, reactive } from "suika";
 import { Button } from "suika-ui";
 
 export class Counter extends Component {
@@ -7,14 +7,14 @@ export class Counter extends Component {
   });
   render(): vNode {
     return (
-      <>
+      <div className="container-xl mx-auto">
         <h1
           dangerouslySetHtml={{
             __html: `Count: <em>${this.state.value.count}</em>`,
           }}
         />
         <Button onclick={() => this.state.value.count++}>Inc</Button>
-      </>
+      </div>
     );
   }
 }
