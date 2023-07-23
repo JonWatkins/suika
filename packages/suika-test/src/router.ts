@@ -6,6 +6,6 @@ export const router = createRouter({
   mode: "hash",
   routes: [
     { path: "/", component: Home },
-    { path: "/counter", component: Counter }
+    { path: "/counter", component: Counter },
   ],
 });

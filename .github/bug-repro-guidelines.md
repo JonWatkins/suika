@@ -24,4 +24,4 @@ A minimal reproduction means it demonstrates the bug, and the bug only. It shoul
 
 Try reproducing it in [StackBlitz](https://stackblitz.com/github/JonWatkins/suika-starter?file=README.md).
 
-you also provide a GitHub repository.
+you can also provide a GitHub repository.
