@@ -1,8 +1,10 @@
-@mixin button-background($type) {
+@mixin button-colors($type) {
   &-#{$type} {
-    @extend .bg-#{$type}-500;
+    @extend .bg-#{$type};
+    @include inverse-color('text', $type);
     &:hover {
-      @extend .hover\:bg-#{$type}-700;
+      @extend .hover\:bg-#{$type}-600;
+      @include inverse-color('text', $type);
     }
   }
 }
@@ -12,11 +14,9 @@
   @extend .px-1\.5;
   @extend .rounded-md;
   @extend .border-none;
-  @extend .text-light-500;
-  @extend .hover\:text-light-700;
 
   @each $color, $hex in $colors {
-    @include button-background($color);
+    @include button-colors($color);
   }
 
   &-tiny {
