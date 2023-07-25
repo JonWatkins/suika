@@ -57,15 +57,16 @@ $opacities: (
     $hoverClassName: if($darkMode, dark\:hover\:#{$className}, hover\:#{$className});
 
     .#{$classWithPrexix}-#{$color},
-      .#{$hoverClassName}-#{$color}:hover {
-        #{$property}: $hex;
+    .#{$hoverClassName}-#{$color}:hover {
+      #{$property}: $hex;
+    }
 
-        @each $opacity, $alpha in $opacities {
-          &\/#{$opacity} {
-            #{$property}: rgba($hex, $alpha);
-          }
-        }
+    @each $opacity, $alpha in $opacities {
+      .#{$classWithPrexix}-#{$color}\/#{$opacity},
+      .#{$hoverClassName}-#{$color}\/#{$opacity}:hover {
+        #{$property}: rgba($hex, $alpha);
       }
+    }
 
     @each $weight, $value in $weights {
       $background-color: if($weight < 500, lighten($hex, abs($value)), darken($hex, $value));
@@ -73,11 +74,12 @@ $opacities: (
       .#{$classWithPrexix}-#{$color}-#{$weight},
       .#{$hoverClassName}-#{$color}-#{$weight}:hover {
         #{$property}: $background-color;
+      }
 
-        @each $opacity, $alpha in $opacities {
-          &\/#{$opacity} {
-            #{$property}: rgba($background-color, $alpha);
-          }
+      @each $opacity, $alpha in $opacities {
+        .#{$classWithPrexix}-#{$color}-#{$weight}\/#{$opacity},
+        .#{$hoverClassName}-#{$color}-#{$weight}\/#{$opacity}:hover  {
+          #{$property}: rgba($background-color, $alpha);
         }
       }
     }
