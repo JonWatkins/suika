@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`buttons button group should be able to have nested buttons 1`] = `"<div class="btn-group"><button class="btn btn-primary btn-md">Hello</button></div>"`;
-
-exports[`buttons button group should be able to render a button 1`] = `"<div class="btn-group"></div>"`;
-
-exports[`buttons button should be able to render a button 1`] = `"<button class="btn btn-primary btn-md"></button>"`;
-
-exports[`buttons button should be able to render a button with text 1`] = `"<button class="btn btn-primary btn-md">Hello</button>"`;

@@ -1,151 +1,76 @@
-import { Component, Ctor } from "./Component";
-import { isReservedTag, isDef } from "./utils";
+// @ts-nocheck
 
-export type vAttrs = {
-  [_: string]: any;
-};
+import { isEvent, isGone, isProperty, isNew, isStyle } from "./utils";
 
-export interface vText {
-  kind: "text";
-  value: string;
-}
+import { TEXT_ELEMENT } from "./globals";
 
-export interface vElement {
-  kind: "element";
-  children: vNode[];
-  tag: string;
-  attrs: vAttrs;
-}
-
-export interface vFragment {
-  kind: "fragment";
-  tag: "fragment";
-  children: vNode[];
-  attrs: vAttrs;
-}
-
-export interface vFunction {
-  kind: "function";
-  children: vNode[];
-  component: Function;
-  attrs: vAttrs;
-}
-
-export interface vComponent {
-  kind: "component";
-  component: Ctor;
-  instance?: Component;
-  attrs: vAttrs;
-}
-
-export type vNode = vText | vElement | vFunction | vComponent | vFragment;
-
-export const Fragment = (): string => "fragment";
-
-export const isComponent = (value: any): boolean => {
-  if (
-    value.prototype &&
-    typeof value.prototype._getDiff === "function" &&
-    typeof value.prototype._initState === "function" &&
-    typeof value.prototype._initVnode === "function" &&
-    typeof value.prototype._setAttrs === "function" &&
-    typeof value.prototype._update === "function"
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const isFragment = (value: Function): boolean => {
-  return value === Fragment && value() === value();
-};
-
-export const createElement = (
-  tag: string,
-  attrs: vAttrs,
-  children: vNode[]
-): vElement => {
+export const createElement = (type, props, ...children) => {
   return {
-    kind: "element",
-    tag,
-    attrs,
-    children,
+    type,
+    props: {
+      ...props,
+      children: children
+        .flat()
+        .map((child) =>
+          typeof child === "object" ? child : createTextElement(child),
+        ),
+    },
   };
 };
 
-export const createComponent = (component: Ctor, attrs: vAttrs): vComponent => {
+export const createTextElement = (text) => {
   return {
-    kind: "component",
-    instance: undefined,
-    attrs,
-    component,
+    type: TEXT_ELEMENT,
+    props: {
+      nodeValue: text,
+      children: [],
+    },
   };
 };
 
-export const createFunction = (
-  component: Function,
-  attrs: vAttrs,
-  children: vNode[]
-): vFunction => {
-  return {
-    kind: "function",
-    attrs,
-    component,
-    children,
-  };
+export const createDom = (fiber) => {
+  const dom =
+    fiber.type == TEXT_ELEMENT
+      ? document.createTextNode("")
+      : document.createElement(fiber.type);
+
+  updateDom(dom, {}, fiber.props);
+
+  return dom;
 };
 
-export const createFragment = (children: vNode[]): vFragment => {
-  return {
-    kind: "fragment",
-    tag: "fragment",
-    children,
-    attrs: {},
-  };
-};
-
-export const createText = (value: string): vText => ({
-  kind: "text",
-  value: value.toString(),
-});
-
-export const normalizeChildNodes = (
-  childNodes: Array<vNode | string>
-): vNode[] => {
-  return childNodes
-    .filter((i) => isDef(i))
-    .map((childNode: vNode | string): vNode => {
-      let res: vNode;
-      if (typeof childNode === "string") {
-        res = createText(childNode as string);
-      } else {
-        res = childNode;
-      }
-      return res;
+export const updateDom = (dom, prevProps, nextProps) => {
+  Object.keys(prevProps)
+    .filter(isEvent)
+    .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
+    .forEach((name) => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.removeEventListener(eventType, prevProps[name]);
     });
-};
 
-export const h = (
-  tag: string | Ctor | Function,
-  attrs: vAttrs = {},
-  ...children: Array<vNode | string>
-): vNode => {
-  const normalized = normalizeChildNodes(children);
+  Object.keys(prevProps)
+    .filter(isProperty)
+    .filter(isGone(prevProps, nextProps))
+    .forEach((name) => {
+      dom[name] = "";
+    });
 
-  if (typeof tag === "string" && isReservedTag(tag)) {
-    return createElement(tag, attrs, normalized);
-  }
+  Object.keys(nextProps)
+    .filter(isProperty)
+    .filter(isNew(prevProps, nextProps))
+    .forEach((name) => {
+      if (isStyle(name) && typeof nextProps[name] === "object") {
+        Object.assign(dom.style, nextProps[name]);
+      } else {
+        dom[name] = nextProps[name];
+      }
+    });
 
-  if (typeof tag === "function") {
-    if (isFragment(tag)) {
-      return createFragment(normalized);
-    } else if (isComponent(tag)) {
-      return createComponent(tag as Ctor, attrs);
-    } else {
-      return createFunction(tag, attrs, normalized);
-    }
-  }
-
-  return createText(tag);
+  Object.keys(nextProps)
+    .filter(isEvent)
+    .filter(isNew(prevProps, nextProps))
+    .forEach((name) => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.addEventListener(eventType, nextProps[name]);
+    });
 };

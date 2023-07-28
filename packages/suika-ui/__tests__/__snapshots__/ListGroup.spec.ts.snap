@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`ListGroups ListGroup should be able to render a list group 1`] = `"<ul class="list-group"></ul>"`;
-
-exports[`ListGroups ListGroupItem should be able to render a list group item 1`] = `"<li class="list-group-item"></li>"`;

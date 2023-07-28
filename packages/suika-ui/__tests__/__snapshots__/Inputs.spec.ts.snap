@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Inputs Input should be able to render an input 1`] = `"<input class="form-control">"`;
-
-exports[`Inputs InputGroup should be able to render an input group 1`] = `"<div class="input-group"></div>"`;
