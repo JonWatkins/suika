@@ -164,14 +164,14 @@ export const performUnitOfWork = (fiber) => {
   }
 };
 
-export const workLoop = (deadline) => {
+export const workLoop = () => {
   let shouldYield = false;
   let nextUnitOfWork = getNextUnitOfWork();
   const wipRoot = getWipRoot();
 
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
-    shouldYield = deadline.timeRemaining() < 1;
+    if (nextUnitOfWork) shouldYield = true;
   }
 
   setNextUnitOfWork(nextUnitOfWork);
@@ -180,5 +180,5 @@ export const workLoop = (deadline) => {
     commitRoot();
   }
 
-  requestIdleCallback(workLoop);
+  setTimeout(workLoop);
 };

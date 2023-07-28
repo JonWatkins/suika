@@ -11,7 +11,10 @@ const Counter = ({ count }) => {
   }, [count]);
 
   return (
-    <Button onClick={() => setCount(currentCount + 1)}>
+    <Button
+      className="btn btn-md btn-primary"
+      onClick={() => setCount(currentCount + 1)}
+    >
       Clicked {currentCount} times!
     </Button>
   );
@@ -19,7 +22,7 @@ const Counter = ({ count }) => {
 
 export const App = () => {
   return (
-    <div>
+    <div className="xl:container-lg mx-auto">
       <h1 style={{ color: "blue", fontWeight: "bold" }}>Hello World</h1>
       <Counter count={0} />
     </div>

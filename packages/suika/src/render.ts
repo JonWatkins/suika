@@ -20,5 +20,5 @@ export const render = (element, container) => {
   setWipRoot(wipRoot);
   setDeletions([]);
   setNextUnitOfWork(wipRoot);
-  requestIdleCallback(workLoop);
+  setTimeout(workLoop);
 };
