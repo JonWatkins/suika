@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "preinstall": "node ./scripts/preinstall.js",
-    "format": "prettier  --loglevel warn --write \"./**/*.{js,jsx,cjs,ts,tsx,css,md,json}\" ",
-    "lint": "eslint . --ext .jsx,.js,.cjs,.ts,.tsx --quiet --fix",
+    "format": "prettier  --loglevel warn --write \"./**/*.{js,mjs,jsx,cjs,ts,tsx,css,md,json}\" ",
+    "lint": "eslint . --ext .jsx,.js,.mjs,.cjs,.ts,.tsx --quiet --fix",
     "test": "jest",
     "build:core": "pnpm --filter \"suika\" build",
     "build:ui": "pnpm --filter \"suika-ui\" build",

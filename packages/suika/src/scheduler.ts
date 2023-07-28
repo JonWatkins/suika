@@ -15,7 +15,7 @@ import {
   setHookIndex,
 } from "./globals";
 
-const commitRoot = () => {
+export const commitRoot = () => {
   const wipRoot = getWipRoot();
   const deletions = getDeletions();
 
@@ -26,7 +26,7 @@ const commitRoot = () => {
   setWipRoot(null);
 };
 
-const commitWork = (fiber) => {
+export const commitWork = (fiber) => {
   if (!fiber) {
     return;
   }
@@ -60,7 +60,7 @@ const commitWork = (fiber) => {
   commitWork(fiber.sibling);
 };
 
-const commitDeletion = (fiber, domParent) => {
+export const commitDeletion = (fiber, domParent) => {
   if (fiber.dom) {
     domParent.removeChild(fiber.dom);
   } else {
@@ -68,7 +68,7 @@ const commitDeletion = (fiber, domParent) => {
   }
 };
 
-const updateFunctionComponent = (fiber) => {
+export const updateFunctionComponent = (fiber) => {
   const wipFiber = fiber;
   wipFiber.hooks = [];
   setWipFiber(wipFiber);
@@ -78,7 +78,7 @@ const updateFunctionComponent = (fiber) => {
   reconcileChildren(fiber, children);
 };
 
-const updateHostComponent = (fiber) => {
+export const updateHostComponent = (fiber) => {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
@@ -86,7 +86,7 @@ const updateHostComponent = (fiber) => {
   reconcileChildren(fiber, fiber.props.children);
 };
 
-const reconcileChildren = (wipFiber, elements) => {
+export const reconcileChildren = (wipFiber, elements) => {
   const deletions = getDeletions();
   let index = 0;
   let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
