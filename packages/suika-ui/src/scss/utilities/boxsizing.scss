@@ -1,0 +1,17 @@
+// Define the SCSS map for box-sizing utility classes
+$boxSizingValues: (
+  "border-box": border-box,
+  "content-box": content-box,
+  "inherit": inherit,
+  "initial": initial,
+  "revert": revert,
+  "revert-layer": revert-layer,
+  "unset": unset,
+);
+
+// Loop through the map and generate utility classes dynamically
+@each $className, $boxModel in $boxSizingValues {
+  .#{$className} {
+    box-sizing: $boxModel;
+  }
+}

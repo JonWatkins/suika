@@ -1,0 +1,33 @@
+@mixin button-colors($type) {
+  &-#{$type} {
+    @extend .bg-#{$type};
+    @include inverse-color('text', $type);
+    &:hover {
+      @extend .hover\:bg-#{$type}-600;
+      @include inverse-color('text', $type);
+    }
+  }
+}
+
+.btn {
+  @extend .py-0\.5;
+  @extend .px-1\.5;
+  @extend .rounded-md;
+  @extend .border-none;
+
+  @each $color, $hex in $colors {
+    @include button-colors($color);
+  }
+
+  &-tiny {
+    @extend .text-sm;
+  }
+
+  &-md {
+    @extend .text-lg;
+  }
+
+  &-lg {
+    @extend .text-xl;
+  }
+}

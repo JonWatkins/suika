@@ -1,0 +1,112 @@
+// Flex container alignment utility classes
+$flex-container-alignments: (
+  "justify-start": start,
+  "justify-end": end,
+  "justify-center": center,
+  "justify-between": space-between,
+  "justify-around": space-around,
+  "items-start": start,
+  "items-end": end,
+  "items-center": center,
+  "items-baseline": baseline,
+  "items-stretch": stretch,
+);
+
+// Flex container utility classes
+$flex-containers: (
+  "flex-row": row,
+  "flex-row-reverse": row-reverse,
+  "flex-col": column,
+  "flex-col-reverse": column-reverse,
+);
+
+// Flex item utility classes
+$flex-items: (
+  "flex-1": 1,
+  "flex-auto": auto,
+  "flex-initial": initial,
+  "flex-none": none,
+  "flex-grow": 1,
+  "flex-shrink": 1,
+);
+
+// Generate flex order utility classes from 1 to 20
+$flex-order-classes: ();
+@for $i from 1 through 20 {
+  $flex-order-classes: map-merge($flex-order-classes, ("order-#{$i}": #{$i}));
+}
+
+// Generate flex container alignment utility classes
+@each $class, $value in $flex-container-alignments {
+  @if (str-index($class, "items-") == 1) { // Check if class starts with "items-"
+    .#{$class} {
+      align-items: $value;
+    }
+  } @else {
+    .#{$class} {
+      justify-content: $value;
+    }
+  }
+}
+
+// Generate flex container utility classes
+@each $class, $value in $flex-containers {
+  .#{$class} {
+    display: flex;
+    flex-direction: $value;
+  }
+}
+
+// Generate flex item utility classes
+@each $class, $value in $flex-items {
+  .#{$class} {
+    flex: $value;
+  }
+}
+
+// Generate flex order utility classes from 1 to 20
+@each $class, $value in $flex-order-classes {
+  .#{$class} {
+    order: $value;
+  }
+}
+
+// Responsive utility classes
+@each $breakpoint, $size in $breakpoints {
+  @media (min-width: $size) {
+    // Generate responsive flex container alignment utility classes
+    @each $class, $value in $flex-container-alignments {
+      @if (str-index($class, "items-") == 1) { // Check if class starts with "items-"
+        .#{$breakpoint}\:#{$class} {
+          align-items: $value;
+        }
+      } @else {
+        .#{$breakpoint}\:#{$class} {
+          justify-content: $value;
+        }
+      }
+    }
+    
+    // Generate responsive flex container utility classes
+    @each $class, $value in $flex-containers {
+      .#{$breakpoint}\:#{$class} {
+        display: flex;
+        flex-direction: $value;
+      }
+    }
+    
+    // Generate responsive flex item utility classes
+    @each $class, $value in $flex-items {
+      .#{$breakpoint}\:#{$class} {
+        flex: $value;
+      }
+    }
+    
+    // Generate responsive flex order utility classes from 1 to 20
+    @each $class, $value in $flex-order-classes {
+      .#{$breakpoint}\:#{$class} {
+        order: $value;
+      }
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { sassPlugin } from "esbuild-sass-plugin";
 import { defineConfig } from "tsup";
 
 export default defineConfig({
@@ -9,4 +10,5 @@ export default defineConfig({
   format: ["esm", "cjs"],
   target: "es2020",
   bundle: true,
+  esbuildPlugins: [sassPlugin({})]
 });
