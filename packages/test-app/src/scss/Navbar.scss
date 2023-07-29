@@ -1,0 +1,40 @@
+.navbar {
+  @extend .dark\:bg-dark-500;
+
+  &-inner {
+    @extend .container-xl;
+    @extend .mx-auto;
+    @extend .flex;
+  }
+
+  &-brand {
+    @extend .text-2xl;
+    @extend .py-0\.5;
+    @extend .flex-grow; 
+    @extend .text-primary-500;
+    @extend .dark\:text-light-500;
+  }
+
+  &-nav {
+    @extend .flex;
+
+    li {
+      @extend .ml-1\.5;
+    }
+  }
+
+  &-link {
+    @extend .inline-block;
+    @extend .text-primary-500;
+    @extend .dark\:text-light-500;
+    @extend .dark\:hover\:text-light-700;
+    @extend .hover\:text-primary-800;
+    @extend .py-1;
+    @extend .pr-0\.5;
+  }
+
+  .is-active {
+    @extend .dark\:hover\:text-light-700;
+    @extend .hover\:text-primary-800;
+  }
+}

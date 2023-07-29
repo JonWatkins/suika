@@ -1,4 +1,6 @@
-import "./styles.scss";
+// @ts-nocheck
+
+import "./scss/styles.scss";
 
 import { render } from "suika";
 import { App } from "./App";

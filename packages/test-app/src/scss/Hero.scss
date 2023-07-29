@@ -1,0 +1,36 @@
+.hero {
+  @extend .dark\:bg-light-600;
+  @extend .mb-1\.5;
+
+  &-container {
+    @extend .sm\:container-xs;
+    @extend .md\:container-md;
+    @extend .xl\:container-lg; 
+    @extend .mx-auto;
+  }
+
+  &-inner {
+    @extend .py-4;
+    @extend .px-2;
+    @extend .lg\:py-8;
+    @extend .lg\:px-4;
+    @extend .mx-auto;
+    @extend .flex-col;
+    @extend .text-center;
+  }
+
+  &-title {
+    @extend .text-5xl;
+  }
+
+  &-content {
+    @extend .text-xl;
+    @extend .mb-1\.5;
+  }
+
+  &-links {
+    @extend .flex-row;
+    @extend .justify-center;
+    @extend .items-center;
+  }
+}
