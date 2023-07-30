@@ -19,7 +19,7 @@ export const setCurrentMode = (mode) => {
   currentMode = mode;
 };
 
-export const createRouter = ({ mode, routes }) => {
+export const createRouter = ({ mode, routes, NotFound }) => {
   setCurrentMode(mode || "hash");
 
   const mappedRoutes = routes.map((route: Route) => {
@@ -48,6 +48,8 @@ export const createRouter = ({ mode, routes }) => {
 
     if (result && result.component) {
       return result.component;
+    } else {
+      return NotFound;
     }
   };
 

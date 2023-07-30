@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "suika";
 import { getCurrentMode } from "./createRouter";
+import { NotFound } from "./NotFound";
 
 export const RouterProvider = ({ router }) => {
   const [currentPath, setCurrentPath] = useState(router.getFragment());
@@ -20,5 +21,10 @@ export const RouterProvider = ({ router }) => {
   }, []);
 
   const handler = router.getHandler(currentPath);
-  return handler({ currentPath });
+
+  if (handler) {
+    return handler({ currentPath });
+  } else {
+    return NotFound({ currentPath });
+  }
 };

@@ -15,7 +15,7 @@ export const Hero = () => {
             eiusmod tempor incididunt ut labore et dolore magna aliqua.
           </p>
           <div className="hero-links">
-            <Link className="btn btn-primary mr-1.5" to="about">
+            <Link className="btn btn-md btn-primary mr-1.5" to="/about">
               Learn More
             </Link>
             <Counter key="counter" count={0} />

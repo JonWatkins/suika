@@ -3,5 +3,6 @@
 import { createElement } from "suika";
 
 export const Button = ({ children, className, onClick }) => {
-  return createElement("button", { className, onClick }, children);
+  const classes = `btn btn-md btn-secondary ${className}`;
+  return createElement("button", { className: classes, onClick }, children);
 };

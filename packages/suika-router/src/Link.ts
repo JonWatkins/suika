@@ -17,13 +17,9 @@ export const Link = ({ to, children, className }) => {
     }
   };
 
-  return (
-    <a
-      href={to}
-      className={className}
-      onClick={(event) => preventReload(event)}
-    >
-      {children}
-    </a>
+  return createElement(
+    "a",
+    { href: to, className, onClick: (event) => preventReload(event) },
+    ...children,
   );
 };

@@ -32,6 +32,11 @@ export const Navbar = ({ currentPath }) => {
               About
             </Link>
           </li>
+          <li>
+            <Link to="/not-found" className="navbar-link">
+              404 Error Page
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
