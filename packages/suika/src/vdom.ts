@@ -1,8 +1,7 @@
 // @ts-nocheck
 
-import { isEvent, isGone, isProperty, isNew, isStyle } from "./utils";
-
 import { TEXT_ELEMENT } from "./globals";
+import { isProperty, isDef, isUndef, isEvent, eventName } from "./utils";
 
 let nextKey = 0;
 
@@ -35,7 +34,7 @@ export const createTextElement = (text) => {
 
 export const createDom = (fiber) => {
   const dom =
-    fiber.type == TEXT_ELEMENT
+    fiber.type === TEXT_ELEMENT
       ? document.createTextNode("")
       : document.createElement(fiber.type);
 
@@ -45,46 +44,30 @@ export const createDom = (fiber) => {
 };
 
 export const updateDom = (dom, prevProps, nextProps) => {
-  // Remove event listeners for props that are no longer present or have changed
-  Object.keys(prevProps)
-    .filter(isEvent)
-    .forEach((name) => {
-      if (!(name in nextProps) || prevProps[name] !== nextProps[name]) {
-        const eventType = name.toLowerCase().substring(2);
-        dom.removeEventListener(eventType, prevProps[name]);
-      }
-    });
-
-  // Remove properties that are no longer present in nextProps
-  Object.keys(prevProps)
+  const remove = Object.keys(prevProps)
     .filter(isProperty)
-    .forEach((name) => {
-      if (!(name in nextProps)) {
-        dom[name] = "";
-      }
-    });
+    .filter((attr) => isUndef(nextProps[attr]));
 
-  // Update properties and styles in batch
-  const propUpdates = Object.keys(nextProps).filter(isProperty);
-  propUpdates.forEach((name) => {
-    if (
-      !isGone(prevProps, nextProps)(name) &&
-      isNew(prevProps, nextProps)(name)
-    ) {
-      if (isStyle(name) && typeof nextProps[name] === "object") {
-        Object.assign(dom.style, nextProps[name]);
-      } else if (prevProps[name] !== nextProps[name]) {
-        dom[name] = nextProps[name];
-      }
-    }
-  });
+  const set = Object.keys(nextProps)
+    .filter(isProperty)
+    .filter(
+      (attr) => prevProps[attr] !== nextProps[attr] && isDef(nextProps[attr]),
+    )
+    .reduce((updated, attr) => ({ ...updated, [attr]: nextProps[attr] }), {});
 
-  // Add event listeners in batch
-  const eventUpdates = Object.keys(nextProps).filter(isEvent);
-  eventUpdates.forEach((name) => {
-    if (!(name in prevProps) || prevProps[name] !== nextProps[name]) {
-      const eventType = name.toLowerCase().substring(2);
-      dom.addEventListener(eventType, nextProps[name]);
+  for (const attr of remove) {
+    if (isEvent(attr)) {
+      dom.removeEventListener(eventName(attr), remove[attr]);
+    } else {
+      dom.removeAttribute(attr);
     }
-  });
+  }
+
+  for (const attr in set) {
+    if (isEvent(attr)) {
+      dom.addEventListener(eventName(attr), set[attr]);
+    } else {
+      dom[attr] = set[attr];
+    }
+  }
 };

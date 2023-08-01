@@ -33,7 +33,7 @@ export const Navbar = ({ currentPath }) => {
             </Link>
           </li>
           <li>
-            <Link to="/not-found" className="navbar-link">
+            <Link to="/broken-link" className="navbar-link">
               404 Error Page
             </Link>
           </li>

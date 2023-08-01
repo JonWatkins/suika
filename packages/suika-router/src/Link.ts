@@ -3,8 +3,8 @@
 import { createElement } from "suika";
 import { getCurrentMode } from "./createRouter";
 
-export const Link = ({ to, children, className }) => {
-  const preventReload = (event) => {
+const preventReload = (to) => {
+  return (event) => {
     event.preventDefault();
 
     if (getCurrentMode() === "history") {
@@ -16,10 +16,12 @@ export const Link = ({ to, children, className }) => {
       )}#${to}`;
     }
   };
+};
 
+export const Link = ({ to, children, className }) => {
   return createElement(
     "a",
-    { href: to, className, onClick: (event) => preventReload(event) },
+    { href: to, className, onClick: preventReload(to) },
     ...children,
   );
 };

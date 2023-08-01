@@ -7,7 +7,10 @@ export const Counter = ({ count }) => {
   const [currentCount, setCount] = useState(count);
 
   return (
-    <Button onClick={() => setCount(currentCount + 1)}>
+    <Button
+      className={currentCount > 10 ? "btn-danger" : ""}
+      onClick={() => setCount(currentCount + 1)}
+    >
       Clicked {currentCount} times!
     </Button>
   );

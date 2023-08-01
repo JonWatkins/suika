@@ -49,8 +49,14 @@ export const isEvent = (key) => key.startsWith("on");
 
 export const isStyle = (key) => key === "style";
 
-export const isProperty = memoize((key) => key !== "children" && !isEvent(key));
+export const isProperty = (key) => key !== "children";
 
-export const isNew = memoize((prev, next) => (key) => prev[key] !== next[key]);
+export const isNew = (prev, next) => (key) => prev[key] !== next[key];
 
-export const isGone = memoize((prev, next) => (key) => !(key in next));
+export const isGone = (prev, next) => (key) => !(key in next);
+
+export const isUndef = (value) => value === undefined || value === null;
+
+export const isDef = (value): boolean => value !== undefined && value !== null;
+
+export const eventName = (value): string => value.toLowerCase().substring(2);
