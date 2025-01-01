@@ -13,6 +13,15 @@ been thoroughly tested for bugs. The primary aim of this project is to serve as
 a learning tool, and therefore, efforts have been made to minimize dependencies
 on external crates.
 
+## Installation
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+suika_templates = "0.1.1"
+```
+
 ## Library Features
 
 - HTTP Handling
