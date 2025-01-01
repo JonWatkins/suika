@@ -1,6 +1,0 @@
-[package]
-name = "core_mime_type"
-version = "0.1.0"
-edition = "2021"
-authors = ["Jon Watkins"]
-publish = false

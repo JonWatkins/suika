@@ -1,9 +1,0 @@
-[package]
-name = "core_templates"
-version = "0.1.0"
-edition = "2021"
-authors = ["Jon Watkins"]
-publish = false
-
-[dependencies]
-core_json = { path = "../core_json" }

@@ -1,0 +1,13 @@
+[package]
+name = "suika_middleware"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jon Watkins"]
+publish = false
+
+[dependencies]
+suika_http = { path = "../suika_http" }
+suika_errors = { path = "../suika_errors" }
+suika_mime = { path = "../suika_mime" }
+suika_json = { path = "../suika_json" }
+

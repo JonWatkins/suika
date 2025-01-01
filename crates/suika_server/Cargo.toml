@@ -1,0 +1,13 @@
+[package]
+name = "suika_server"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jon Watkins"]
+publish = false
+
+[dependencies]
+suika_async = { path = "../suika_async" }
+suika_http = { path = "../suika_http" }
+suika_middleware = { path = "../suika_middleware" }
+suika_router = { path = "../suika_router" }
+suika_errors = { path = "../suika_errors" }

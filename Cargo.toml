@@ -1,6 +1,6 @@
 [package]
-name = "rs-serve"
-description = "A simple web stack"
+name = "suika"
+description = "Suika is a simple web stack"
 repository = "https://github.com/JonWatkins/rs-serve"
 version = "0.1.0"
 edition = "2021"
@@ -12,26 +12,26 @@ license = "MIT"
 
 [workspace]
 members = [
-    "crates/core_utils",
-    "crates/core_async",
-    "crates/core_server",
-    "crates/core_http",
-    "crates/core_middleware",
-    "crates/core_router",
-    "crates/core_http_errors",
-    "crates/core_mime_type",
-    "crates/core_json",
-    "crates/core_templates",
+    "crates/suika_utils",
+    "crates/suika_async",
+    "crates/suika_server",
+    "crates/suika_http",
+    "crates/suika_middleware",
+    "crates/suika_router",
+    "crates/suika_errors",
+    "crates/suika_mime",
+    "crates/suika_json",
+    "crates/suika_templates",
 ]
 
 [dependencies]
-core_utils = { path = "./crates/core_utils" }
-core_async = { path = "./crates/core_async" }
-core_server = { path = "./crates/core_server" }
-core_http = { path = "./crates/core_http" }
-core_middleware = { path = "./crates/core_middleware" }
-core_router = { path = "./crates/core_router" }
-core_http_errors = { path = "./crates/core_http_errors" }
-core_mime_type = { path = "./crates/core_mime_type" }
-core_json = { path = "./crates/core_json" }
-core_templates = { path = "./crates/core_templates" }
+suika_utils = { version = "0.1.0", path = "crates/suika_utils" }
+suika_async = { version = "0.1.0", path = "crates/suika_async" }
+suika_server = { version = "0.1.0", path = "crates/suika_server" }
+suika_http = { version = "0.1.0", path = "crates/suika_http" }
+suika_middleware = { version = "0.1.0", path = "crates/suika_middleware" }
+suika_router = { version = "0.1.0", path = "crates/suika_router" }
+suika_errors = { version = "0.1.0", path = "crates/suika_errors" }
+suika_mime = { version = "0.1.0", path = "crates/suika_mime" }
+suika_json = { version = "0.1.0", path = "crates/suika_json" }
+suika_templates = { version = "0.1.0", path = "crates/suika_templates" }
