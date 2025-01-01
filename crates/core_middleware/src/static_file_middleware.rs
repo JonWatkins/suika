@@ -8,6 +8,7 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 pub fn static_file_middleware(
+    url_prefix: &'static str,
     directory: &'static str,
     cache_duration: u64,
 ) -> impl Fn(
@@ -19,7 +20,7 @@ pub fn static_file_middleware(
        + Sync
        + 'static {
     move |req: Arc<Request>, res: Arc<Response>, next: Arc<NextMiddleware>| {
-        let path = if let Some(stripped_path) = req.path().strip_prefix("/public/") {
+        let path = if let Some(stripped_path) = req.path().strip_prefix(url_prefix) {
             format!("{}/{}", directory, stripped_path)
         } else {
             return Box::pin(async move { next.proceed(req, res).await });
@@ -81,8 +82,9 @@ mod tests {
         let mut file = File::create(&static_file_path).unwrap();
         writeln!(file, "<html><body>Hello, world!</body></html>").unwrap();
 
-        let middlewares: Vec<Arc<MiddlewareFn>> =
-            vec![Arc::new(static_file_middleware(static_dir, 3600))];
+        let middlewares: Vec<Arc<MiddlewareFn>> = vec![Arc::new(static_file_middleware(
+            "/public/", static_dir, 3600,
+        ))];
         let next_middleware = NextMiddleware::new(Arc::new(Mutex::new(middlewares)));
 
         let req = Arc::new(
@@ -94,7 +96,7 @@ mod tests {
         let waker = noop_waker();
         let mut context = Context::from_waker(&waker);
 
-        let mut future = Box::pin(static_file_middleware(static_dir, 3600)(
+        let mut future = Box::pin(static_file_middleware("/public/", static_dir, 3600)(
             req.clone(),
             res.clone(),
             next.clone(),
@@ -119,7 +121,7 @@ mod tests {
     #[test]
     fn test_static_file_middleware_file_not_exists() {
         let middlewares: Vec<Arc<MiddlewareFn>> =
-            vec![Arc::new(static_file_middleware("public", 3600))];
+            vec![Arc::new(static_file_middleware("/public/", "public", 3600))];
         let next_middleware = NextMiddleware::new(Arc::new(Mutex::new(middlewares)));
 
         let req = Arc::new(
@@ -132,7 +134,7 @@ mod tests {
         let waker = noop_waker();
         let mut context = Context::from_waker(&waker);
 
-        let mut future = Box::pin(static_file_middleware("public", 3600)(
+        let mut future = Box::pin(static_file_middleware("/public/", "public", 3600)(
             req.clone(),
             res.clone(),
             next.clone(),
@@ -148,7 +150,7 @@ mod tests {
     #[test]
     fn test_static_file_middleware_path_does_not_match() {
         let middlewares: Vec<Arc<MiddlewareFn>> =
-            vec![Arc::new(static_file_middleware("public", 3600))];
+            vec![Arc::new(static_file_middleware("/public/", "public", 3600))];
         let next_middleware = NextMiddleware::new(Arc::new(Mutex::new(middlewares)));
 
         let req = Arc::new(
@@ -160,7 +162,7 @@ mod tests {
         let waker = noop_waker();
         let mut context = Context::from_waker(&waker);
 
-        let mut future = Box::pin(static_file_middleware("public", 3600)(
+        let mut future = Box::pin(static_file_middleware("/public/", "public", 3600)(
             req.clone(),
             res.clone(),
             next.clone(),

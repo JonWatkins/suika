@@ -71,6 +71,21 @@ fn main() {
 }
 ```
 
+### Static file server
+
+```rust
+use rs_serve::{
+  server::Server,
+  middleware::static_file_middleware
+};
+
+fn main() {
+  let server = Server::new();
+  server.use_middleware(static_file_middleware("/", "public", 3200));
+  server.listen("127.0.0.1:7878");
+}
+```
+
 ### Post Data
 
 ```rust
@@ -179,7 +194,7 @@ fn main() {
     let combined_middleware = combine_middlewares(vec![
         Arc::new(cors_middleware),
         Arc::new(favicon_middleware("public/favicon.ico")),
-        Arc::new(static_file_middleware("public", 3600)),
+        Arc::new(static_file_middleware("/public", "public", 3600)),
         Arc::new(logger_middleware),
         Arc::new(move |req, res, next| {
             let router = Arc::clone(&router);
