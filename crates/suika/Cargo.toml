@@ -3,16 +3,16 @@ name = "suika"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
-repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_server"
+repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika"
 license = "MIT"
 readme = "README.md"
 
 [dependencies]
-suika_json = { path = "../suika_json" }
-suika_mime = { path = "../suika_mime" }
-suika_utils = { path = "../suika_utils" }
-suika_templates = { path = "../suika_templates" }
-suika_server = { path = "../suika_server" }
+suika_json = "0.1.0"
+suika_mime = "0.1.0"
+suika_utils = "0.1.0"
+suika_templates = "0.1.0"
+suika_server = "0.1.0"
 
 [lib]
 name = "suika"

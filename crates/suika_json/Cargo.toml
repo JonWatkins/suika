@@ -8,7 +8,7 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
-suika_utils = { path = "../suika_utils" }
+suika_utils = "0.1.0"
 
 [lib]
 name = "suika_json"

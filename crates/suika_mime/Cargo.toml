@@ -3,7 +3,7 @@ name = "suika_mime"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
-repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_utils"
+repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_mime"
 license = "MIT"
 readme = "README.md"
 
