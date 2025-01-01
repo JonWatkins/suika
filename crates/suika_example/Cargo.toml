@@ -10,4 +10,4 @@ readme = "README.md"
 publish = false
 
 [dependencies]
-suika = "0.1.0"
+suika = "0.1.1"
