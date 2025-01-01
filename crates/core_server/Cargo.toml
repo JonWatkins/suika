@@ -1,0 +1,13 @@
+[package]
+name = "core_server"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jon Watkins"]
+publish = false
+
+[dependencies]
+core_async = { path = "../core_async" }
+core_http = { path = "../core_http" }
+core_middleware = { path = "../core_middleware" }
+core_router = { path = "../core_router" }
+core_http_errors = { path = "../core_http_errors" }

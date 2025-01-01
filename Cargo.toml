@@ -1,0 +1,31 @@
+[package]
+name = "rust-serve"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jon Watkins"]
+
+[workspace]
+members = [
+    "crates/core_utils",
+    "crates/core_async",
+    "crates/core_server",
+    "crates/core_http",
+    "crates/core_middleware",
+    "crates/core_router",
+    "crates/core_http_errors",
+    "crates/core_mime_type",
+    "crates/core_json",
+    "crates/core_templates",
+]
+
+[dependencies]
+core_utils = { path = "./crates/core_utils" }
+core_async = { path = "./crates/core_async" }
+core_server = { path = "./crates/core_server" }
+core_http = { path = "./crates/core_http" }
+core_middleware = { path = "./crates/core_middleware" }
+core_router = { path = "./crates/core_router" }
+core_http_errors = { path = "./crates/core_http_errors" }
+core_mime_type = { path = "./crates/core_mime_type" }
+core_json = { path = "./crates/core_json" }
+core_templates = { path = "./crates/core_templates" }
