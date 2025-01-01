@@ -1,5 +1,6 @@
 [package]
 name = "suika_utils"
+description = "A small utility library for the suika web stack"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]

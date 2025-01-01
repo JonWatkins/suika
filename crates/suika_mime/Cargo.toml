@@ -1,5 +1,6 @@
 [package]
 name = "suika_mime"
+description = "A library for handling MIME types in the suika web stack"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]

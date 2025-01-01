@@ -1,5 +1,6 @@
 [package]
 name = "suika_example"
+description = "An example project demonstrating the suika web stack"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]

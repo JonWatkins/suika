@@ -1,5 +1,6 @@
 [package]
 name = "suika"
+description = "A simple web stack for building web applications"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
