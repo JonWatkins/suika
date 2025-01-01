@@ -11,7 +11,3 @@ publish = false
 
 [dependencies]
 suika = "0.1.0"
-
-[lib]
-name = "suika_example"
-path = "src/main.rs"

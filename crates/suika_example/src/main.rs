@@ -27,33 +27,60 @@ pub fn main() {
         engine
     });
 
-    router.get("/", |_req, res, _next| async move {
-        if let Err(e) = res.send_file("crates/suika_example/public/index.html") {
-            eprintln!("Error: {}", e);
-        }
-        Ok(())
-    });
+    {
+        let template_engine_hello = Arc::clone(&template_engine);
+        router.get("/hello", move |_req, res, _next| {
+            let template_engine = Arc::clone(&template_engine_hello);
+            async move {
+                let mut context = HashMap::new();
+                context.insert(
+                    "name".to_string(),
+                    TemplateValue::String("World".to_string()),
+                );
 
-    router.get("/hello", move |_req, res, _next| {
-        let template_engine = Arc::clone(&template_engine);
-        async move {
-            let mut context = HashMap::new();
-            context.insert(
-                "name".to_string(),
-                TemplateValue::String("World".to_string()),
-            );
-
-            match template_engine.render("crates/suika_example/templates/hello.html", &context)
-            {
-                Ok(rendered) => res.body(rendered),
-                Err(e) => {
-                    res.set_status(500);
-                    res.body(format!("Template rendering error: {}", e));
+                match template_engine.render("crates/suika_example/templates/hello.html", &context)
+                {
+                    Ok(rendered) => res.body(rendered),
+                    Err(e) => {
+                        res.set_status(500);
+                        res.body(format!("Template rendering error: {}", e));
+                    }
                 }
+                Ok(())
             }
-            Ok(())
-        }
-    });
+        });
+    }
+
+    {
+        let template_engine_user = Arc::clone(&template_engine);
+        router.get("/user", move |_req, res, _next| {
+            let template_engine = Arc::clone(&template_engine_user);
+            async move {
+                let mut user = HashMap::new();
+                user.insert(
+                    "name".to_string(),
+                    TemplateValue::String("Alice".to_string()),
+                );
+                user.insert("age".to_string(), TemplateValue::String("30".to_string()));
+                user.insert(
+                    "email".to_string(),
+                    TemplateValue::String("alice@example.com".to_string()),
+                );
+
+                let mut context = HashMap::new();
+                context.insert("user".to_string(), TemplateValue::Object(user));
+
+                match template_engine.render("user.html", &context) {
+                    Ok(rendered) => res.body(rendered),
+                    Err(e) => {
+                        res.set_status(500);
+                        res.body(format!("Template rendering error: {}", e));
+                    }
+                }
+                Ok(())
+            }
+        });
+    }
 
     router.post("/data", |req, res, _next| async move {
         if let Some(json_body) = req.json_body() {

@@ -1,6 +1,6 @@
 //! # TemplateEngine
 //!
-//! The `TemplateEngine` struct provides methods to manage and render templates with 
+//! The `TemplateEngine` struct provides methods to manage and render templates with
 //! various directives and context values.
 
 use super::{TemplateParser, TemplateToken, TemplateValue};
@@ -8,7 +8,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-/// The `TemplateEngine` struct manages templates and renders them with provided context values.
 #[derive(Clone)]
 pub struct TemplateEngine {
     templates: HashMap<String, String>,
@@ -221,82 +220,164 @@ impl TemplateEngine {
         let mut i = 0;
         while i < tokens.len() {
             match &tokens[i] {
-                TemplateToken::Text(text) => output.push_str(text),
+                TemplateToken::Text(text) => self.process_text(text, &mut output),
                 TemplateToken::Variable(name) => {
-                    if let Some(value) = context.get(name) {
-                        output.push_str(&value.to_string());
-                    }
+                    self.process_variable(name, context, &mut output)?
                 }
                 TemplateToken::If(condition) => {
-                    let mut if_tokens = Vec::new();
-                    let mut else_tokens = Vec::new();
-                    let mut in_else = false;
-                    i += 1;
-                    while i < tokens.len() {
-                        match &tokens[i] {
-                            TemplateToken::EndIf => break,
-                            TemplateToken::Else => in_else = true,
-                            _ => {
-                                if in_else {
-                                    else_tokens.push(tokens[i].clone());
-                                } else {
-                                    if_tokens.push(tokens[i].clone());
-                                }
-                            }
-                        }
-                        i += 1;
-                    }
-                    if let Some(TemplateValue::Boolean(true)) = context.get(condition) {
-                        output.push_str(&self.process_tokens(&if_tokens, context)?);
-                    } else {
-                        output.push_str(&self.process_tokens(&else_tokens, context)?);
-                    }
+                    i = self.process_if(condition, tokens, context, &mut output, i)?
                 }
                 TemplateToken::For(var, array) => {
-                    if let Some(TemplateValue::Array(values)) = context.get(array) {
-                        let mut for_tokens = Vec::new();
-                        i += 1;
-                        while i < tokens.len() {
-                            if let TemplateToken::EndFor = &tokens[i] {
-                                break;
-                            }
-                            for_tokens.push(tokens[i].clone());
-                            i += 1;
-                        }
-                        for value in values {
-                            let mut loop_context = context.clone();
-                            loop_context.insert(var.clone(), value.clone());
-                            output.push_str(&self.process_tokens(&for_tokens, &loop_context)?);
-                        }
-                    } else {
-                        while i < tokens.len() {
-                            if let TemplateToken::EndFor = &tokens[i] {
-                                break;
-                            }
-                            i += 1;
-                        }
-                    }
+                    i = self.process_for(var, array, tokens, context, &mut output, i)?
                 }
                 TemplateToken::Include(template_name) => {
-                    let include_tokens = self.get_template_tokens(template_name)?;
-                    output.push_str(&self.process_tokens(&include_tokens, context)?);
+                    self.process_include(template_name, context, &mut output)?
                 }
-                TemplateToken::EndIf
-                | TemplateToken::EndFor
-                | TemplateToken::Extend(_)
-                | TemplateToken::Block(_)
-                | TemplateToken::EndBlock => {}
-                TemplateToken::Else => {}
+                _ => {}
             }
             i += 1;
         }
         Ok(output)
+    }
+
+    fn process_text(&self, text: &str, output: &mut String) {
+        output.push_str(text);
+    }
+
+    fn process_variable(
+        &self,
+        name: &str,
+        context: &HashMap<String, TemplateValue>,
+        output: &mut String,
+    ) -> Result<(), String> {
+        if let Some(value) = self.resolve_variable(name, context) {
+            output.push_str(&value);
+        }
+        Ok(())
+    }
+
+    fn process_if(
+        &self,
+        condition: &str,
+        tokens: &[TemplateToken],
+        context: &HashMap<String, TemplateValue>,
+        output: &mut String,
+        mut i: usize,
+    ) -> Result<usize, String> {
+        let mut if_tokens = Vec::new();
+        let mut else_tokens = Vec::new();
+        let mut in_else = false;
+        i += 1;
+        while i < tokens.len() {
+            match &tokens[i] {
+                TemplateToken::EndIf => break,
+                TemplateToken::Else => in_else = true,
+                _ => {
+                    if in_else {
+                        else_tokens.push(tokens[i].clone());
+                    } else {
+                        if_tokens.push(tokens[i].clone());
+                    }
+                }
+            }
+            i += 1;
+        }
+        if let Some(TemplateValue::Boolean(true)) = context.get(condition) {
+            output.push_str(&self.process_tokens(&if_tokens, context)?);
+        } else {
+            output.push_str(&self.process_tokens(&else_tokens, context)?);
+        }
+        Ok(i)
+    }
+
+    fn process_for(
+        &self,
+        var: &str,
+        array: &str,
+        tokens: &[TemplateToken],
+        context: &HashMap<String, TemplateValue>,
+        output: &mut String,
+        mut i: usize,
+    ) -> Result<usize, String> {
+        if let Some(TemplateValue::Array(values)) = context.get(array) {
+            let mut for_tokens = Vec::new();
+            i += 1;
+            while i < tokens.len() {
+                if let TemplateToken::EndFor = &tokens[i] {
+                    break;
+                }
+                for_tokens.push(tokens[i].clone());
+                i += 1;
+            }
+            for value in values {
+                let mut loop_context = context.clone();
+                loop_context.insert(var.to_string(), value.clone());
+                output.push_str(&self.process_tokens(&for_tokens, &loop_context)?);
+            }
+        } else {
+            while i < tokens.len() {
+                if let TemplateToken::EndFor = &tokens[i] {
+                    break;
+                }
+                i += 1;
+            }
+        }
+        Ok(i)
+    }
+
+    fn process_include(
+        &self,
+        template_name: &str,
+        context: &HashMap<String, TemplateValue>,
+        output: &mut String,
+    ) -> Result<(), String> {
+        let include_tokens = self.get_template_tokens(template_name)?;
+        output.push_str(&self.process_tokens(&include_tokens, context)?);
+        Ok(())
+    }
+
+    fn resolve_variable(
+        &self,
+        name: &str,
+        context: &HashMap<String, TemplateValue>,
+    ) -> Option<String> {
+        let parts: Vec<&str> = name.split('.').collect();
+        let mut current_value = context.get(parts[0])?;
+
+        for part in &parts[1..] {
+            match current_value {
+                TemplateValue::Object(map) => {
+                    current_value = map.get(*part)?;
+                }
+                _ => return None,
+            }
+        }
+
+        match current_value {
+            TemplateValue::String(s) => Some(s.clone()),
+            TemplateValue::Boolean(b) => Some(b.to_string()),
+            TemplateValue::Array(arr) => Some(format!(
+                "[{}]",
+                arr.iter()
+                    .map(|v| v.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+            TemplateValue::Object(obj) => Some(format!(
+                "{{{}}}",
+                obj.iter()
+                    .map(|(k, v)| format!("{}: {}", k, v))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashMap;
     use std::fs::{self, File};
     use std::io::Write;
 
@@ -508,5 +589,25 @@ mod tests {
         assert!(result.is_err());
 
         fs::remove_file(temp_file).expect("Failed to remove file");
+    }
+
+    #[test]
+    fn test_render_template_with_object() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template("greeting", "Hello, {{ user.name }}!");
+
+        let mut user = HashMap::new();
+        user.insert(
+            "name".to_string(),
+            TemplateValue::String("Alice".to_string()),
+        );
+
+        let mut context = HashMap::new();
+        context.insert("user".to_string(), TemplateValue::Object(user));
+
+        let result = engine
+            .render("greeting", &context)
+            .expect("Failed to render template");
+        assert_eq!(result, "Hello, Alice!");
     }
 }
