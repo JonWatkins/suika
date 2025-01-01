@@ -14,6 +14,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "suika_example"
+version = "0.1.0"
+dependencies = [
+ "suika",
+]
+
+[[package]]
 name = "suika_json"
 version = "0.1.0"
 dependencies = [
