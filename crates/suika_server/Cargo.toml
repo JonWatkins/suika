@@ -6,7 +6,7 @@ edition = "2021"
 authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_server"
 license = "MIT"
-readme = "README.md"
+readme = "../../README.md"
 
 [dependencies]
 suika_json = "0.1.0"
