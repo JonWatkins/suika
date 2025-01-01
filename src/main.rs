@@ -1,4 +1,4 @@
-use rust_serve::{
+use rs_serve::{
     middleware::{
         combine_middlewares, cors_middleware, favicon_middleware, logger_middleware,
         static_file_middleware,

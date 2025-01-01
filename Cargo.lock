@@ -71,7 +71,7 @@ name = "core_utils"
 version = "0.1.0"
 
 [[package]]
-name = "rust-serve"
+name = "rs-serve"
 version = "0.1.0"
 dependencies = [
  "core_async",
