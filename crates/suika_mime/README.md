@@ -1,8 +1,10 @@
 # Suika MIME
 
-Suika MIME is a Rust library that provides functionality for determining the
-MIME type of files based on their extensions or file paths. This library is
-designed to be simple, efficient, and easy to use.
+Suika MIME is a library for handling MIME types in the Suika web stack.
+
+**Note:** Suika is under active development and not intended for production use.
+The API is subject to change and may lack comprehensive testing and
+documentation.
 
 ## Features
 

@@ -1,7 +1,11 @@
 # Suika Templates
 
-A simple and lightweight template engine library for Rust that can parse and
-render templates with various directives.
+Suika Templates is a simple template engine for the Suika web stack, enabling
+dynamic HTML generation.
+
+**Note:** Suika is under active development and not intended for production use.
+The API is subject to change and may lack comprehensive testing and
+documentation.
 
 ## Features
 

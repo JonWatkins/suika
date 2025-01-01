@@ -1,8 +1,11 @@
 # Suika Utils
 
-Suika Utils is a collection of utility functions for the Suika web framework.
-These functions help with common tasks such as parsing query strings, building
-URLs, and creating no-op wakers for testing.
+Suika Utils is a utility library for the Suika web stack, providing essential
+tools and helpers.
+
+**Note:** Suika is under active development and not intended for production use.
+The API is subject to change and may lack comprehensive testing and
+documentation.
 
 ## Installation
 

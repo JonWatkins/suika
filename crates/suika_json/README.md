@@ -1,7 +1,10 @@
 # suika_json
 
-A simple JSON parser library for Rust that can parse JSON strings into Rust data
-structures.
+Suika JSON is a JSON handling library for the Suika web stack.
+
+**Note:** Suika is under active development and not intended for production use.
+The API is subject to change and may lack comprehensive testing and
+documentation.
 
 ## Features
 
