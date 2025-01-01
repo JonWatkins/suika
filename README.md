@@ -19,7 +19,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-suika_templates = "0.1.1"
+suika = "0.1.1"
 ```
 
 ## Library Features
