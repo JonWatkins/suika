@@ -1,8 +1,14 @@
 [package]
 name = "rs-serve"
+description = "A simple web stack"
+repository = "https://github.com/JonWatkins/rs-serve"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
+keywords = ["http", "server", "web", "middleware", "routing", "templates", "mime", "static files", "web framework"]
+categories = ["web-programming::http-server", "web-programming::framework", "asynchronous", "network-programming"]
+readme = "README.md"
+license = "MIT"
 
 [workspace]
 members = [
