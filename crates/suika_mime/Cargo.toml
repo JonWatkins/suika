@@ -6,3 +6,7 @@ authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_utils"
 license = "MIT"
 readme = "README.md"
+
+[lib]
+name = "suika_mime"
+path = "src/lib.rs"

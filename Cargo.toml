@@ -1,27 +1,9 @@
-[package]
-name = "suika"
-description = "Suika is a simple web stack"
-repository = "https://github.com/JonWatkins/suika"
-version = "0.1.0"
-edition = "2021"
-authors = ["Jon Watkins"]
-keywords = ["http", "server", "web", "middleware", "routing", "templates", "mime", "static files", "web framework"]
-categories = ["web-programming::http-server", "web-programming::framework", "asynchronous", "network-programming"]
-readme = "README.md"
-license = "MIT"
-
 [workspace]
 members = [
+    "crates/suika",
     "crates/suika_utils",
     "crates/suika_server",
     "crates/suika_mime",
     "crates/suika_json",
     "crates/suika_templates",
 ]
-
-[dependencies]
-suika_utils = { version = "0.1.0", path = "crates/suika_utils" }
-suika_server = { version = "0.1.0", path = "crates/suika_server" }
-suika_mime = { version = "0.1.0", path = "crates/suika_mime" }
-suika_json = { version = "0.1.0", path = "crates/suika_json" }
-suika_templates = { version = "0.1.0", path = "crates/suika_templates" }

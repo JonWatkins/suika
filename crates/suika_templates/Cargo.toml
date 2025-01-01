@@ -6,3 +6,7 @@ authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_templates"
 license = "MIT"
 readme = "README.md"
+
+[lib]
+name = "suika_templates"
+path = "src/lib.rs"

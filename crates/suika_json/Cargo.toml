@@ -9,3 +9,7 @@ readme = "README.md"
 
 [dependencies]
 suika_utils = { path = "../suika_utils" }
+
+[lib]
+name = "suika_json"
+path = "src/lib.rs"
