@@ -7,6 +7,15 @@ Suika web stack.
 The API is subject to change and may lack comprehensive testing and
 documentation.
 
+## Installation
+
+To use Suika server in your Rust project, add the following to your `Cargo.toml`:
+
+```toml
+[dependencies]
+suika_server = "0.1.0"
+```
+
 ## Library Features
 
 - HTTP Handling
