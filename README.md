@@ -12,39 +12,33 @@ the external crates im using.
 
 ## Library Features
 
-### HTTP Handling
-- **Request**: Represents an HTTP request.
-- **Response**: Represents an HTTP response.
-- **HttpError**: Represents errors that can occur during HTTP handling.
-
-### Middleware
-- **combine_middlewares**: Combines multiple middleware functions.
-- **cors_middleware**: Middleware for handling CORS (Cross-Origin Resource Sharing).
-- **favicon_middleware**: Middleware for serving a favicon.
-- **logger_middleware**: Middleware for logging HTTP requests and responses.
-- **static_file_middleware**: Middleware for serving static files.
-- **MiddlewareFn**: Type alias for a middleware function.
-- **NextMiddleware**: Represents the next middleware in the chain.
-
-### MIME Type Handling
-- **get_mime_type**: Function to get the MIME type based on a file extension.
-
-### Routing
-- **Router**: Represents the routing logic for handling different HTTP routes.
-
-### Server
-- **Server**: Represents the HTTP server.
-
-### Templates
-- **TemplateEngine**: Represents the template engine for rendering templates.
-- **TemplateParser**: Parses template strings.
-- **TemplateToken**: Represents a token in a template.
-- **TemplateValue**: Represents a value in a template.
-
-### Utilities
-- **build_url**: Function to build a URL.
-- **parse_query_string**: Function to parse a query string.
-- **parse_url**: Function to parse a URL.
+* HTTP Handling
+    - **Request**: Represents an HTTP request.
+    - **Response**: Represents an HTTP response.
+    - **HttpError**: Represents errors that can occur during HTTP handling.
+* Middleware
+    - **combine_middlewares**: Combines multiple middleware functions.
+    - **cors_middleware**: Middleware for handling CORS (Cross-Origin Resource Sharing).
+    - **favicon_middleware**: Middleware for serving a favicon.
+    - **logger_middleware**: Middleware for logging HTTP requests and responses.
+    - **static_file_middleware**: Middleware for serving static files.
+    - **MiddlewareFn**: Type alias for a middleware function.
+    - **NextMiddleware**: Represents the next middleware in the chain.
+* MIME Type Handling
+    - **get_mime_type**: Function to get the MIME type based on a file extension.
+* Routing
+    - **Router**: Represents the routing logic for handling different HTTP routes.
+* Server
+    - **Server**: Represents the HTTP server.
+* Templates
+    - **TemplateEngine**: Represents the template engine for rendering templates.
+    - **TemplateParser**: Parses template strings.
+    - **TemplateToken**: Represents a token in a template.
+    - **TemplateValue**: Represents a value in a template.
+* Utilities
+    - **build_url**: Function to build a URL.
+    - **parse_query_string**: Function to parse a query string.
+    - **parse_url**: Function to parse a URL.
 
 ## Example usage
 
