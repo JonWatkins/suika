@@ -1,17 +1,6 @@
-mod combine_middleware;
-mod cors_middleware;
-mod favicon_middleware;
-mod logger_middleware;
-mod static_file_middleware;
-
-pub use combine_middleware::combine_middlewares;
-pub use cors_middleware::cors_middleware;
-pub use favicon_middleware::favicon_middleware;
-pub use logger_middleware::logger_middleware;
-pub use static_file_middleware::static_file_middleware;
-
-use suika_http::{Request, Response};
-use suika_errors::HttpError;
+use crate::http::request::Request;
+use crate::http::response::Response;
+use crate::HttpError;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
@@ -85,11 +74,11 @@ pub type Middleware = Arc<MiddlewareFn>;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::logger_middleware::logger_middleware;
-    use suika_http::{Request, Response};
+    use crate::middleware::logger_middleware;
+    use suika_utils::noop_waker;
     use std::pin::Pin;
     use std::sync::{Arc, Mutex};
-    use std::task::{Context, RawWaker, RawWakerVTable, Waker};
+    use std::task::Context;
 
     fn middleware_fn_1(
         req: Arc<Request>,
@@ -123,15 +112,6 @@ mod tests {
                 "Middleware error".to_string(),
             ))
         })
-    }
-
-    fn noop_waker() -> Waker {
-        fn noop(_: *const ()) {}
-        fn clone(_: *const ()) -> RawWaker {
-            RawWaker::new(std::ptr::null(), &VTABLE)
-        }
-        static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, noop, noop, noop);
-        unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) }
     }
 
     #[test]

@@ -1,7 +1,7 @@
 [package]
 name = "suika"
 description = "Suika is a simple web stack"
-repository = "https://github.com/JonWatkins/rs-serve"
+repository = "https://github.com/JonWatkins/suika"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
@@ -13,12 +13,7 @@ license = "MIT"
 [workspace]
 members = [
     "crates/suika_utils",
-    "crates/suika_async",
     "crates/suika_server",
-    "crates/suika_http",
-    "crates/suika_middleware",
-    "crates/suika_router",
-    "crates/suika_errors",
     "crates/suika_mime",
     "crates/suika_json",
     "crates/suika_templates",
@@ -26,12 +21,7 @@ members = [
 
 [dependencies]
 suika_utils = { version = "0.1.0", path = "crates/suika_utils" }
-suika_async = { version = "0.1.0", path = "crates/suika_async" }
 suika_server = { version = "0.1.0", path = "crates/suika_server" }
-suika_http = { version = "0.1.0", path = "crates/suika_http" }
-suika_middleware = { version = "0.1.0", path = "crates/suika_middleware" }
-suika_router = { version = "0.1.0", path = "crates/suika_router" }
-suika_errors = { version = "0.1.0", path = "crates/suika_errors" }
 suika_mime = { version = "0.1.0", path = "crates/suika_mime" }
 suika_json = { version = "0.1.0", path = "crates/suika_json" }
 suika_templates = { version = "0.1.0", path = "crates/suika_templates" }

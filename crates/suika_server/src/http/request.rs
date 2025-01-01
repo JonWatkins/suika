@@ -1,5 +1,4 @@
-use suika_json::parse_json;
-use suika_json::JsonValue;
+use suika_json::{JsonValue, parse_json};
 use suika_utils::parse_query_string;
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind, Result};
@@ -163,7 +162,6 @@ impl Request {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use suika_json::JsonValue;
 
     #[test]
     fn test_request_new() {

@@ -63,7 +63,7 @@ impl std::task::Wake for WakerImpl {
 mod tests {
     use super::*;
     use std::sync::mpsc::channel;
-    use crate::delay::delay;
+    use crate::r#async::delay;
     use std::time::Duration;
     use std::thread;
 

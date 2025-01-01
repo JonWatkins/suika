@@ -6,48 +6,18 @@ version = 4
 name = "suika"
 version = "0.1.0"
 dependencies = [
- "suika_async",
- "suika_errors",
- "suika_http",
  "suika_json",
- "suika_middleware",
  "suika_mime",
- "suika_router",
  "suika_server",
  "suika_templates",
  "suika_utils",
 ]
 
 [[package]]
-name = "suika_async"
-version = "0.1.0"
-
-[[package]]
-name = "suika_errors"
-version = "0.1.0"
-
-[[package]]
-name = "suika_http"
-version = "0.1.0"
-dependencies = [
- "suika_errors",
- "suika_json",
- "suika_mime",
- "suika_utils",
-]
-
-[[package]]
 name = "suika_json"
 version = "0.1.0"
-
-[[package]]
-name = "suika_middleware"
-version = "0.1.0"
 dependencies = [
- "suika_errors",
- "suika_http",
- "suika_json",
- "suika_mime",
+ "suika_utils",
 ]
 
 [[package]]
@@ -55,32 +25,17 @@ name = "suika_mime"
 version = "0.1.0"
 
 [[package]]
-name = "suika_router"
-version = "0.1.0"
-dependencies = [
- "suika_errors",
- "suika_http",
- "suika_json",
- "suika_middleware",
-]
-
-[[package]]
 name = "suika_server"
 version = "0.1.0"
 dependencies = [
- "suika_async",
- "suika_errors",
- "suika_http",
- "suika_middleware",
- "suika_router",
+ "suika_json",
+ "suika_mime",
+ "suika_utils",
 ]
 
 [[package]]
 name = "suika_templates"
 version = "0.1.0"
-dependencies = [
- "suika_json",
-]
 
 [[package]]
 name = "suika_utils"

@@ -3,11 +3,11 @@ name = "suika_server"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
-publish = false
+repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_server"
+license = "MIT"
+readme = "README.md"
 
 [dependencies]
-suika_async = { path = "../suika_async" }
-suika_http = { path = "../suika_http" }
-suika_middleware = { path = "../suika_middleware" }
-suika_router = { path = "../suika_router" }
-suika_errors = { path = "../suika_errors" }
+suika_json = { path = "../suika_json" }
+suika_utils = { path = "../suika_utils" }
+suika_mime = { path = "../suika_mime" }

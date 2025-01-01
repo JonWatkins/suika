@@ -3,7 +3,6 @@ name = "suika_templates"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
-publish = false
-
-[dependencies]
-suika_json = { path = "../suika_json" }
+repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_templates"
+license = "MIT"
+readme = "README.md"

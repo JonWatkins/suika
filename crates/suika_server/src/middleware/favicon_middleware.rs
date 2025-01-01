@@ -1,6 +1,7 @@
 use crate::NextMiddleware;
-use suika_http::{Request, Response};
-use suika_errors::HttpError;
+use crate::http::request::Request;
+use crate::http::response::Response;
+use crate::HttpError;
 use suika_mime::get_mime_type;
 use std::fs::File;
 use std::future::Future;
@@ -60,8 +61,8 @@ pub fn favicon_middleware(
                             .extension()
                             .and_then(|ext| ext.to_str())
                             .map(get_mime_type)
-                            .unwrap_or("application/octet-stream");
-                        res.header("Content-Type", mime_type);
+                            .unwrap_or("application/octet-stream".to_string());
+                        res.header("Content-Type", mime_type.as_str());
 
                         return Ok(());
                     }
@@ -83,22 +84,11 @@ pub fn favicon_middleware(
 mod tests {
     use super::*;
     use crate::NextMiddleware;
-    use suika_http::{Request, Response};
+    use suika_utils::noop_waker;
     use std::fs::File;
     use std::io::Write;
     use std::sync::{Arc, Mutex};
-    use std::task::{Context, RawWaker, RawWakerVTable, Waker};
-
-    fn noop_waker() -> Waker {
-        fn noop(_: *const ()) {}
-        fn clone(_: *const ()) -> RawWaker {
-            RawWaker::new(
-                std::ptr::null(),
-                &RawWakerVTable::new(clone, noop, noop, noop),
-            )
-        }
-        unsafe { Waker::from_raw(clone(std::ptr::null())) }
-    }
+    use std::task::Context;
 
     #[test]
     fn test_favicon_found() {

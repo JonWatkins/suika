@@ -1,4 +1,4 @@
-use suika_errors::HttpError;
+use crate::HttpError;
 use suika_mime::get_mime_type;
 use std::collections::HashMap;
 use std::fs::File;
@@ -109,9 +109,9 @@ impl Response {
                 let mime_type = path.extension()
                     .and_then(|ext| ext.to_str())
                     .map(get_mime_type)
-                    .unwrap_or("application/octet-stream");
+                    .unwrap_or("application/octet-stream".to_string());
 
-                self.header("Content-Type", mime_type);
+                self.header("Content-Type", mime_type.as_str());
                 self.body_bytes(contents);
             }
             Err(e) => {
@@ -160,7 +160,6 @@ impl Clone for Response {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use suika_errors::HttpError;
     use std::io::Cursor;
 
     #[test]

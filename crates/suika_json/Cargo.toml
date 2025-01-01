@@ -3,4 +3,9 @@ name = "suika_json"
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]
-publish = false
+repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_json"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+suika_utils = { path = "../suika_utils" }

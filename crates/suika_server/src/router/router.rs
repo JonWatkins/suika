@@ -1,38 +1,11 @@
-use suika_http::{Request, Response};
-use suika_errors::HttpError;
-use suika_middleware::NextMiddleware;
+use super::route::Route;
+use crate::http::request::Request;
+use crate::http::response::Response;
+use crate::HttpError;
+use crate::middleware::NextMiddleware;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
-
-#[derive(Clone)]
-pub struct Route {
-    path: String,
-    method: String,
-    handler: Arc<
-        dyn Fn(
-                Arc<Request>,
-                Arc<Response>,
-                Arc<NextMiddleware>,
-            ) -> Pin<Box<dyn Future<Output = Result<(), HttpError>> + Send>>
-            + Send
-            + Sync,
-    >,
-}
-
-impl Route {
-    pub fn new<F, Fut>(method: &str, path: &str, handler: F) -> Self
-    where
-        F: Fn(Arc<Request>, Arc<Response>, Arc<NextMiddleware>) -> Fut + Send + Sync + 'static,
-        Fut: Future<Output = Result<(), HttpError>> + Send + 'static,
-    {
-        Route {
-            path: path.to_string(),
-            method: method.to_string(),
-            handler: Arc::new(move |req, res, next| Box::pin(handler(req, res, next))),
-        }
-    }
-}
 
 pub struct Router {
     routes: Vec<Route>,
@@ -153,13 +126,12 @@ impl Router {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use suika_http::{Request, Response};
-    use suika_errors::HttpError;
-    use suika_middleware::NextMiddleware;
+    use crate::middleware::NextMiddleware;
+    use suika_utils::noop_waker;
     use std::future::Future;
     use std::pin::Pin;
     use std::sync::{Arc, Mutex};
-    use std::task::{Context, RawWaker, RawWakerVTable, Waker};
+    use std::task::Context;
 
     fn handler(
         req: Arc<Request>,
@@ -171,13 +143,6 @@ mod tests {
             next.proceed(req, res).await?;
             Ok(())
         })
-    }
-
-    #[test]
-    fn test_create_route() {
-        let route = Route::new("GET", "/hello", handler);
-        assert_eq!(route.method, "GET");
-        assert_eq!(route.path, "/hello");
     }
 
     #[test]
@@ -295,14 +260,5 @@ mod tests {
         let body = res.get_body().map(|b| String::from_utf8(b).unwrap());
         assert_eq!(body, Some("Not Found".to_string()));
         assert_eq!(res.get_status(), 404);
-    }
-
-    fn noop_waker() -> Waker {
-        fn noop(_: *const ()) {}
-        fn clone(_: *const ()) -> RawWaker {
-            RawWaker::new(std::ptr::null(), &VTABLE)
-        }
-        static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, noop, noop, noop);
-        unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) }
     }
 }

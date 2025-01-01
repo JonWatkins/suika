@@ -1,4 +1,4 @@
-use crate::task::Task;
+use crate::r#async::task::Task;
 use std::future::Future;
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
@@ -66,7 +66,7 @@ impl SimpleAsync {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::delay;
+    use crate::r#async::delay;
     use std::sync::mpsc::channel;
     use std::time::Duration;
 

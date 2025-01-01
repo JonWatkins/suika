@@ -1,4 +1,4 @@
-use crate::{MiddlewareFn, NextMiddleware};
+use crate::middleware::{MiddlewareFn, NextMiddleware};
 use std::sync::{Arc, Mutex};
 
 pub fn combine_middlewares(middlewares: Vec<Arc<MiddlewareFn>>) -> Arc<MiddlewareFn> {
@@ -12,21 +12,14 @@ pub fn combine_middlewares(middlewares: Vec<Arc<MiddlewareFn>>) -> Arc<Middlewar
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{cors_middleware, logger_middleware};
-    use suika_http::{Request, Response};
+    use crate::middleware::{cors_middleware, logger_middleware};
+    use crate::http::request::Request;
+    use crate::http::response::Response;
+    use suika_utils::noop_waker;
     use std::future::Future;
     use std::pin::Pin;
     use std::sync::{Arc, Mutex};
-    use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
-
-    fn noop_waker() -> Waker {
-        fn noop(_: *const ()) {}
-        fn clone(_: *const ()) -> RawWaker {
-            RawWaker::new(std::ptr::null(), &VTABLE)
-        }
-        static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, noop, noop, noop);
-        unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) }
-    }
+    use std::task::{Context, Poll};
 
     #[test]
     fn test_combine_middlewares() {
