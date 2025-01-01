@@ -1,6 +1,6 @@
-# Rs-Serve
+# Suika
 
-Work in progress simple web stack, this is not meant for production use. I still
+Suika is a work in progress simple web stack, this is not meant for production use. I still
 need to clean up the API, write documentation and more tests ect. The API is
 likely to change, as this is a very basic implementation and needs a ton more
 work. currently the router only does simple string matching for example (this
@@ -43,14 +43,10 @@ the external crates im using.
 ## Example usage
 
 ```rust
-use rs_serve::{
-    router::Router,
-    server::Server,
-};
-
+use suika::server::{router::Router, Server};
 use std::sync::Arc;
 
-fn main() {
+pub fn main() {
     let server = Server::new();
     let mut router = Router::new();
 
@@ -74,29 +70,22 @@ fn main() {
 ### Static file server
 
 ```rust
-use rs_serve::{
-  server::Server,
-  middleware::static_file_middleware
-};
+use suika::server::{middleware::static_file_middleware, Server};
 
-fn main() {
-  let server = Server::new();
-  server.use_middleware(static_file_middleware("/", "public", 3200));
-  server.listen("127.0.0.1:7878");
+pub fn main() {
+    let server = Server::new();
+    server.use_middleware(static_file_middleware("/", "public", 3200));
+    server.listen("127.0.0.1:7878");
 }
 ```
 
 ### Post Data
 
 ```rust
-use rs_serve::{
-    router::Router,
-    server::Server,
-};
-
+use suika::server::{router::Router, Server};
 use std::sync::Arc;
 
-fn main() {
+pub fn main() {
     let server = Server::new();
     let mut router = Router::new();
 
@@ -136,14 +125,10 @@ fn main() {
 ### Sending files
 
 ```rust
-use rs_serve::{
-    router::Router,
-    server::Server,
-};
-
+use suika::server::{router::Router, Server};
 use std::sync::Arc;
 
-fn main() {
+pub fn main() {
     let server = Server::new();
     let mut router = Router::new();
 
@@ -168,18 +153,18 @@ fn main() {
 ### Middleware
 
 ```rust
-use rs_serve::{
+use suika::server::{
     middleware::{
         combine_middlewares, cors_middleware, favicon_middleware, logger_middleware,
         static_file_middleware,
     },
     router::Router,
-    server::Server,
+    Server,
 };
 
 use std::sync::Arc;
 
-fn main() {
+pub fn main() {
     let server = Server::new();
     let mut router = Router::new();
 
@@ -211,13 +196,13 @@ fn main() {
 
 ```rust
 use std::{collections::HashMap, sync::Arc};
-use rs_serve::{
-    router::Router,
-    server::Server,
+
+use suika::{
     templates::{TemplateEngine, TemplateValue},
+    server:: { Server, router::Router },
 };
 
-fn main() {
+pub fn main() {
     let server = Server::new();
     let mut router = Router::new();
 
