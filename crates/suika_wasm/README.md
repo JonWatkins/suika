@@ -8,35 +8,25 @@ The API is subject to change and may lack comprehensive testing and
 documentation.
 
 ```rust
-use suika::server::{
-    middleware::wasm_file_middleware,
-    router::Router,
-    Server,
-};
-
+use suika::server::{Server, Router};
+use suika::middleware::WasmFileMiddleware;
 use std::sync::Arc;
 
 pub fn main() {
-    let server = Server::new();
-    let mut router = Router::new();
+    let mut server = Server::new("127.0.0.1:8080");
+    let mut router = Router::new("/");
 
-    router.get("/", |_req, res, _next| async move {
-        res.set_status(200);
-        res.body("Hello World".to_string());
-        Ok(())
+    router.add_route(Some("GET"), r"/?$", |_req, res| {
+        Box::pin(async move {
+            res.set_status(201).await;
+            res.body("Hello World!".to_string()).await;
+            Ok(())
+        })
     });
 
-    let router = Arc::new(router);
+    server.use_middleware(Arc::new(WasmFileMiddleware::new("/wasm", 86400)));
+    server.use_middleware(Arc::new(router));
 
-    let combined_middleware = combine_middlewares(vec![
-        Arc::new(wasm_file_middleware("/wasm", 3600)),
-        Arc::new(move |req, res, next| {
-            let router = Arc::clone(&router);
-            Box::pin(async move { router.handle(req, res, next).await })
-        }),
-    ]);
-
-    server.use_middleware(move |req, res, next| combined_middleware(req, res, next));
-    server.listen("127.0.0.1:7878");
+    server.run();
 }
 ```

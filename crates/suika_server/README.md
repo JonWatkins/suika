@@ -23,14 +23,11 @@ suika_server = "0.1.0"
   - **Response**: Represents an HTTP response.
   - **HttpError**: Represents errors that can occur during HTTP handling.
 - Middleware
-  - **combine_middlewares**: Combines multiple middleware functions.
-  - **cors_middleware**: Middleware for handling CORS (Cross-Origin Resource
+  - **CorsMiddleware**: Middleware for handling CORS (Cross-Origin Resource
     Sharing).
-  - **favicon_middleware**: Middleware for serving a favicon.
-  - **logger_middleware**: Middleware for logging HTTP requests and responses.
-  - **static_file_middleware**: Middleware for serving static files.
-  - **MiddlewareFn**: Type alias for a middleware function.
-  - **NextMiddleware**: Represents the next middleware in the chain.
+  - **FaviconMiddleware**: Middleware for serving a favicon.
+  - **LoggerMiddleware**: Middleware for logging HTTP requests and responses.
+  - **StaticFileMiddleware**: Middleware for serving static files.
 - Routing
   - **Router**: Represents the routing logic for handling different HTTP routes.
 - Server
@@ -39,26 +36,23 @@ suika_server = "0.1.0"
 ## Example usage
 
 ```rust
-use suika::server::{router::Router, Server};
+use suika::server::{Server, Router};
 use std::sync::Arc;
 
 pub fn main() {
-    let server = Server::new();
-    let mut router = Router::new();
+    let mut server = Server::new("127.0.0.1:8080");
+    let mut router = Router::new("/");
 
-    router.get("/", |_req, res, _next| async move {
-        res.set_status(200);
-        res.body("Hello World".to_string());
-        Ok(())
+    router.add_route(Some("GET"), r"/?$", |_req, res| {
+        Box::pin(async move {
+            res.set_status(201).await;
+            res.body("Hello World!".to_string()).await;
+            Ok(())
+        })
     });
 
-    let router = Arc::new(router);
+    server.use_middleware(Arc::new(router));
 
-    server.use_middleware(move |req, res, next| {
-        let router = Arc::clone(&router);
-        Box::pin(async move { router.handle(req, res, next).await })
-    });
-
-    server.listen("127.0.0.1:7878");
+    server.run();
 }
 ```

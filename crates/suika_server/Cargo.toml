@@ -9,10 +9,15 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
-suika_json = "0.1.0"
+suika_json = "0.1.1"
 suika_utils = "0.1.1"
 suika_mime = "0.1.1"
+tokio = { version = "1.0", features = ["full"] }
 regex = "1.11.1"
+futures = "0.3.31"
+
+[dev-dependencies]
+tempfile = "3.3"
 
 [lib]
 name = "suika_server"

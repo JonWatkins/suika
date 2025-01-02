@@ -29,14 +29,11 @@ suika = "0.1.1"
   - **Response**: Represents an HTTP response.
   - **HttpError**: Represents errors that can occur during HTTP handling.
 - Middleware
-  - **combine_middlewares**: Combines multiple middleware functions.
-  - **cors_middleware**: Middleware for handling CORS (Cross-Origin Resource
+  - **CorsMiddleware**: Middleware for handling CORS (Cross-Origin Resource
     Sharing).
-  - **favicon_middleware**: Middleware for serving a favicon.
-  - **logger_middleware**: Middleware for logging HTTP requests and responses.
-  - **static_file_middleware**: Middleware for serving static files.
-  - **MiddlewareFn**: Type alias for a middleware function.
-  - **NextMiddleware**: Represents the next middleware in the chain.
+  - **FaviconMiddleware**: Middleware for serving a favicon.
+  - **LoggerMiddleware**: Middleware for logging HTTP requests and responses.
+  - **StaticFileMiddleware**: Middleware for serving static files.
 - MIME Type Handling
   - **get_mime_type**: Function to get the MIME type based on a file extension.
 - Routing
@@ -56,168 +53,165 @@ suika = "0.1.1"
 ## Example usage
 
 ```rust
-use suika::server::{router::Router, Server};
+use suika::server::{Router, Server};
 use std::sync::Arc;
 
 pub fn main() {
-    let server = Server::new();
-    let mut router = Router::new();
+    let mut server = Server::new("127.0.0.1:8080");
+    let mut router = Router::new("/");
 
-    router.get("/", |_req, res, _next| async move {
-        res.set_status(200);
-        res.body("Hello World".to_string());
-        Ok(())
+    router.add_route(Some("GET"), "/", |_req, res| {
+        Box::pin(async move {
+            res.set_status(200).await;
+            res.body("Hello World".to_string()).await;
+            Ok(())
+        })
     });
 
-    let router = Arc::new(router);
 
-    server.use_middleware(move |req, res, next| {
-        let router = Arc::clone(&router);
-        Box::pin(async move { router.handle(req, res, next).await })
-    });
-
-    server.listen("127.0.0.1:7878");
+    server.use_middleware(Arc::new(router));
+    server.run(None);
 }
 ```
 
 ### Static file server
 
 ```rust
-use suika::server::{middleware::static_file_middleware, Server};
+use suika::server::Server;
+use suika::middleware::StaticFileMiddleware;
+use std::sync::Arc;
 
 pub fn main() {
-    let server = Server::new();
-    server.use_middleware(static_file_middleware("/", "public", 3200));
-    server.listen("127.0.0.1:7878");
+    let mut server = Server::new("127.0.0.1:8080");
+    server.use_middleware(Arc::new(StaticFileMiddleware::new("/public", "public", 3200)));
+    server.run(None);
 }
 ```
 
 ### Post Data
 
 ```rust
-use suika::server::{router::Router, Server};
+use suika::server::{Router, Server};
 use std::sync::Arc;
 
 pub fn main() {
-    let server = Server::new();
-    let mut router = Router::new();
+    let mut server = Server::new("127.0.0.1:8080");
+    let mut router = Router::new("/");
 
-    router.post("/json", |req, res, _next| async move {
-        if let Some(json_body) = req.json_body() {
-            let response_message = format!("Data received: {:?}\n", json_body);
-            res.body(response_message);
-        } else {
-            res.set_status(400);
-            res.body("Invalid JSON data received!\n".to_string());
-        }
-        Ok(())
+    router.add_route(Some("POST"), "/json", |req, res| {
+        Box::pin(async move {
+            if let Some(json_body) = req.json_body() {
+                let response_message = format!("Data received: {:?}\n", json_body);
+                res.set_status(200).await;
+                res.body(response_message).await;
+            } else {
+                res.set_status(400).await;
+                res.body("Invalid JSON data received!\n".to_string()).await;
+            }
+            Ok(())
+        })
     });
 
-    router.post("/form", |req, res, _next| async move {
-        if let Some(form_data) = req.form_data() {
-            let response_message = format!("Form Data received: {:?}\n", form_data);
-            res.body(response_message);
-        } else {
-            res.set_status(400);
-            res.body("Invalid form data received!\n".to_string());
-        }
-        Ok(())
+    router.add_route(Some("POST"), "/form", |req, res| {
+        Box::pin(async move {
+            if let Some(form_data) = req.form_data() {
+                let response_message = format!("Form Data received: {:?}\n", form_data);
+                res.set_status(200).await;
+                res.body(response_message).await;
+            } else {
+                res.set_status(400).await;
+                res.body("Invalid form data received!\n".to_string()).await;
+            }
+            Ok(())
+        })
     });
 
-    let router = Arc::new(router);
-
-    server.use_middleware(move |req, res, next| {
-        let router = Arc::clone(&router);
-        Box::pin(async move { router.handle(req, res, next).await })
-    });
-
-    server.listen("127.0.0.1:7878");
+    server.use_middleware(Arc::new(router));
+    server.run(None);
 }
 ```
 
 ### Sending files
 
 ```rust
-use suika::server::{router::Router, Server};
+use suika::server::{Router, Server};
 use std::sync::Arc;
 
 pub fn main() {
-    let server = Server::new();
-    let mut router = Router::new();
+    let mut server = Server::new("127.0.0.1:8080");
+    let mut router = Router::new("/");
 
-    router.get("/", |_req, res, _next| async move {
-        if let Err(e) = res.send_file("index.html") {
-            eprintln!("Error: {}", e);
-        }
-        Ok(())
+    router.add_route(Some("GET"), "/", |_req, res| {
+        Box::pin(async move {
+            if let Err(e) = res.send_file("index.html").await {
+                res.error(e).await;
+            }
+            Ok(())
+        })
     });
 
-    let router = Arc::new(router);
-
-    server.use_middleware(move |req, res, next| {
-        let router = Arc::clone(&router);
-        Box::pin(async move { router.handle(req, res, next).await })
-    });
-
-    server.listen("127.0.0.1:7878");
+    server.use_middleware(Arc::new(router));
+    server.run(None);
 }
 ```
 
 ### Middleware
 
 ```rust
-use suika::server::{
-    middleware::{
-        combine_middlewares, cors_middleware, favicon_middleware, logger_middleware,
-        static_file_middleware,
-    },
-    router::Router,
-    Server,
-};
-
 use std::sync::Arc;
 
-pub fn main() {
-    let server = Server::new();
-    let mut router = Router::new();
+use suika::{
+    middleware::{
+        CorsMiddleware, FaviconMiddleware, LoggerMiddleware, StaticFileMiddleware,
+        WasmFileMiddleware,
+    },
+    server::{Router, Server},
+};
 
-    router.get("/", |_req, res, _next| async move {
-        res.set_status(200);
-        res.body("Hello World".to_string());
-        Ok(())
+pub fn main() {
+    let mut server = Server::new("127.0.0.1:8080");
+    let mut router = Router::new("/");
+
+    router.add_route(Some("GET"), "/", |_req, res| {
+        Box::pin(async move {
+            res.set_status(200).await;
+            res.body("Hello World".to_string()).await;
+            Ok(())
+        })
     });
 
-    let router = Arc::new(router);
+    server.use_middleware(Arc::new(CorsMiddleware));
+    server.use_middleware(Arc::new(LoggerMiddleware));
 
-    let combined_middleware = combine_middlewares(vec![
-        Arc::new(cors_middleware),
-        Arc::new(favicon_middleware("public/favicon.ico")),
-        Arc::new(static_file_middleware("/public", "public", 3600)),
-        Arc::new(logger_middleware),
-        Arc::new(move |req, res, next| {
-            let router = Arc::clone(&router);
-            Box::pin(async move { router.handle(req, res, next).await })
-        }),
-    ]);
+    server.use_middleware(Arc::new(FaviconMiddleware::new(
+        "crates/suika_example/public/favicon.ico",
+    )));
 
-    server.use_middleware(move |req, res, next| combined_middleware(req, res, next));
-    server.listen("127.0.0.1:7878");
+    server.use_middleware(Arc::new(StaticFileMiddleware::new(
+        "/public", "crates/suika_example/public", 3600,
+    )));
+
+    server.use_middleware(Arc::new(WasmFileMiddleware::new("/wasm", 86400)));
+    server.use_middleware(Arc::new(router));
+
+    server.run(None);
 }
 ```
 
 ### Template Engine
 
 ```rust
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 use suika::{
+    server::{Router, Server},
     templates::{TemplateEngine, TemplateValue},
-    server:: { Server, router::Router },
 };
 
 pub fn main() {
-    let server = Server::new();
-    let mut router = Router::new();
+    let mut server = Server::new("127.0.0.1:8080");
+    let mut router = Router::new("/");
 
     let template_engine = Arc::new({
         let mut engine = TemplateEngine::new();
@@ -229,33 +223,34 @@ pub fn main() {
         engine
     });
 
-    router.get("/", move |_req, res, _next| {
+    {
         let template_engine = Arc::clone(&template_engine);
-        async move {
-            let mut context = HashMap::new();
-            context.insert(
-                "name".to_string(),
-                TemplateValue::String("World".to_string()),
-            );
+        router.add_route(Some("GET"), "/", move |_req, res| {
+            let template_engine = Arc::clone(&template_engine);
+            Box::pin(async move {
+                let mut context = HashMap::new();
 
-            match template_engine.render("index.html", &context) {
-                Ok(rendered) => res.body(rendered),
-                Err(e) => {
-                    res.set_status(500);
-                    res.body(format!("Template rendering error: {}", e));
+                context.insert(
+                    "name".to_string(),
+                    TemplateValue::String("World".to_string()),
+                );
+
+                match template_engine.render("hello.html", &context) {
+                    Ok(rendered) => {
+                        res.set_status(200).await;
+                        res.body(rendered).await;
+                    }
+                    Err(_e) => {
+                        res.set_status(500).await;
+                        res.body("Template rendering error.".to_string()).await;
+                    }
                 }
-            }
-            Ok(())
-        }
-    });
+                Ok(())
+            })
+        });
+    }
 
-    let router = Arc::new(router);
-
-    server.use_middleware(move |req, res, next| {
-        let router = Arc::clone(&router);
-        Box::pin(async move { router.handle(req, res, next).await })
-    });
-
-    server.listen("127.0.0.1:7878");
+    server.use_middleware(Arc::new(router));
+    server.run(None);
 }
 ```
