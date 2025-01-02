@@ -1,7 +1,7 @@
 [package]
 name = "suika"
 description = "A simple web stack for building web applications"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika"
@@ -14,7 +14,7 @@ suika_mime = "0.1.1"
 suika_utils = "0.1.1"
 suika_templates = "0.1.2"
 suika_server = "0.1.1"
-suika_wasm = "0.1.1"
+suika_wasm = "0.1.2"
 
 [lib]
 name = "suika"

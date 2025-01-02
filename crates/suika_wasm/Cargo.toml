@@ -1,7 +1,7 @@
 [package]
 name = "suika_wasm"
 description = "A middleware for the suika web stack to serve pre-compiled WebAssembly (Wasm) files."
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_wasm"
