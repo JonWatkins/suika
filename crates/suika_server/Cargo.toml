@@ -1,7 +1,7 @@
 [package]
 name = "suika_server"
 description = "A server library for the suika web stack"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_server"
@@ -12,6 +12,7 @@ readme = "README.md"
 suika_json = "0.1.0"
 suika_utils = "0.1.1"
 suika_mime = "0.1.1"
+regex = "1.11.1"
 
 [lib]
 name = "suika_server"

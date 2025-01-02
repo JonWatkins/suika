@@ -7,6 +7,7 @@ use std::io::{Error, ErrorKind, Result};
 pub struct Request {
     method: String,
     path: String,
+    original_path: String, // Store the original path
     headers: HashMap<String, String>,
     query_params: HashMap<String, String>,
     body: Option<String>,
@@ -104,7 +105,8 @@ impl Request {
 
         Ok(Request {
             method,
-            path,
+            path: path.clone(),
+            original_path: path, // Store the original path
             headers,
             query_params,
             body: if !body_content.is_empty() {
@@ -124,6 +126,10 @@ impl Request {
 
     pub fn path(&self) -> &str {
         &self.path
+    }
+
+    pub fn original_path(&self) -> &str {
+        &self.original_path
     }
 
     pub fn header(&self, key: &str) -> Option<&str> {
@@ -157,11 +163,24 @@ impl Request {
     pub fn param(&self, key: &str) -> Option<&str> {
         self.params.get(key).map(|s| s.as_str())
     }
+
+    pub fn headers(&self) -> &HashMap<String, String> {
+        &self.headers
+    }
+
+    pub fn query_params(&self) -> &HashMap<String, String> {
+        &self.query_params
+    }
+
+    pub fn set_path(&mut self, path: String) {
+        self.path = path;
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use suika_json::JsonValue;
 
     #[test]
     fn test_request_new() {
@@ -169,6 +188,7 @@ mod tests {
         let request = Request::new(request_string).unwrap();
         assert_eq!(request.method(), "GET");
         assert_eq!(request.path(), "/path");
+        assert_eq!(request.original_path(), "/path");
         assert_eq!(request.query_param("name"), Some("John"));
         assert_eq!(request.header("Host"), Some("example.com"));
         assert_eq!(request.body(), None);
@@ -180,6 +200,7 @@ mod tests {
         let request = Request::new(request_string).unwrap();
         assert_eq!(request.method(), "POST");
         assert_eq!(request.path(), "/path");
+        assert_eq!(request.original_path(), "/path");
         assert_eq!(request.body(), Some("body content"));
     }
 
@@ -189,6 +210,7 @@ mod tests {
         let request = Request::new(request_string).unwrap();
         assert_eq!(request.method(), "POST");
         assert_eq!(request.path(), "/path");
+        assert_eq!(request.original_path(), "/path");
         assert_eq!(request.body(), None);
     }
 
@@ -202,6 +224,7 @@ mod tests {
         let request = Request::new(&request_string).unwrap();
         assert_eq!(request.method(), "POST");
         assert_eq!(request.path(), "/path");
+        assert_eq!(request.original_path(), "/path");
         assert_eq!(request.body(), Some(large_body.as_ref()));
     }
 
@@ -215,6 +238,7 @@ mod tests {
         let request = Request::new(&request_string).unwrap();
         assert_eq!(request.method(), "POST");
         assert_eq!(request.path(), "/path");
+        assert_eq!(request.original_path(), "/path");
         assert_eq!(request.body(), Some(special_body.as_ref()));
     }
 
@@ -244,6 +268,7 @@ mod tests {
         let request_string = "GET /test_path HTTP/1.1\r\nHost: example.com\r\n\r\n";
         let request = Request::new(request_string).unwrap();
         assert_eq!(request.path(), "/test_path");
+        assert_eq!(request.original_path(), "/test_path");
     }
 
     #[test]

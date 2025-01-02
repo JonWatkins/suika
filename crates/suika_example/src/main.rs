@@ -17,6 +17,7 @@ use suika::{
 pub fn main() {
     let server = Server::new();
     let mut router = Router::new();
+    let mut nested_router = Router::new();
 
     let template_engine = Arc::new({
         let mut engine = TemplateEngine::new();
@@ -190,6 +191,14 @@ pub fn main() {
         }
         Ok(())
     });
+
+    nested_router.get("/users/.*", |_req, res, _next| async move {
+        let response_message = format!("got nested request");
+        res.body(response_message);
+        Ok(())
+    });
+
+    router.use_router("/api", nested_router);
 
     let router = Arc::new(router);
 

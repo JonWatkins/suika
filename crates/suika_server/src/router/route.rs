@@ -1,3 +1,4 @@
+use regex::Regex;
 use crate::http::request::Request;
 use crate::http::response::Response;
 use crate::HttpError;
@@ -10,6 +11,7 @@ use std::sync::Arc;
 pub struct Route {
     pub path: String,
     pub method: String,
+    pub regex: Regex,
     pub handler: Arc<
         dyn Fn(
                 Arc<Request>,
@@ -27,9 +29,11 @@ impl Route {
         F: Fn(Arc<Request>, Arc<Response>, Arc<NextMiddleware>) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<(), HttpError>> + Send + 'static,
     {
+        let regex = Regex::new(&format!("^{}$", path)).unwrap();
         Route {
             path: path.to_string(),
             method: method.to_string(),
+            regex,
             handler: Arc::new(move |req, res, next| Box::pin(handler(req, res, next))),
         }
     }
