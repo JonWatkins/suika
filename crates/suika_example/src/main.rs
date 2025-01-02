@@ -11,6 +11,7 @@ use suika::{
         Server,
     },
     templates::{TemplateEngine, TemplateValue},
+    wasm::wasm_file_middleware,
 };
 
 pub fn main() {
@@ -27,6 +28,13 @@ pub fn main() {
         engine
     });
 
+    router.get("/", |_req, res, _next| async move {
+        if let Err(e) = res.send_file("crates/suika_example/index.html") {
+            eprintln!("Error: {}", e);
+        }
+        Ok(())
+    });
+
     {
         let template_engine_hello = Arc::clone(&template_engine);
         router.get("/hello", move |_req, res, _next| {
@@ -38,8 +46,7 @@ pub fn main() {
                     TemplateValue::String("World".to_string()),
                 );
 
-                match template_engine.render("crates/suika_example/templates/hello.html", &context)
-                {
+                match template_engine.render("hello.html", &context) {
                     Ok(rendered) => res.body(rendered),
                     Err(e) => {
                         res.set_status(500);
@@ -108,6 +115,7 @@ pub fn main() {
 
     let combined_middleware = combine_middlewares(vec![
         Arc::new(cors_middleware),
+        Arc::new(wasm_file_middleware("/wasm", 3600)),
         Arc::new(favicon_middleware(
             "crates/suika_example/public/favicon.ico",
         )),

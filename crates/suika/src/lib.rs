@@ -205,3 +205,25 @@ pub mod templates {
 pub mod server {
   pub use suika_server::*;
 }
+
+/// WebAssembly middleware utilities.
+///
+/// This module re-exports all functionalities from the `suika_wasm` crate.
+///
+/// # Examples
+///
+/// Serving WebAssembly files:
+///
+/// ```rust,ignore
+/// use suika::wasm::wasm_file_middleware;
+/// use suika::server::Server;
+/// use std::sync::Arc;
+///
+/// let server = Server::new();
+/// let middleware = wasm_file_middleware("/wasm", "public/wasm", 3600);
+/// server.use_middleware(Arc::new(middleware));
+/// server.listen("127.0.0.1:7878");
+/// ```
+pub mod wasm {
+  pub use suika_wasm::*;
+}

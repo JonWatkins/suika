@@ -52,6 +52,7 @@ pub enum MimeType {
     ApplicationVndOpenxmlExcel,
     ApplicationVndMsPowerpoint,
     ApplicationVndOpenxmlPowerpoint,
+    ApplicationWasm, // Added WebAssembly MIME type
 }
 
 impl fmt::Display for MimeType {
@@ -118,6 +119,7 @@ impl MimeType {
             MimeType::ApplicationVndOpenxmlPowerpoint => {
                 "application/vnd.openxmlformats-officedocument.presentationml.presentation"
             }
+            MimeType::ApplicationWasm => "application/wasm", // Added WebAssembly MIME type
         }
     }
 }
@@ -194,8 +196,10 @@ pub fn get_mime_type(extension: &str) -> String {
         "xlsx" => MimeType::ApplicationVndOpenxmlExcel,
         "ppt" => MimeType::ApplicationVndMsPowerpoint,
         "pptx" => MimeType::ApplicationVndOpenxmlPowerpoint,
+        "wasm" => MimeType::ApplicationWasm, // Added WebAssembly MIME type
         _ => MimeType::ApplicationOctetStream,
-    }.to_string()
+    }
+    .to_string()
 }
 
 /// Returns the MIME type for a given file path.
@@ -287,6 +291,7 @@ mod tests {
         assert_eq!(get_mime_type("xlsx"), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".to_string());
         assert_eq!(get_mime_type("ppt"), "application/vnd.ms-powerpoint".to_string());
         assert_eq!(get_mime_type("pptx"), "application/vnd.openxmlformats-officedocument.presentationml.presentation".to_string());
+        assert_eq!(get_mime_type("wasm"), "application/wasm".to_string()); // Test for WebAssembly MIME type
         assert_eq!(get_mime_type("unknown"), "application/octet-stream".to_string());
     }
 
@@ -301,5 +306,6 @@ mod tests {
         assert_eq!(get_mime_type_from_path("archive.tar.gz"), "application/gzip".to_string());
         assert_eq!(get_mime_type_from_path("audio.mp3"), "audio/mpeg".to_string());
         assert_eq!(get_mime_type_from_path("video.mp4"), "video/mp4".to_string());
+        assert_eq!(get_mime_type_from_path("module.wasm"), "application/wasm".to_string()); // Test for WebAssembly MIME type from path
     }
 }

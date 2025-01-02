@@ -9,6 +9,19 @@
 <body>
   <h1>Hello World!</h1>
   <p>Lorem ipsum dolor sit amet</p>
-  <script type="text/javascript" src="/public/test.js"></script>
+  <button data-console-log="Button 1 clicked!">Button 1</button>
+  <button data-console-log="Button 2 clicked!">Button 2</button>
+  <button data-console-log="Button 3 clicked!">Button 3</button>
+  <script type="module">
+    import init from '/wasm/suika_ui.js';
+    async function loadWasm() {
+      try {
+        const wasm = await init('/wasm/suika_ui_bg.wasm');
+      } catch (error) {
+        console.error('Failed to load WebAssembly module:', error);
+      }
+    }
+    window.addEventListener('load', loadWasm);
+  </script>
 </body>
 </html>
