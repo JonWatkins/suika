@@ -1,0 +1,24 @@
+{
+  "name": "suika_ui",
+  "type": "module",
+  "collaborators": [
+    "Jon Watkins"
+  ],
+  "description": "A front end framework for suika web stack using wasm.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JonWatkins/suika/tree/master/crates/suika_wasm"
+  },
+  "files": [
+    "suika_ui_bg.wasm",
+    "suika_ui.js",
+    "suika_ui.d.ts"
+  ],
+  "main": "suika_ui.js",
+  "types": "suika_ui.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
