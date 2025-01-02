@@ -212,6 +212,59 @@ pub fn parse_url(url: &str) -> Option<(String, String, String, HashMap<String, S
     Some((scheme, host, path, query))
 }
 
+/// Minifies an HTML string by removing unnecessary whitespace and line breaks.
+///
+/// # Arguments
+///
+/// * `html` - A string slice that holds the HTML content.
+///
+/// # Returns
+///
+/// A String containing the minified HTML.
+///
+/// # Examples
+///
+/// ```
+/// use suika_utils::minify_html;
+/// let html = r#"<html>
+///     <head>
+///         <title>Test</title>
+///     </head>
+///     <body>
+///         <h1>Hello, World!</h1>
+///         <script type="module">
+///             console.log("Test");
+///         </script>
+///     </body>
+/// </html>"#;
+/// let minified = minify_html(html);
+/// assert_eq!(minified, "<html><head><title>Test</title></head><body><h1>Hello, World!</h1><script type=\"module\">console.log(\"Test\");</script></body></html>");
+/// ```
+pub fn minify_html(html: &str) -> String {
+    let mut in_script = false;
+    let mut result = String::with_capacity(html.len());
+    let mut script_content = String::new();
+
+    for line in html.lines() {
+        let trimmed_line = line.trim();
+        if trimmed_line.starts_with("<script") {
+            in_script = true;
+            result.push_str(trimmed_line);
+        } else if trimmed_line.ends_with("</script>") {
+            in_script = false;
+            result.push_str(&script_content.replace("\n", ""));
+            script_content.clear();
+            result.push_str(trimmed_line);
+        } else if in_script {
+            script_content.push_str(trimmed_line);
+        } else {
+            result.push_str(trimmed_line);
+        }
+    }
+
+    result
+}
+
 /// Creates a no-op Waker for use in tests.
 ///
 /// # Returns
@@ -330,6 +383,66 @@ mod tests {
         assert_eq!(components.2, "/");
         assert_eq!(components.3.get("name"), Some(&"John".to_string()));
         assert_eq!(components.3.get("age"), Some(&"30".to_string()));
+    }
+
+    #[test]
+    fn test_minify_html_basic() {
+        let html = r#"
+            <html>
+                <head>
+                    <title>Test</title>
+                </head>
+                <body>
+                    <h1>Hello, World!</h1>
+                </body>
+            </html>
+        "#;
+        let expected = "<html><head><title>Test</title></head><body><h1>Hello, World!</h1></body></html>";
+        let minified = minify_html(html);
+        assert_eq!(minified, expected);
+    }
+
+    #[test]
+    fn test_minify_html_with_script() {
+        let html = r#"
+            <html>
+                <head>
+                    <title>Test</title>
+                </head>
+                <body>
+                    <h1>Hello, World!</h1>
+                    <script type="module">
+                        console.log("Test");
+                    </script>
+                </body>
+            </html>
+        "#;
+        let expected = r#"<html><head><title>Test</title></head><body><h1>Hello, World!</h1><script type="module">console.log("Test");</script></body></html>"#;
+        let minified = minify_html(html);
+        assert_eq!(minified, expected);
+    }
+
+    #[test]
+    fn test_minify_html_with_multiple_scripts() {
+        let html = r#"
+            <html>
+                <head>
+                    <title>Test</title>
+                </head>
+                <body>
+                    <h1>Hello, World!</h1>
+                    <script type="module">
+                        console.log("Test 1");
+                    </script>
+                    <script type="module">
+                        console.log("Test 2");
+                    </script>
+                </body>
+            </html>
+        "#;
+        let expected = r#"<html><head><title>Test</title></head><body><h1>Hello, World!</h1><script type="module">console.log("Test 1");</script><script type="module">console.log("Test 2");</script></body></html>"#;
+        let minified = minify_html(html);
+        assert_eq!(minified, expected);
     }
 
     #[test]

@@ -7,6 +7,7 @@ use super::{TemplateParser, TemplateToken, TemplateValue};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use suika_utils::minify_html;
 
 #[derive(Clone)]
 pub struct TemplateEngine {
@@ -127,7 +128,7 @@ impl TemplateEngine {
     /// use std::collections::HashMap;
     ///
     /// let mut engine = TemplateEngine::new();
-    /// engine.add_template("hello", "Hello, {{ name }}!");
+    /// engine.add_template("hello", "Hello, <%= name %>!");
     ///
     /// let mut context = HashMap::new();
     /// context.insert("name".to_string(), TemplateValue::String("World".to_string()));
@@ -149,7 +150,9 @@ impl TemplateEngine {
 
         tokens = self.handle_extends(&tokens)?;
 
-        self.process_tokens(&tokens, context)
+        let output = self.process_tokens(&tokens, context)?;
+        let minified_output = minify_html(&output);
+        Ok(minified_output)
     }
 
     fn handle_extends(&self, tokens: &[TemplateToken]) -> Result<Vec<TemplateToken>, String> {
@@ -384,13 +387,10 @@ mod tests {
     #[test]
     fn test_render_variable() {
         let mut engine = TemplateEngine::new();
-        engine.add_template("hello", "Hello, {{ name }}!");
+        engine.add_template("hello", "Hello, <%= name %>!");
 
         let mut context = HashMap::new();
-        context.insert(
-            "name".to_string(),
-            TemplateValue::String("World".to_string()),
-        );
+        context.insert("name".to_string(), TemplateValue::String("World".to_string()));
 
         let result = engine
             .render("hello", &context)
@@ -403,15 +403,12 @@ mod tests {
         let mut engine = TemplateEngine::new();
         engine.add_template(
             "conditional",
-            "{% if is_member %}Welcome, {{ name }}!{% endif %}",
+            "<% if is_member %>Welcome, <%= name %>!<% endif %>",
         );
 
         let mut context = HashMap::new();
         context.insert("is_member".to_string(), TemplateValue::Boolean(true));
-        context.insert(
-            "name".to_string(),
-            TemplateValue::String("Alice".to_string()),
-        );
+        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
 
         let result = engine
             .render("conditional", &context)
@@ -424,15 +421,12 @@ mod tests {
         let mut engine = TemplateEngine::new();
         engine.add_template(
             "conditional",
-            "{% if is_member %}Welcome, {{ name }}!{% endif %}",
+            "<% if is_member %>Welcome, <%= name %>!<% endif %>",
         );
 
         let mut context = HashMap::new();
         context.insert("is_member".to_string(), TemplateValue::Boolean(false));
-        context.insert(
-            "name".to_string(),
-            TemplateValue::String("Alice".to_string()),
-        );
+        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
 
         let result = engine
             .render("conditional", &context)
@@ -445,15 +439,12 @@ mod tests {
         let mut engine = TemplateEngine::new();
         engine.add_template(
             "conditional",
-            "{% if is_member %}Welcome, {{ name }}!{% else %}Please log in.{% endif %}",
+            "<% if is_member %>Welcome, <%= name %>!<% else %>Please log in.<% endif %>",
         );
 
         let mut context = HashMap::new();
         context.insert("is_member".to_string(), TemplateValue::Boolean(true));
-        context.insert(
-            "name".to_string(),
-            TemplateValue::String("Alice".to_string()),
-        );
+        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
 
         let result = engine
             .render("conditional", &context)
@@ -466,15 +457,12 @@ mod tests {
         let mut engine = TemplateEngine::new();
         engine.add_template(
             "conditional",
-            "{% if is_member %}Welcome, {{ name }}!{% else %}Please log in.{% endif %}",
+            "<% if is_member %>Welcome, <%= name %>!<% else %>Please log in.<% endif %>",
         );
 
         let mut context = HashMap::new();
         context.insert("is_member".to_string(), TemplateValue::Boolean(false));
-        context.insert(
-            "name".to_string(),
-            TemplateValue::String("Alice".to_string()),
-        );
+        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
 
         let result = engine
             .render("conditional", &context)
@@ -485,7 +473,7 @@ mod tests {
     #[test]
     fn test_render_for_loop() {
         let mut engine = TemplateEngine::new();
-        engine.add_template("loop", "{% for item in items %} {{ item }} {% endfor %}");
+        engine.add_template("loop", "<% for item in items %><%= item %> <% endfor %>");
 
         let mut context = HashMap::new();
         context.insert(
@@ -500,7 +488,7 @@ mod tests {
         let result = engine
             .render("loop", &context)
             .expect("Failed to render template");
-        assert_eq!(result, " One  Two  Three ");
+        assert_eq!(result.trim(), "One Two Three");
     }
 
     #[test]
@@ -508,11 +496,11 @@ mod tests {
         let mut engine = TemplateEngine::new();
         engine.add_template(
             "base.html",
-            "Base content. {% block content %}{% endblock %}",
+            "Base content. <% block content %><% endblock %>",
         );
         engine.add_template(
             "child.html",
-            "{% extend base.html %}{% block content %}Child content{% endblock %}",
+            "<% extend base.html %><% block content %>Child content<% endblock %>",
         );
 
         let result = engine
@@ -525,7 +513,7 @@ mod tests {
     fn test_render_include() {
         let mut engine = TemplateEngine::new();
         engine.add_template("header.html", "Header content");
-        engine.add_template("page.html", "{% include header.html %} Page content");
+        engine.add_template("page.html", "<% include header.html %> Page content");
 
         let result = engine
             .render("page.html", &HashMap::new())
@@ -594,13 +582,10 @@ mod tests {
     #[test]
     fn test_render_template_with_object() {
         let mut engine = TemplateEngine::new();
-        engine.add_template("greeting", "Hello, {{ user.name }}!");
+        engine.add_template("greeting", "Hello, <%= user.name %>!");
 
         let mut user = HashMap::new();
-        user.insert(
-            "name".to_string(),
-            TemplateValue::String("Alice".to_string()),
-        );
+        user.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
 
         let mut context = HashMap::new();
         context.insert("user".to_string(), TemplateValue::Object(user));
@@ -609,5 +594,99 @@ mod tests {
             .render("greeting", &context)
             .expect("Failed to render template");
         assert_eq!(result, "Hello, Alice!");
+    }
+
+    #[test]
+    fn test_render_template_with_script() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "script_test",
+            r#"
+            <html>
+            <head>
+                <title><%= title %></title>
+                <script type="module">
+                    import init from '/wasm/suika_ui.js';
+                    async function loadWasm() {
+                        try {
+                            await init('/wasm/suika_ui_bg.wasm');
+                        } catch (error) {
+                            console.error('Failed to load WebAssembly module:', error);
+                        }
+                    }
+                    window.addEventListener('load', loadWasm);
+                </script>
+            </head>
+            <body>
+                <h1><%= heading %></h1>
+            </body>
+            </html>
+        "#,
+        );
+
+        let mut context = HashMap::new();
+        context.insert("title".to_string(), TemplateValue::String("Test Page".to_string()));
+        context.insert("heading".to_string(), TemplateValue::String("Welcome!".to_string()));
+
+        let result = engine
+            .render("script_test", &context)
+            .expect("Failed to render template");
+
+        // Expected minified output
+        let expected = r#"<html><head><title>Test Page</title><script type="module">import init from '/wasm/suika_ui.js';async function loadWasm() {try {await init('/wasm/suika_ui_bg.wasm');} catch (error) {console.error('Failed to load WebAssembly module:', error);}}window.addEventListener('load', loadWasm);</script></head><body><h1>Welcome!</h1></body></html>"#;
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_render_template_with_script_and_loop() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "script_loop_test",
+            r#"
+            <html>
+            <head>
+                <title><%= title %></title>
+                <script type="module">
+                    const messages = [<% for message in messages %>"<%= message %>", <% endfor %>];
+                    messages.forEach(message => {
+                        console.log(message);
+                    });
+
+                    <% if is_enabled %>
+                    console.log("Feature is enabled");
+                    <% else %>
+                    console.log("Feature is disabled");
+                    <% endif %>
+                </script>
+            </head>
+            <body>
+                <h1><%= heading %></h1>
+            </body>
+            </html>
+        "#,
+        );
+
+        let mut context = HashMap::new();
+        context.insert("title".to_string(), TemplateValue::String("Test Page with Loop".to_string()));
+        context.insert("heading".to_string(), TemplateValue::String("Welcome!".to_string()));
+        context.insert("is_enabled".to_string(), TemplateValue::Boolean(true));
+        context.insert(
+            "messages".to_string(),
+            TemplateValue::Array(vec![
+                TemplateValue::String("Message 1".to_string()),
+                TemplateValue::String("Message 2".to_string()),
+                TemplateValue::String("Message 3".to_string()),
+            ]),
+        );
+
+        let result = engine
+            .render("script_loop_test", &context)
+            .expect("Failed to render template");
+
+        // Expected minified output
+        let expected = r#"<html><head><title>Test Page with Loop</title><script type="module">const messages = ["Message 1", "Message 2", "Message 3", ];messages.forEach(message => {console.log(message);});console.log("Feature is enabled");</script></head><body><h1>Welcome!</h1></body></html>"#;
+
+        assert_eq!(result, expected);
     }
 }

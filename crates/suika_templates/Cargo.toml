@@ -8,6 +8,9 @@ repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_templ
 license = "MIT"
 readme = "README.md"
 
+[dependencies]
+suika_utils = "0.1.1"
+
 [lib]
 name = "suika_templates"
 path = "src/lib.rs"

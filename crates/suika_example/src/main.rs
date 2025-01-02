@@ -59,6 +59,86 @@ pub fn main() {
     }
 
     {
+        let template_engine_hello = Arc::clone(&template_engine);
+        router.get("/include", move |_req, res, _next| {
+            let template_engine = Arc::clone(&template_engine_hello);
+            async move {
+                let mut context = HashMap::new();
+                context.insert(
+                    "name".to_string(),
+                    TemplateValue::String("World".to_string()),
+                );
+
+                match template_engine.render("include.html", &context) {
+                    Ok(rendered) => res.body(rendered),
+                    Err(e) => {
+                        res.set_status(500);
+                        res.body(format!("Template rendering error: {}", e));
+                    }
+                }
+                Ok(())
+            }
+        });
+    }
+
+    {
+        let template_engine_hello = Arc::clone(&template_engine);
+        router.get("/conditional", move |_req, res, _next| {
+            let template_engine = Arc::clone(&template_engine_hello);
+            async move {
+                let mut context = HashMap::new();
+
+                context.insert(
+                    "is_member".to_string(),
+                    TemplateValue::Boolean(true),
+                );
+
+                context.insert(
+                    "name".to_string(),
+                    TemplateValue::String("Bob".to_string()),
+                );
+
+                match template_engine.render("conditional.html", &context) {
+                    Ok(rendered) => res.body(rendered),
+                    Err(e) => {
+                        res.set_status(500);
+                        res.body(format!("Template rendering error: {}", e));
+                    }
+                }
+                Ok(())
+            }
+        });
+    }  
+
+    {
+        let template_engine_hello = Arc::clone(&template_engine);
+        router.get("/loop", move |_req, res, _next| {
+            let template_engine = Arc::clone(&template_engine_hello);
+            async move {
+                let mut context = HashMap::new();
+                
+                context.insert(
+                    "items".to_string(),
+                    TemplateValue::Array(vec![
+                        TemplateValue::String("One".to_string()),
+                        TemplateValue::String("Two".to_string()),
+                        TemplateValue::String("Three".to_string()),
+                    ]),
+                );
+
+                match template_engine.render("loop.html", &context) {
+                    Ok(rendered) => res.body(rendered),
+                    Err(e) => {
+                        res.set_status(500);
+                        res.body(format!("Template rendering error: {}", e));
+                    }
+                }
+                Ok(())
+            }
+        });
+    }      
+
+    {
         let template_engine_user = Arc::clone(&template_engine);
         router.get("/user", move |_req, res, _next| {
             let template_engine = Arc::clone(&template_engine_user);

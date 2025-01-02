@@ -96,6 +96,9 @@ dependencies = [
 [[package]]
 name = "suika_templates"
 version = "0.1.1"
+dependencies = [
+ "suika_utils",
+]
 
 [[package]]
 name = "suika_ui"
@@ -107,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "suika_utils"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "suika_wasm"
