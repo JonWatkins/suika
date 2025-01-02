@@ -12,15 +12,6 @@ documentation.
 - Supports JSON objects, arrays, strings, numbers, booleans, and null values.
 - Lightweight and easy to use.
 
-## Installation
-
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-suika_json = "0.1.0"
-```
-
 ## Usage
 
 Here's an example of how to use `suika_json` to parse a JSON string:

@@ -13,15 +13,6 @@ documentation.
 - Comprehensive support for common file types.
 - Extensible and easy to integrate into existing projects.
 
-## Installation
-
-To use Suika MIME in your Rust project, add the following to your `Cargo.toml`:
-
-```toml
-[dependencies]
-suika_mime = "0.1.0"
-```
-
 ## Usage
 
 ### Determining MIME Type from Extension

@@ -14,15 +14,6 @@ documentation.
   extends, includes, and blocks.
 - Load templates from files or directories.
 
-## Installation
-
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-suika_templates = "0.1.0"
-```
-
 ## Template Directives
 
 The `suika_templates` library supports various directives within templates:

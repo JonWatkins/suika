@@ -7,15 +7,6 @@ tools and helpers.
 The API is subject to change and may lack comprehensive testing and
 documentation.
 
-## Installation
-
-Add `suika_utils` to your `Cargo.toml`:
-
-```toml
-[dependencies]
-suika_utils = "0.1.0"
-```
-
 ## Usage
 
 ### Parsing Query Strings
