@@ -35,6 +35,7 @@ pub fn wasm_file_middleware(
 
         if path == format!("{}/suika_ui_bg.wasm", url_prefix) {
             Box::pin(async move {
+                // Serve the WebAssembly file
                 res.header("Content-Type", "application/wasm");
                 res.header(
                     "Cache-Control",
@@ -45,6 +46,7 @@ pub fn wasm_file_middleware(
             })
         } else if path == format!("{}/suika_ui.js", url_prefix) {
             Box::pin(async move {
+                // Serve the JavaScript file
                 res.header("Content-Type", "application/javascript");
                 res.header(
                     "Cache-Control",
@@ -68,7 +70,7 @@ mod tests {
     use suika_utils::noop_waker;
 
     #[test]
-    fn test_wasm_and_js_file_middleware_path_matches_wasm() {
+    fn test_wasm_file_middleware_path_matches_wasm() {
         let middlewares: Vec<Arc<MiddlewareFn>> =
             vec![Arc::new(wasm_file_middleware("/files", 3600))];
         let next_middleware = NextMiddleware::new(Arc::new(Mutex::new(middlewares)));
@@ -104,7 +106,7 @@ mod tests {
     }
 
     #[test]
-    fn test_wasm_and_js_file_middleware_path_matches_js() {
+    fn test_wasm_file_middleware_path_matches_js() {
         let middlewares: Vec<Arc<MiddlewareFn>> =
             vec![Arc::new(wasm_file_middleware("/files", 3600))];
         let next_middleware = NextMiddleware::new(Arc::new(Mutex::new(middlewares)));
@@ -139,7 +141,7 @@ mod tests {
     }
 
     #[test]
-    fn test_wasm_and_js_file_middleware_path_does_not_match() {
+    fn test_wasm_file_middleware_path_does_not_match() {
         let middlewares: Vec<Arc<MiddlewareFn>> =
             vec![Arc::new(wasm_file_middleware("/files", 3600))];
         let next_middleware = NextMiddleware::new(Arc::new(Mutex::new(middlewares)));

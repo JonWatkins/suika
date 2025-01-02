@@ -7,6 +7,7 @@ authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_wasm"
 license = "MIT"
 readme = "README.md"
+include = ["wasm/**", "src/**", "README.md", "Cargo.toml"]
 
 [dependencies]
 suika_server = "0.1.1"
@@ -17,6 +18,3 @@ wasm-bindgen = "0.2"
 [lib]
 name = "suika_wasm"
 path = "src/lib.rs"
-
-[package.metadata]
-include = ["wasm/**"]
