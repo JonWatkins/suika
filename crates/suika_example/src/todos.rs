@@ -1,4 +1,5 @@
 use std::sync::{Arc, RwLock};
+use suika::json::JsonValue;
 
 #[derive(Debug, Clone)]
 pub struct Todo {
@@ -6,6 +7,17 @@ pub struct Todo {
     pub title: String,
     pub slug: String,
     pub content: String,
+}
+
+impl Todo {
+    pub fn to_json(&self) -> JsonValue {
+        JsonValue::Object(vec![
+            ("id".to_string(), JsonValue::Number(self.id as f64)),
+            ("title".to_string(), JsonValue::String(self.title.clone())),
+            ("slug".to_string(), JsonValue::String(self.slug.clone())),
+            ("content".to_string(), JsonValue::String(self.content.clone())),
+        ])
+    }
 }
 
 pub struct TodoStore {
@@ -38,9 +50,9 @@ impl TodoStore {
         todo
     }
 
-    pub fn get_todos(&self) -> Vec<Todo> {
+    pub fn to_json(&self) -> JsonValue {
         let todos = self.todos.read().unwrap();
-        todos.clone()
+        JsonValue::Array(todos.iter().map(|todo| todo.to_json()).collect())
     }
 
     fn generate_slug(title: &str) -> String {

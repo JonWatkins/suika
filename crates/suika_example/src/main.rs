@@ -34,6 +34,11 @@ fn main() {
         "This is the content of the first todo.".to_string(),
     );
 
+    todo_store.add_todo(
+        "Second Todo".to_string(),
+        "This is the content of the second todo.".to_string(),
+    );
+
     server.use_templates(template_engine);
     server.use_module("todo_store", todo_store);
 
@@ -49,10 +54,10 @@ fn main() {
     main_router.add_route(Some("GET"), "/todo", |req, res| {
         Box::pin(async move {
             if let Some(store) = req.module::<TodoStore>("todo_store") {
-                let todos = store.get_todos();
+                let todos = store.to_json();
 
                 res.set_status(200).await;
-                res.body(format!("Todos: {:?}", todos)).await;
+                res.body_json(todos).await;
             } else {
                 res.set_status(404).await;
                 res.body("No todos found".to_string()).await;
