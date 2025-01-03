@@ -1,18 +1,22 @@
 use crate::middleware::{Middleware, Next};
 use crate::request::Request;
 use crate::response::Response;
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use suika_templates::TemplateEngine;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
 use tokio::runtime::{Builder, Handle};
+use tokio::sync::oneshot;
 
 /// Represents an HTTP server with middleware support.
 pub struct Server {
     address: String,
     middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>>,
     template_engine: Option<TemplateEngine>,
+    modules: Arc<Mutex<HashMap<String, Arc<dyn std::any::Any + Send + Sync>>>>,
+    shutdown_signal: Option<Arc<Mutex<Option<oneshot::Sender<()>>>>>,
 }
 
 impl Server {
@@ -34,6 +38,8 @@ impl Server {
             address: address.to_string(),
             middleware_stack: Vec::new(),
             template_engine: None,
+            modules: Arc::new(Mutex::new(HashMap::new())),
+            shutdown_signal: None,
         }
     }
 
@@ -93,6 +99,28 @@ impl Server {
         self.template_engine = Some(engine);
     }
 
+    /// Adds a module to the server.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name of the module.
+    /// * `module` - The module to add.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use suika_server::server::Server;
+    /// use std::sync::Arc;
+    ///
+    /// let mut server = Server::new("127.0.0.1:8080");
+    /// let my_database_store = Arc::new(MyDatabaseStore::new());
+    /// server.use_module("store", my_database_store);
+    /// ```
+    pub fn use_module<T: 'static + Send + Sync>(&mut self, name: &str, module: T) {
+        let mut modules = self.modules.lock().unwrap();
+        modules.insert(name.to_string(), Arc::new(module));
+    }
+
     /// Runs the server. If an existing runtime handle is provided, it is used to run the server.
     ///
     /// # Arguments
@@ -105,18 +133,30 @@ impl Server {
     /// use suika_server::server::Server;
     ///
     /// fn main() {
-    ///     let server = Server::new("127.0.0.1:8080");
+    ///     let mut server = Server::new("127.0.0.1:8080");
     ///     server.run(None);
+    ///     server.stop();
     /// }
     /// ```
-    pub fn run(&self, existing_runtime: Option<&Handle>) {
+    pub fn run(&mut self, existing_runtime: Option<&Handle>) {
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        self.shutdown_signal = Some(Arc::new(Mutex::new(Some(shutdown_tx))));
+
         let address = self.address.clone();
         let middleware_stack = self.middleware_stack.clone();
         let template_engine = self.template_engine.clone();
+        let modules = Arc::clone(&self.modules);
 
         if let Some(handle) = existing_runtime {
             handle.spawn(async move {
-                Server::run_server(address, middleware_stack, template_engine).await;
+                Server::run_server(
+                    address,
+                    middleware_stack,
+                    template_engine,
+                    modules,
+                    shutdown_rx,
+                )
+                .await;
             });
         } else {
             let num_cores = thread::available_parallelism()
@@ -130,15 +170,33 @@ impl Server {
                 .unwrap();
 
             runtime.block_on(async move {
-                Server::run_server(address, middleware_stack, template_engine).await;
+                Server::run_server(
+                    address,
+                    middleware_stack,
+                    template_engine,
+                    modules,
+                    shutdown_rx,
+                )
+                .await;
             });
         }
     }
 
+    /// Runs the server, listening for incoming TCP connections.
+    ///
+    /// # Arguments
+    ///
+    /// * `address` - The address on which the server will listen for incoming connections.
+    /// * `middleware_stack` - A vector of middleware to be applied to each request.
+    /// * `template_engine` - An optional template engine for rendering responses.
+    /// * `modules` - A collection of modules that can be used by the server.
+    /// * `shutdown_rx` - A receiver for the shutdown signal.
     async fn run_server(
         address: String,
         middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>>,
         template_engine: Option<TemplateEngine>,
+        modules: Arc<Mutex<HashMap<String, Arc<dyn std::any::Any + Send + Sync>>>>,
+        mut shutdown_rx: oneshot::Receiver<()>,
     ) {
         let listener = TcpListener::bind(&address)
             .await
@@ -147,17 +205,22 @@ impl Server {
         println!("Server running on {}", address);
 
         loop {
-            match listener.accept().await {
-                Ok((mut stream, _)) => {
+            tokio::select! {
+                _ = &mut shutdown_rx => {
+                    println!("Server shutting down");
+                    break;
+                }
+                Ok((mut stream, _)) = listener.accept() => {
                     let mw_stack = middleware_stack.clone();
                     let tmpl_engine = template_engine.clone().map(Arc::new);
+                    let modules = Arc::clone(&modules);
 
                     tokio::spawn(async move {
                         let mut buffer = [0; 1024];
                         if let Ok(size) = stream.read(&mut buffer).await {
                             if size > 0 {
                                 let request_str = String::from_utf8_lossy(&buffer[..size]);
-                                let mut req = Request::new(&request_str).unwrap();
+                                let mut req = Request::new(&request_str, Arc::clone(&modules)).unwrap();
                                 let mut res = Response::new(tmpl_engine.clone());
 
                                 let mut next = Next::new(&mw_stack);
@@ -176,7 +239,38 @@ impl Server {
                         }
                     });
                 }
-                Err(e) => eprintln!("Failed to accept connection: {}", e),
+                else => eprintln!("Failed to accept connection"),
+            }
+        }
+    }
+
+    /// Stops the running server by sending a shutdown signal.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// use suika_server::server::Server;
+    ///
+    /// fn main() {
+    ///     // Create a new server instance
+    ///     let mut server = Server::new("127.0.0.1:8080");
+    ///
+    ///     // Run the server with a new Tokio runtime
+    ///     server.run(None);
+    ///
+    ///     // Simulate some work being done
+    ///     std::thread::sleep(std::time::Duration::from_secs(5));
+    ///
+    ///     // Stop the server
+    ///     server.stop();
+    /// }
+    /// ```
+    pub fn stop(&self) {
+        if let Some(shutdown_signal) = &self.shutdown_signal {
+            if let Ok(mut signal) = shutdown_signal.lock() {
+                if let Some(tx) = signal.take() {
+                    let _ = tx.send(());
+                }
             }
         }
     }
@@ -255,15 +349,18 @@ mod tests {
 
         let called = *mock_middleware.called.lock().await;
         assert!(called);
+
+        server.stop();
     }
 
     #[tokio::test]
     async fn test_server_without_middleware() {
         let address = "127.0.0.1:8082";
-        let server = Server::new(address);
+        let mut server = Server::new(address);
         let runtime_handle = tokio::runtime::Handle::current();
 
         server.run(Some(&runtime_handle));
+
         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
         let mut stream = TcpStream::connect(address).await.unwrap();
@@ -274,5 +371,7 @@ mod tests {
         let response_str = String::from_utf8_lossy(&buffer[..size]);
 
         assert!(response_str.contains("404 Not Found"));
+
+        server.stop();
     }
 }

@@ -103,21 +103,22 @@ mod tests {
     use super::*;
     use crate::middleware::{Middleware, Next};
     use crate::response::{Body, Response};
+    use std::collections::HashMap;
     use std::io::Write;
-    use std::sync::Arc;
+    use std::sync::{Arc, Mutex};
     use tempfile::Builder;
-    use tokio::sync::Mutex;
+    use tokio::sync::Mutex as TokioMutex;
 
     // Mock Next middleware
     #[derive(Clone)]
     struct MockNextMiddleware {
-        called: Arc<Mutex<bool>>,
+        called: Arc<TokioMutex<bool>>,
     }
 
     impl MockNextMiddleware {
         fn new() -> Self {
             Self {
-                called: Arc::new(Mutex::new(false)),
+                called: Arc::new(TokioMutex::new(false)),
             }
         }
     }
@@ -145,7 +146,11 @@ mod tests {
         tempfile.write_all(b"fake favicon data").unwrap();
         let favicon_path = tempfile.path().to_str().unwrap().to_string();
 
-        let mut req = Request::new("GET /favicon.ico HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /favicon.ico HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         let favicon_middleware = FaviconMiddleware::new(&favicon_path);
@@ -176,7 +181,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_favicon_middleware_passes_other_paths() {
-        let mut req = Request::new("GET /other/path HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /other/path HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         let favicon_middleware = FaviconMiddleware::new("path/to/favicon.ico");

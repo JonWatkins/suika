@@ -1,7 +1,11 @@
+mod todos;
+
+use crate::todos::TodoStore;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use suika::{
+    json::JsonValue,
     middleware::{
         CorsMiddleware, FaviconMiddleware, LoggerMiddleware, StaticFileMiddleware,
         WasmFileMiddleware,
@@ -13,6 +17,7 @@ use suika::{
 fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut main_router = Router::new("/");
+    let todo_store = TodoStore::new();
 
     let template_engine = {
         let mut engine = TemplateEngine::new();
@@ -24,7 +29,13 @@ fn main() {
         engine
     };
 
+    todo_store.add_todo(
+        "First Todo".to_string(),
+        "This is the content of the first todo.".to_string(),
+    );
+
     server.use_templates(template_engine);
+    server.use_module("todo_store", todo_store);
 
     main_router.add_route(Some("GET"), r"/$", |_req, res| {
         Box::pin(async move {
@@ -35,7 +46,58 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/hello",  |_req, res| {
+    main_router.add_route(Some("GET"), "/todo", |req, res| {
+        Box::pin(async move {
+            if let Some(store) = req.module::<TodoStore>("todo_store") {
+                let todos = store.get_todos();
+
+                res.set_status(200).await;
+                res.body(format!("Todos: {:?}", todos)).await;
+            } else {
+                res.set_status(404).await;
+                res.body("No todos found".to_string()).await;
+            }
+            Ok(())
+        })
+    });
+
+    main_router.add_route(Some("GET"), "json", |_req, res| {
+        Box::pin(async move {
+            let json = JsonValue::Object(vec![
+                (
+                    "name".to_string(),
+                    JsonValue::String("John Doe".to_string()),
+                ),
+                ("age".to_string(), JsonValue::Number(30.0)),
+                ("is_student".to_string(), JsonValue::Boolean(false)),
+                (
+                    "address".to_string(),
+                    JsonValue::Object(vec![
+                        (
+                            "street".to_string(),
+                            JsonValue::String("123 Main St".to_string()),
+                        ),
+                        ("city".to_string(), JsonValue::String("Anytown".to_string())),
+                        ("zip".to_string(), JsonValue::String("12345".to_string())),
+                    ]),
+                ),
+                (
+                    "courses".to_string(),
+                    JsonValue::Array(vec![
+                        JsonValue::String("Math".to_string()),
+                        JsonValue::String("Science".to_string()),
+                    ]),
+                ),
+            ]);
+
+            res.set_status(200).await;
+            res.body_json(json).await;
+
+            Ok(())
+        })
+    });
+
+    main_router.add_route(Some("GET"), "/hello", |_req, res| {
         Box::pin(async move {
             let mut context = HashMap::new();
 
@@ -155,7 +217,9 @@ fn main() {
     )));
 
     server.use_middleware(Arc::new(StaticFileMiddleware::new(
-        "/public", "crates/suika_example/public", 3600,
+        "/public",
+        "crates/suika_example/public",
+        3600,
     )));
 
     server.use_middleware(Arc::new(WasmFileMiddleware::new("/wasm", 86400)));

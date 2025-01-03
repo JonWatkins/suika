@@ -14,18 +14,19 @@ use crate::response::Response;
 /// use suika_server::response::Response;
 /// use suika_server::middleware::{Middleware, Next, MiddlewareFuture};
 /// use suika_server::LoggerMiddleware;
-/// use std::sync::Arc;
-/// use tokio::sync::Mutex;
+/// use std::collections::HashMap;
+/// use std::sync::{Arc, Mutex};
+/// use tokio::sync::Mutex as TokioMutex;
 ///
 /// #[derive(Clone)]
 /// struct MockNextMiddleware {
-///     called: Arc<Mutex<bool>>,
+///     called: Arc<TokioMutex<bool>>,
 /// }
 ///
 /// impl MockNextMiddleware {
 ///     fn new() -> Self {
 ///         Self {
-///             called: Arc::new(Mutex::new(false)),
+///             called: Arc::new(TokioMutex::new(false)),
 ///         }
 ///     }
 /// }
@@ -48,7 +49,11 @@ use crate::response::Response;
 ///
 /// #[tokio::main]
 /// async fn main() {
-///     let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
+///     let mut req = Request::new(
+///         "GET /test HTTP/1.1\r\n\r\n",
+///         Arc::new(Mutex::new(HashMap::new())),
+///     ).unwrap();
+/// 
 ///     let mut res = Response::new(None);
 ///
 ///     let logger_middleware = LoggerMiddleware;
@@ -84,18 +89,19 @@ impl Middleware for LoggerMiddleware {
     /// use suika_server::response::Response;
     /// use suika_server::middleware::{Middleware, Next, MiddlewareFuture};
     /// use suika_server::LoggerMiddleware;
-    /// use std::sync::Arc;
-    /// use tokio::sync::Mutex;
+    /// use std::collections::HashMap;
+    /// use std::sync::{Arc, Mutex};
+    /// use tokio::sync::Mutex as TokioMutex;
     ///
     /// #[derive(Clone)]
     /// struct MockNextMiddleware {
-    ///     called: Arc<Mutex<bool>>,
+    ///     called: Arc<TokioMutex<bool>>,
     /// }
     ///
     /// impl MockNextMiddleware {
     ///     fn new() -> Self {
     ///         Self {
-    ///             called: Arc::new(Mutex::new(false)),
+    ///             called: Arc::new(TokioMutex::new(false)),
     ///         }
     ///     }
     /// }
@@ -118,7 +124,11 @@ impl Middleware for LoggerMiddleware {
     ///
     /// #[tokio::main]
     /// async fn main() {
-    ///     let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
+    ///     let mut req = Request::new(
+    ///         "GET /test HTTP/1.1\r\n\r\n",
+    ///         Arc::new(Mutex::new(HashMap::new())),
+    ///     ).unwrap();
+    /// 
     ///     let mut res = Response::new(None);
     ///
     ///     let logger_middleware = LoggerMiddleware;
@@ -151,19 +161,20 @@ mod tests {
     use crate::middleware::{Middleware, Next};
     use crate::request::Request;
     use crate::response::Response;
-    use std::sync::Arc;
-    use tokio::sync::Mutex;
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
+    use tokio::sync::Mutex as TokioMutex;
 
     // Mock Next middleware
     #[derive(Clone)]
     struct MockNextMiddleware {
-        called: Arc<Mutex<bool>>,
+        called: Arc<TokioMutex<bool>>,
     }
 
     impl MockNextMiddleware {
         fn new() -> Self {
             Self {
-                called: Arc::new(Mutex::new(false)),
+                called: Arc::new(TokioMutex::new(false)),
             }
         }
     }
@@ -186,7 +197,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_logger_middleware_logs_request() {
-        let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /test HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
+    
         let mut res = Response::new(None);
 
         let logger_middleware = LoggerMiddleware;
@@ -206,7 +222,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_logger_middleware_passes_request() {
-        let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /test HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
+
         let mut res = Response::new(None);
 
         let logger_middleware = LoggerMiddleware;

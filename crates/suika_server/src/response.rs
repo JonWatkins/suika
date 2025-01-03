@@ -1,9 +1,9 @@
-// response.rs
 use crate::error::HttpError;
 use std::collections::HashMap;
 use std::io::Result as IoResult;
 use std::path::Path;
 use std::sync::Arc;
+use suika_json::JsonValue;
 use suika_mime::get_mime_type_from_path;
 use suika_templates::TemplateEngine;
 use tokio::fs::File;
@@ -84,6 +84,15 @@ impl Response {
     pub async fn body(&self, body: String) {
         let mut inner = self.inner.lock().await;
         inner.body = Some(Body::Text(body));
+    }
+
+    /// Sets the body of the response to a JSON value.
+    pub async fn body_json(&self, json_value: JsonValue) {
+        let mut inner = self.inner.lock().await;
+        inner
+            .headers
+            .insert("Content-Type".to_string(), "application/json".to_string());
+        inner.body = Some(Body::Text(json_value.to_string()));
     }
 
     /// Sets the body of the response to binary data.
@@ -190,7 +199,7 @@ impl Response {
     /// Returns the inner state of the response.
     pub async fn get_inner(&self) -> ResponseInner {
         self.inner.lock().await.clone()
-    }    
+    }
 }
 
 impl Clone for Response {
@@ -383,6 +392,27 @@ mod tests {
 
         if let Some(Body::Text(ref text)) = inner.body {
             assert_eq!(text, "<html><body>Hello, World!</body></html>");
+        } else {
+            panic!("Expected body to be Some(Body::Text)");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_body_json() {
+        let response = Response::new(None);
+        let json_value = JsonValue::Object(vec![(
+            "key".to_string(),
+            JsonValue::String("value".to_string()),
+        )]);
+        response.body_json(json_value.clone()).await;
+
+        let inner = response.inner.lock().await;
+        assert_eq!(
+            inner.headers.get("Content-Type"),
+            Some(&"application/json".to_string())
+        );
+        if let Some(Body::Text(ref text)) = inner.body {
+            assert_eq!(text, &json_value.to_string());
         } else {
             panic!("Expected body to be Some(Body::Text)");
         }

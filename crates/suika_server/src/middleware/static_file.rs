@@ -116,21 +116,22 @@ mod tests {
     use crate::middleware::{Middleware, Next};
     use crate::request::Request;
     use crate::response::{Body, Response};
+    use std::collections::HashMap;
     use std::io::Write;
-    use std::sync::Arc;
+    use std::sync::{Arc, Mutex};
     use tempfile::Builder;
-    use tokio::sync::Mutex;
+    use tokio::sync::Mutex as TokioMutex;
 
     // Mock Next middleware
     #[derive(Clone)]
     struct MockNextMiddleware {
-        called: Arc<Mutex<bool>>,
+        called: Arc<TokioMutex<bool>>,
     }
 
     impl MockNextMiddleware {
         fn new() -> Self {
             Self {
-                called: Arc::new(Mutex::new(false)),
+                called: Arc::new(TokioMutex::new(false)),
             }
         }
     }
@@ -164,11 +165,15 @@ mod tests {
             .unwrap()
             .to_string();
 
-        let mut req = Request::new(&format!(
-            "GET /static/{} HTTP/1.1\r\n\r\n",
-            tempfile.path().file_name().unwrap().to_str().unwrap()
-        ))
+        let mut req = Request::new(
+            &format!(
+                "GET /static/{} HTTP/1.1\r\n\r\n",
+                tempfile.path().file_name().unwrap().to_str().unwrap()
+            ),
+            Arc::new(Mutex::new(HashMap::new())),
+        )
         .unwrap();
+
         let mut res = Response::new(None);
 
         let static_file_middleware = StaticFileMiddleware::new("/static", &file_dir, 3600);
@@ -199,7 +204,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_static_file_middleware_passes_other_paths() {
-        let mut req = Request::new("GET /other/path HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /other/path HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
+    
         let mut res = Response::new(None);
 
         let static_file_middleware = StaticFileMiddleware::new("/static", "some/directory", 3600);

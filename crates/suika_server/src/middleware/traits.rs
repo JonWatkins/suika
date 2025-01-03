@@ -88,14 +88,16 @@ impl<'a> Next<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::sync::Mutex;
+    use std::collections::HashMap;
+    use std::sync::Mutex;
+    use tokio::sync::Mutex as TokioMutex;
 
     struct MockMiddleware {
-        counter: Arc<Mutex<i32>>,
+        counter: Arc<TokioMutex<i32>>,
     }
 
     impl MockMiddleware {
-        fn new(counter: Arc<Mutex<i32>>) -> Self {
+        fn new(counter: Arc<TokioMutex<i32>>) -> Self {
             Self { counter }
         }
     }
@@ -119,7 +121,7 @@ mod tests {
     #[test]
     fn test_next_new() {
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
-            vec![Arc::new(MockMiddleware::new(Arc::new(Mutex::new(0))))];
+            vec![Arc::new(MockMiddleware::new(Arc::new(TokioMutex::new(0))))];
         let next = Next::new(middleware_stack.as_slice());
         assert_eq!(next.index, 0);
         assert_eq!(next.middleware_stack.len(), 1);
@@ -127,12 +129,16 @@ mod tests {
 
     #[tokio::test]
     async fn test_next_run() {
-        let counter = Arc::new(Mutex::new(0));
+        let counter = Arc::new(TokioMutex::new(0));
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
             vec![Arc::new(MockMiddleware::new(Arc::clone(&counter)))];
         let mut next = Next::new(middleware_stack.as_slice());
 
-        let mut req = Request::new("GET / HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET / HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         next.run(&mut req, &mut res).await.unwrap();
@@ -141,8 +147,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_next_run_multiple_middleware() {
-        let counter1 = Arc::new(Mutex::new(0));
-        let counter2 = Arc::new(Mutex::new(0));
+        let counter1 = Arc::new(TokioMutex::new(0));
+        let counter2 = Arc::new(TokioMutex::new(0));
 
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> = vec![
             Arc::new(MockMiddleware::new(Arc::clone(&counter1))),
@@ -150,7 +156,11 @@ mod tests {
         ];
         let mut next = Next::new(middleware_stack.as_slice());
 
-        let mut req = Request::new("GET / HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET / HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         next.run(&mut req, &mut res).await.unwrap();

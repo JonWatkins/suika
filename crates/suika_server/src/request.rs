@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind, Result as IoResult};
+use std::sync::{Arc, Mutex};
 use suika_json::JsonValue;
 use suika_utils::parse_query_string;
 
@@ -15,6 +16,7 @@ pub struct Request {
     json_body: Option<JsonValue>,
     form_data: Option<HashMap<String, String>>,
     params: HashMap<String, String>,
+    modules: Arc<Mutex<HashMap<String, Arc<dyn std::any::Any + Send + Sync>>>>,
 }
 
 impl Request {
@@ -32,16 +34,21 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
     /// let request_string = "GET /path?name=value HTTP/1.1\r\nHost: example.com\r\n\r\n";
-    /// let request = Request::new(request_string).unwrap();
+    /// let request = Request::new(request_string, Arc::new(Mutex::new(HashMap::new()))).unwrap();
     ///
     /// assert_eq!(request.method(), "GET");
     /// assert_eq!(request.path(), "/path");
     /// assert_eq!(request.header("Host"), Some("example.com"));
     /// assert_eq!(request.query_param("name"), Some("value"));
     /// ```
-    pub fn new(request_string: &str) -> IoResult<Request> {
+    pub fn new(
+        request_string: &str,
+        modules: Arc<Mutex<HashMap<String, Arc<dyn std::any::Any + Send + Sync>>>>,
+    ) -> IoResult<Request> {
         let mut parts = request_string.split("\r\n");
 
         let request_line = parts.next().ok_or_else(|| {
@@ -141,7 +148,51 @@ impl Request {
             json_body,
             form_data,
             params: HashMap::new(),
+            modules,
         })
+    }
+
+    /// Retrieves a module from the request context by name.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name of the module to retrieve.
+    ///
+    /// # Returns
+    ///
+    /// An `Option` containing an `Arc` to the module if found, or `None` if not found or if the module
+    /// cannot be downcast to the expected type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_server::request::Request;
+    /// use std::sync::{Arc, Mutex};
+    /// use std::collections::HashMap;
+    /// use std::any::Any;
+    ///
+    /// struct MyModule;
+    ///
+    /// impl MyModule {
+    ///     fn new() -> Self {
+    ///         MyModule
+    ///     }
+    /// }
+    ///
+    /// let mut modules: HashMap<String, Arc<dyn Any + Send + Sync>> = HashMap::new();
+    /// modules.insert("my_module".to_string(), Arc::new(MyModule::new()) as Arc<dyn Any + Send + Sync>);
+    ///
+    /// let request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(modules)),
+    /// ).unwrap();
+    ///
+    /// let module: Option<Arc<MyModule>> = request.module("my_module");
+    /// assert!(module.is_some());
+    /// ```
+    pub fn module<T: 'static + Send + Sync>(&self, name: &str) -> Option<Arc<T>> {
+        let modules = self.modules.lock().unwrap();
+        modules.get(name)?.clone().downcast::<T>().ok()
     }
 
     /// Returns the HTTP method of the request.
@@ -150,8 +201,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+    /// let request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert_eq!(request.method(), "GET");
     /// ```
     pub fn method(&self) -> &str {
@@ -164,8 +221,13 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+    /// let request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n", Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert_eq!(request.path(), "/path");
     /// ```
     pub fn path(&self) -> &str {
@@ -178,8 +240,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+    /// let request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert_eq!(request.original_path(), "/path");
     /// ```
     pub fn original_path(&self) -> &str {
@@ -196,8 +264,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let request = Request::new("GET /path HTTP/1.1\r\nHost: example.com\r\n\r\n").unwrap();
+    /// let request = Request::new(
+    ///     "GET /path HTTP/1.1\r\nHost: example.com\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert_eq!(request.header("Host"), Some("example.com"));
     /// ```
     pub fn header(&self, key: &str) -> Option<&str> {
@@ -214,8 +288,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let request = Request::new("GET /path?name=value HTTP/1.1\r\n\r\n").unwrap();
+    /// let request = Request::new(
+    ///     "GET /path?name=value HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert_eq!(request.query_param("name"), Some("value"));
     /// ```
     pub fn query_param(&self, key: &str) -> Option<&str> {
@@ -228,8 +308,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let request = Request::new("POST /path HTTP/1.1\r\n\r\nbody_content").unwrap();
+    /// let request = Request::new(
+    ///     "POST /path HTTP/1.1\r\n\r\nbody_content",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert_eq!(request.body(), Some("body_content"));
     /// ```
     pub fn body(&self) -> Option<&str> {
@@ -247,8 +333,14 @@ impl Request {
     /// ```
     /// use suika_server::request::{Request};
     /// use suika_json::JsonValue;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let mut request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+    /// let mut request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// let json = JsonValue::String("new_value".to_string());
     ///
     /// request.set_json_body(json.clone());
@@ -264,9 +356,11 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
     /// let request_string = "POST /path HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{\"key\":\"value\"}";
-    /// let request = Request::new(request_string).unwrap();
+    /// let request = Request::new(request_string, Arc::new(Mutex::new(HashMap::new()))).unwrap();
     /// assert!(request.json_body().is_some());
     /// ```
     pub fn json_body(&self) -> Option<&JsonValue> {
@@ -279,9 +373,11 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
     /// let request_string = "POST /path HTTP/1.1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nkey=value";
-    /// let request = Request::new(request_string).unwrap();
+    /// let request = Request::new(request_string, Arc::new(Mutex::new(HashMap::new()))).unwrap();
     /// assert!(request.form_data().is_some());
     /// ```
     pub fn form_data(&self) -> Option<&HashMap<String, String>> {
@@ -299,8 +395,13 @@ impl Request {
     /// ```
     /// use suika_server::request::Request;
     /// use std::collections::HashMap;
+    /// use std::sync::{Arc,Mutex};
     ///
-    /// let mut request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+    /// let mut request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// let mut params = HashMap::new();
     /// params.insert("key".to_string(), "value".to_string());
     ///
@@ -322,8 +423,13 @@ impl Request {
     /// ```
     /// use suika_server::request::Request;
     /// use std::collections::HashMap;
+    /// use std::sync::{Arc,Mutex};
     ///
-    /// let mut request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+    /// let mut request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// let mut params = HashMap::new();
     /// params.insert("key".to_string(), "value".to_string());
     /// request.set_params(params.clone());
@@ -340,8 +446,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::collections::HashMap;
+    /// use std::sync::{Arc,Mutex};
     ///
-    /// let request = Request::new("GET /path HTTP/1.1\r\nHost: example.com\r\n\r\n").unwrap();
+    /// let request = Request::new(
+    ///     "GET /path HTTP/1.1\r\nHost: example.com\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert!(request.headers().contains_key("Host"));
     /// ```
     pub fn headers(&self) -> &HashMap<String, String> {
@@ -354,8 +466,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::collections::HashMap;
+    /// use std::sync::{Arc,Mutex};
     ///
-    /// let request = Request::new("GET /path?name=value HTTP/1.1\r\n\r\n").unwrap();
+    /// let request = Request::new(
+    ///     "GET /path?name=value HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// assert!(request.query_params().contains_key("name"));
     /// ```
     pub fn query_params(&self) -> &HashMap<String, String> {
@@ -372,8 +490,14 @@ impl Request {
     ///
     /// ```
     /// use suika_server::request::Request;
+    /// use std::sync::{Arc,Mutex};
+    /// use std::collections::HashMap;
     ///
-    /// let mut request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+    /// let mut request = Request::new(
+    ///     "GET /path HTTP/1.1\r\n\r\n",
+    ///     Arc::new(Mutex::new(HashMap::new())),
+    /// ).unwrap();
+    ///
     /// request.set_path("/new_path".to_string());
     /// assert_eq!(request.path(), "/new_path");
     /// ```
@@ -385,12 +509,13 @@ impl Request {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::any::Any;
     use suika_json::JsonValue;
 
     #[test]
     fn test_new_request() {
         let request_string = "GET /path?name=value HTTP/1.1\r\nHost: example.com\r\n\r\n";
-        let request = Request::new(request_string).unwrap();
+        let request = Request::new(request_string, Arc::new(Mutex::new(HashMap::new()))).unwrap();
 
         assert_eq!(request.method(), "GET");
         assert_eq!(request.path(), "/path");
@@ -404,7 +529,7 @@ mod tests {
     fn test_new_request_with_json_body() {
         let request_string =
             "POST /path HTTP/1.1\r\nContent-Type: application/json\r\n\r\n{\"key\":\"value\"}";
-        let request = Request::new(request_string).unwrap();
+        let request = Request::new(request_string, Arc::new(Mutex::new(HashMap::new()))).unwrap();
 
         assert_eq!(request.method(), "POST");
         assert_eq!(request.path(), "/path");
@@ -425,7 +550,7 @@ mod tests {
     #[test]
     fn test_new_request_with_form_data() {
         let request_string = "POST /path HTTP/1.1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nkey=value";
-        let request = Request::new(request_string).unwrap();
+        let request = Request::new(request_string, Arc::new(Mutex::new(HashMap::new()))).unwrap();
 
         assert_eq!(request.method(), "POST");
         assert_eq!(request.path(), "/path");
@@ -440,7 +565,11 @@ mod tests {
 
     #[test]
     fn test_set_json_body() {
-        let mut request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+        let mut request = Request::new(
+            "GET /path HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let json = JsonValue::String("new_value".to_string());
 
         request.set_json_body(json.clone());
@@ -449,7 +578,11 @@ mod tests {
 
     #[test]
     fn test_set_params() {
-        let mut request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+        let mut request = Request::new(
+            "GET /path HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut params = HashMap::new();
         params.insert("key".to_string(), "value".to_string());
 
@@ -459,8 +592,84 @@ mod tests {
 
     #[test]
     fn test_set_path() {
-        let mut request = Request::new("GET /path HTTP/1.1\r\n\r\n").unwrap();
+        let mut request = Request::new(
+            "GET /path HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         request.set_path("/new_path".to_string());
         assert_eq!(request.path(), "/new_path");
+    }
+
+    #[allow(dead_code)]
+    struct MyModule;
+
+    #[allow(dead_code)]
+    impl MyModule {
+        fn new() -> Self {
+            MyModule
+        }
+    }
+
+    #[test]
+    fn test_module() {
+        // Insert module as Arc<dyn Any + Send + Sync>
+        let mut modules: HashMap<String, Arc<dyn Any + Send + Sync>> = HashMap::new();
+        modules.insert(
+            "my_module".to_string(),
+            Arc::new(MyModule::new()) as Arc<dyn Any + Send + Sync>,
+        );
+
+        let request =
+            Request::new("GET /path HTTP/1.1\r\n\r\n", Arc::new(Mutex::new(modules))).unwrap();
+
+        let module: Option<Arc<MyModule>> = request.module("my_module");
+        assert!(module.is_some());
+    }
+
+    #[test]
+    fn test_module_not_found() {
+        let modules: HashMap<String, Arc<dyn Any + Send + Sync>> = HashMap::new();
+        let request =
+            Request::new("GET /path HTTP/1.1\r\n\r\n", Arc::new(Mutex::new(modules))).unwrap();
+
+        let module: Option<Arc<MyModule>> = request.module("non_existent_module");
+        assert!(module.is_none());
+    }
+
+    #[allow(dead_code)]
+    struct MyModule1;
+
+    #[allow(dead_code)]
+    struct MyModule2;
+
+    #[allow(dead_code)]
+    impl MyModule1 {
+        fn new() -> Self {
+            MyModule1
+        }
+    }
+
+    #[allow(dead_code)]
+    impl MyModule2 {
+        fn new() -> Self {
+            MyModule2
+        }
+    }
+
+    #[test]
+    fn test_module_wrong_type() {
+        // Insert module as Arc<dyn Any + Send + Sync>
+        let mut modules: HashMap<String, Arc<dyn Any + Send + Sync>> = HashMap::new();
+        modules.insert(
+            "my_module".to_string(),
+            Arc::new(MyModule1::new()) as Arc<dyn Any + Send + Sync>,
+        );
+
+        let request =
+            Request::new("GET /path HTTP/1.1\r\n\r\n", Arc::new(Mutex::new(modules))).unwrap();
+
+        let module: Option<Arc<MyModule2>> = request.module("my_module");
+        assert!(module.is_none());
     }
 }

@@ -28,18 +28,19 @@ pub struct Route {
 /// use suika_server::middleware::{Middleware, Next, MiddlewareFuture};
 /// use suika_server::router::Router;
 /// use regex::Regex;
-/// use std::sync::Arc;
-/// use tokio::sync::Mutex;
+/// use std::collections::HashMap;
+/// use std::sync::{Arc, Mutex};
+/// use tokio::sync::Mutex as TokioMutex;
 ///
 /// #[derive(Clone)]
 /// struct MockNextMiddleware {
-///     called: Arc<Mutex<bool>>,
+///     called: Arc<TokioMutex<bool>>,
 /// }
 ///
 /// impl MockNextMiddleware {
 ///     fn new() -> Self {
 ///         Self {
-///             called: Arc::new(Mutex::new(false)),
+///             called: Arc::new(TokioMutex::new(false)),
 ///         }
 ///     }
 /// }
@@ -72,7 +73,11 @@ pub struct Route {
 ///         })
 ///     });
 ///
-///     let mut req = Request::new("GET /api/test HTTP/1.1\r\n\r\n").unwrap();
+///     let mut req = Request::new(
+///         "GET /api/test HTTP/1.1\r\n\r\n",
+///         Arc::new(Mutex::new(HashMap::new())),
+///     ).unwrap();
+/// 
 ///     let mut res = Response::new(None);
 ///
 ///     let next_middleware = MockNextMiddleware::new();
@@ -260,19 +265,20 @@ impl Middleware for Router {
     /// use suika_server::middleware::{Middleware, Next, MiddlewareFuture};
     /// use suika_server::router::Router;
     /// use regex::Regex;
-    /// use std::sync::Arc;
-    /// use tokio::sync::Mutex;
-    /// 
+    /// use std::sync::{Arc, Mutex};
+    /// use tokio::sync::Mutex as TokioMutex;
+    /// use std::collections::HashMap;
+    ///
     ///
     /// #[derive(Clone)]
     /// struct MockNextMiddleware {
-    ///     called: Arc<Mutex<bool>>,
+    ///     called: Arc<TokioMutex<bool>>,
     /// }
     ///
     /// impl MockNextMiddleware {
     ///     fn new() -> Self {
     ///         Self {
-    ///             called: Arc::new(Mutex::new(false)),
+    ///             called: Arc::new(TokioMutex::new(false)),
     ///         }
     ///     }
     /// }
@@ -305,7 +311,11 @@ impl Middleware for Router {
     ///         })
     ///     });
     ///
-    ///     let mut req = Request::new("GET /api/test HTTP/1.1\r\n\r\n").unwrap();
+    ///     let mut req = Request::new(
+    ///         "GET /api/test HTTP/1.1\r\n\r\n", 
+    ///         Arc::new(Mutex::new(HashMap::new()))
+    ///     ).unwrap();
+    /// 
     ///     let mut res = Response::new(None);
     ///
     ///     let next_middleware = MockNextMiddleware::new();
@@ -346,19 +356,19 @@ mod tests {
     use crate::middleware::{Middleware, Next};
     use crate::request::Request;
     use crate::response::{Body, Response};
-    use std::sync::Arc;
-    use tokio::sync::Mutex;
+    use std::sync::{Arc, Mutex};
+    use tokio::sync::Mutex as TokioMutex;
 
     // Mock Next middleware
     #[derive(Clone)]
     struct MockNextMiddleware {
-        called: Arc<Mutex<bool>>,
+        called: Arc<TokioMutex<bool>>,
     }
 
     impl MockNextMiddleware {
         fn new() -> Self {
             Self {
-                called: Arc::new(Mutex::new(false)),
+                called: Arc::new(TokioMutex::new(false)),
             }
         }
     }
@@ -391,7 +401,11 @@ mod tests {
             })
         });
 
-        let mut req = Request::new("GET /api/test HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /api/test HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();
@@ -425,7 +439,11 @@ mod tests {
             })
         });
 
-        let mut req = Request::new("GET /api/test/123 HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /api/test/123 HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();
@@ -464,7 +482,11 @@ mod tests {
 
         router.mount(sub_router);
 
-        let mut req = Request::new("GET /api/sub/test HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /api/sub/test HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();
@@ -500,7 +522,11 @@ mod tests {
             })
         });
 
-        let mut req = Request::new("GET /other/path HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /other/path HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
         let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();

@@ -1,7 +1,7 @@
-use suika_server:: {
+use suika_server::{
+    middleware::{Middleware, MiddlewareFuture, Next},
     request::Request,
     response::Response,
-    middleware::{Middleware, MiddlewareFuture, Next},
 };
 
 const WASM_BINARY: &[u8] = include_bytes!("../wasm/suika_ui_bg.wasm");
@@ -20,18 +20,19 @@ const JS_FILE: &str = include_str!("../wasm/suika_ui.js");
 /// use suika_server::response::Response;
 /// use suika_server::middleware::{Middleware, Next, MiddlewareFuture};
 /// use suika_wasm::WasmFileMiddleware;
-/// use std::sync::Arc;
-/// use tokio::sync::Mutex;
+/// use std::collections::HashMap;
+/// use std::sync::{Arc, Mutex};
+/// use tokio::sync::Mutex as TokioMutex;
 ///
 /// #[derive(Clone)]
 /// struct MockNextMiddleware {
-///     called: Arc<Mutex<bool>>,
+///     called: Arc<TokioMutex<bool>>,
 /// }
 ///
 /// impl MockNextMiddleware {
 ///     fn new() -> Self {
 ///         Self {
-///             called: Arc::new(Mutex::new(false)),
+///             called: Arc::new(TokioMutex::new(false)),
 ///         }
 ///     }
 /// }
@@ -54,7 +55,11 @@ const JS_FILE: &str = include_str!("../wasm/suika_ui.js");
 ///
 /// #[tokio::main]
 /// async fn main() {
-///     let mut req = Request::new("GET /static/suika_ui_bg.wasm HTTP/1.1\r\n\r\n").unwrap();
+///     let mut req = Request::new(
+///         "GET /static/suika_ui_bg.wasm HTTP/1.1\r\n\r\n",
+///         Arc::new(Mutex::new(HashMap::new())),
+///     ).unwrap();
+/// 
 ///     let mut res = Response::new(None);
 ///
 ///     let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
@@ -117,18 +122,19 @@ impl Middleware for WasmFileMiddleware {
     /// use suika_server::response::Response;
     /// use suika_server::middleware::{Middleware, Next, MiddlewareFuture};
     /// use suika_wasm::WasmFileMiddleware;
-    /// use std::sync::Arc;
-    /// use tokio::sync::Mutex;
+    /// use std::collections::HashMap;
+    /// use std::sync::{Arc, Mutex};
+    /// use tokio::sync::Mutex as TokioMutex;
     ///
     /// #[derive(Clone)]
     /// struct MockNextMiddleware {
-    ///     called: Arc<Mutex<bool>>,
+    ///     called: Arc<TokioMutex<bool>>,
     /// }
     ///
     /// impl MockNextMiddleware {
     ///     fn new() -> Self {
     ///         Self {
-    ///             called: Arc::new(Mutex::new(false)),
+    ///             called: Arc::new(TokioMutex::new(false)),
     ///         }
     ///     }
     /// }
@@ -151,7 +157,11 @@ impl Middleware for WasmFileMiddleware {
     ///
     /// #[tokio::main]
     /// async fn main() {
-    ///     let mut req = Request::new("GET /static/suika_ui.js HTTP/1.1\r\n\r\n").unwrap();
+    ///     let mut req = Request::new(
+    ///         "GET /static/suika_ui.js HTTP/1.1\r\n\r\n",
+    ///         Arc::new(Mutex::new(HashMap::new())),
+    ///     ).unwrap();
+    /// 
     ///     let mut res = Response::new(None);
     ///
     ///     let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
@@ -182,7 +192,8 @@ impl Middleware for WasmFileMiddleware {
                 res.header(
                     "Cache-Control",
                     &format!("public, max-age={}", cache_duration),
-                ).await;
+                )
+                .await;
                 res.set_status(200).await;
                 res.body_bytes(WASM_BINARY.to_vec()).await;
                 Ok(())
@@ -191,7 +202,8 @@ impl Middleware for WasmFileMiddleware {
                 res.header(
                     "Cache-Control",
                     &format!("public, max-age={}", cache_duration),
-                ).await;
+                )
+                .await;
                 res.set_status(200).await;
                 res.body(JS_FILE.to_string()).await;
                 Ok(())
@@ -205,22 +217,23 @@ impl Middleware for WasmFileMiddleware {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use suika_server::request::Request;
-    use suika_server::response::{Response, Body};
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
     use suika_server::middleware::{Middleware, Next};
-    use tokio::sync::Mutex;
-    use std::sync::Arc;
+    use suika_server::request::Request;
+    use suika_server::response::{Body, Response};
+    use tokio::sync::Mutex as TokioMutex;
 
     // Mock Next middleware
     #[derive(Clone)]
     struct MockNextMiddleware {
-        called: Arc<Mutex<bool>>,
+        called: Arc<TokioMutex<bool>>,
     }
 
     impl MockNextMiddleware {
         fn new() -> Self {
             Self {
-                called: Arc::new(Mutex::new(false)),
+                called: Arc::new(TokioMutex::new(false)),
             }
         }
     }
@@ -243,19 +256,31 @@ mod tests {
 
     #[tokio::test]
     async fn test_wasm_file_middleware_serves_wasm_file() {
-        let mut req = Request::new("GET /static/suika_ui_bg.wasm HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /static/suika_ui_bg.wasm HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
+
         let mut res = Response::new(None);
 
         let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
         let next_middleware = MockNextMiddleware::new();
-        let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> = vec![Arc::new(next_middleware.clone())];
+        let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
+            vec![Arc::new(next_middleware.clone())];
         let next = Next::new(middleware_stack.as_slice());
 
-        wasm_file_middleware.handle(&mut req, &mut res, next.clone()).await.unwrap();
+        wasm_file_middleware
+            .handle(&mut req, &mut res, next.clone())
+            .await
+            .unwrap();
 
         let inner = res.get_inner().await;
         assert_eq!(inner.status_code(), Some(200));
-        assert_eq!(inner.headers().get("Content-Type"), Some(&"application/wasm".to_string()));
+        assert_eq!(
+            inner.headers().get("Content-Type"),
+            Some(&"application/wasm".to_string())
+        );
         assert_eq!(inner.body(), &Some(Body::Binary(WASM_BINARY.to_vec())));
 
         let next_called = *next_middleware.called.lock().await;
@@ -264,19 +289,31 @@ mod tests {
 
     #[tokio::test]
     async fn test_wasm_file_middleware_serves_js_file() {
-        let mut req = Request::new("GET /static/suika_ui.js HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /static/suika_ui.js HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
+
         let mut res = Response::new(None);
 
         let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
         let next_middleware = MockNextMiddleware::new();
-        let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> = vec![Arc::new(next_middleware.clone())];
+        let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
+            vec![Arc::new(next_middleware.clone())];
         let next = Next::new(middleware_stack.as_slice());
 
-        wasm_file_middleware.handle(&mut req, &mut res, next.clone()).await.unwrap();
+        wasm_file_middleware
+            .handle(&mut req, &mut res, next.clone())
+            .await
+            .unwrap();
 
         let inner = res.get_inner().await;
         assert_eq!(inner.status_code(), Some(200));
-        assert_eq!(inner.headers().get("Content-Type"), Some(&"application/javascript".to_string()));
+        assert_eq!(
+            inner.headers().get("Content-Type"),
+            Some(&"application/javascript".to_string())
+        );
         assert_eq!(inner.body(), &Some(Body::Text(JS_FILE.to_string())));
 
         let next_called = *next_middleware.called.lock().await;
@@ -285,15 +322,24 @@ mod tests {
 
     #[tokio::test]
     async fn test_wasm_file_middleware_passes_other_paths() {
-        let mut req = Request::new("GET /other/path HTTP/1.1\r\n\r\n").unwrap();
+        let mut req = Request::new(
+            "GET /other/path HTTP/1.1\r\n\r\n",
+            Arc::new(Mutex::new(HashMap::new())),
+        )
+        .unwrap();
+
         let mut res = Response::new(None);
 
         let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
         let next_middleware = MockNextMiddleware::new();
-        let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> = vec![Arc::new(next_middleware.clone())];
+        let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
+            vec![Arc::new(next_middleware.clone())];
         let next = Next::new(middleware_stack.as_slice());
 
-        wasm_file_middleware.handle(&mut req, &mut res, next.clone()).await.unwrap();
+        wasm_file_middleware
+            .handle(&mut req, &mut res, next.clone())
+            .await
+            .unwrap();
 
         let next_called = *next_middleware.called.lock().await;
         assert!(next_called);
