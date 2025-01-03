@@ -49,7 +49,7 @@ use crate::response::Response;
 /// #[tokio::main]
 /// async fn main() {
 ///     let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
-///     let mut res = Response::new();
+///     let mut res = Response::new(None);
 ///
 ///     let logger_middleware = LoggerMiddleware;
 ///     let next_middleware = MockNextMiddleware::new();
@@ -119,7 +119,7 @@ impl Middleware for LoggerMiddleware {
     /// #[tokio::main]
     /// async fn main() {
     ///     let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
-    ///     let mut res = Response::new();
+    ///     let mut res = Response::new(None);
     ///
     ///     let logger_middleware = LoggerMiddleware;
     ///     let next_middleware = MockNextMiddleware::new();
@@ -187,7 +187,7 @@ mod tests {
     #[tokio::test]
     async fn test_logger_middleware_logs_request() {
         let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let logger_middleware = LoggerMiddleware;
         let next_middleware = MockNextMiddleware::new();
@@ -207,7 +207,7 @@ mod tests {
     #[tokio::test]
     async fn test_logger_middleware_passes_request() {
         let mut req = Request::new("GET /test HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let logger_middleware = LoggerMiddleware;
         let next_middleware = MockNextMiddleware::new();

@@ -1,9 +1,11 @@
+// response.rs
 use crate::error::HttpError;
 use std::collections::HashMap;
 use std::io::Result as IoResult;
 use std::path::Path;
 use std::sync::Arc;
 use suika_mime::get_mime_type_from_path;
+use suika_templates::TemplateEngine;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::Mutex;
@@ -20,6 +22,7 @@ pub struct ResponseInner {
     status_code: Option<u16>,
     headers: HashMap<String, String>,
     body: Option<Body>,
+    template_engine: Option<Arc<TemplateEngine>>, // Add template engine field
 }
 
 impl ResponseInner {
@@ -48,12 +51,13 @@ pub enum Body {
 
 impl Response {
     /// Creates a new `Response` with default values.
-    pub fn new() -> Self {
+    pub fn new(template_engine: Option<Arc<TemplateEngine>>) -> Self {
         Response {
             inner: Arc::new(Mutex::new(ResponseInner {
                 status_code: None,
                 headers: HashMap::new(),
                 body: None,
+                template_engine,
             })),
         }
     }
@@ -160,10 +164,33 @@ impl Response {
         Ok(())
     }
 
+    /// Renders a template using the template engine and sets it as the response body.
+    pub async fn render_template(
+        &self,
+        template_name: &str,
+        context: &HashMap<String, suika_templates::template_value::TemplateValue>,
+    ) -> Result<(), HttpError> {
+        let inner = self.inner.lock().await;
+        if let Some(template_engine) = &inner.template_engine {
+            let rendered = template_engine
+                .render(template_name, context)
+                .map_err(|e| {
+                    HttpError::InternalServerError(format!("Failed to render template: {}", e))
+                })?;
+            drop(inner);
+            self.body(rendered).await;
+            Ok(())
+        } else {
+            Err(HttpError::InternalServerError(
+                "Template engine not available".to_string(),
+            ))
+        }
+    }
+
     /// Returns the inner state of the response.
     pub async fn get_inner(&self) -> ResponseInner {
         self.inner.lock().await.clone()
-    }
+    }    
 }
 
 impl Clone for Response {
@@ -178,11 +205,13 @@ impl Clone for Response {
 mod tests {
     use super::*;
     use crate::error::HttpError;
+    use std::pin::Pin;
+    use std::sync::Arc;
+    use std::task::{Context, Poll};
+    use suika_templates::template_engine::TemplateEngine;
+    use suika_templates::template_value::TemplateValue;
     use tokio::io::{AsyncWrite, AsyncWriteExt};
     use tokio::sync::Mutex;
-    use std::sync::Arc;
-    use std::pin::Pin;
-    use std::task::{Context, Poll};
 
     struct MockStream {
         data: Arc<Mutex<Vec<u8>>>,
@@ -212,24 +241,18 @@ mod tests {
             Poll::Ready(Ok(buf.len()))
         }
 
-        fn poll_flush(
-            self: Pin<&mut Self>,
-            _: &mut Context<'_>,
-        ) -> Poll<std::io::Result<()>> {
+        fn poll_flush(self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<std::io::Result<()>> {
             Poll::Ready(Ok(()))
         }
 
-        fn poll_shutdown(
-            self: Pin<&mut Self>,
-            _: &mut Context<'_>,
-        ) -> Poll<std::io::Result<()>> {
+        fn poll_shutdown(self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<std::io::Result<()>> {
             Poll::Ready(Ok(()))
         }
     }
 
     #[tokio::test]
     async fn test_set_status() {
-        let response = Response::new();
+        let response = Response::new(None);
         response.set_status(404).await;
         let inner = response.inner.lock().await;
         assert_eq!(inner.status_code, Some(404));
@@ -237,7 +260,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_status() {
-        let response = Response::new();
+        let response = Response::new(None);
         assert_eq!(response.status().await, None);
         response.set_status(200).await;
         assert_eq!(response.status().await, Some(200));
@@ -245,15 +268,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_header() {
-        let response = Response::new();
+        let response = Response::new(None);
         response.header("Content-Type", "text/plain").await;
         let inner = response.inner.lock().await;
-        assert_eq!(inner.headers.get("Content-Type"), Some(&"text/plain".to_string()));
+        assert_eq!(
+            inner.headers.get("Content-Type"),
+            Some(&"text/plain".to_string())
+        );
     }
 
     #[tokio::test]
     async fn test_body() {
-        let response = Response::new();
+        let response = Response::new(None);
         response.body("Hello, world!".to_string()).await;
         let inner = response.inner.lock().await;
         if let Some(Body::Text(ref text)) = inner.body {
@@ -265,7 +291,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_body_bytes() {
-        let response = Response::new();
+        let response = Response::new(None);
         response.body_bytes(vec![1, 2, 3, 4]).await;
         let inner = response.inner.lock().await;
         if let Some(Body::Binary(ref bytes)) = inner.body {
@@ -277,8 +303,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_error() {
-        let response = Response::new();
-        response.error(HttpError::NotFound("Resource not found".to_string())).await;
+        let response = Response::new(None);
+        response
+            .error(HttpError::NotFound("Resource not found".to_string()))
+            .await;
         let inner = response.inner.lock().await;
         assert_eq!(inner.status_code, Some(404));
         if let Some(Body::Text(ref text)) = inner.body {
@@ -290,7 +318,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_send() {
-        let response = Response::new();
+        let response = Response::new(None);
         response.set_status(200).await;
         response.header("Content-Type", "text/plain").await;
         response.body("Hello, world!".to_string()).await;
@@ -312,11 +340,14 @@ mod tests {
         let mut file = File::create(file_path).await.unwrap();
         file.write_all(b"File content").await.unwrap();
 
-        let response = Response::new();
+        let response = Response::new(None);
         response.send_file(file_path).await.unwrap();
 
         let inner = response.inner.lock().await;
-        assert_eq!(inner.headers.get("Content-Type"), Some(&"text/plain".to_string()));
+        assert_eq!(
+            inner.headers.get("Content-Type"),
+            Some(&"text/plain".to_string())
+        );
         assert_eq!(inner.headers.get("Content-Length"), Some(&"12".to_string()));
         if let Some(Body::Binary(ref bytes)) = inner.body {
             assert_eq!(bytes, &b"File content"[..]);
@@ -326,5 +357,34 @@ mod tests {
 
         // Clean up the temporary file
         tokio::fs::remove_file(file_path).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_render_template() {
+        let mut template_engine = TemplateEngine::new();
+        template_engine.add_template(
+            "hello.html",
+            "<html><body>Hello, <%= name %>!</body></html>",
+        );
+
+        let template_engine = Arc::new(template_engine);
+        let response = Response::new(Some(template_engine.clone()));
+        let mut context = HashMap::new();
+        context.insert(
+            "name".to_string(),
+            TemplateValue::String("World".to_string()),
+        );
+
+        response
+            .render_template("hello.html", &context)
+            .await
+            .unwrap();
+        let inner = response.inner.lock().await;
+
+        if let Some(Body::Text(ref text)) = inner.body {
+            assert_eq!(text, "<html><body>Hello, World!</body></html>");
+        } else {
+            panic!("Expected body to be Some(Body::Text)");
+        }
     }
 }

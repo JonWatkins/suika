@@ -90,7 +90,6 @@ mod tests {
     use super::*;
     use tokio::sync::Mutex;
 
-    // Mock Middleware
     struct MockMiddleware {
         counter: Arc<Mutex<i32>>,
     }
@@ -117,7 +116,6 @@ mod tests {
         }
     }
 
-    // Test Next::new
     #[test]
     fn test_next_new() {
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
@@ -127,7 +125,6 @@ mod tests {
         assert_eq!(next.middleware_stack.len(), 1);
     }
 
-    // Test Next::run
     #[tokio::test]
     async fn test_next_run() {
         let counter = Arc::new(Mutex::new(0));
@@ -135,14 +132,13 @@ mod tests {
             vec![Arc::new(MockMiddleware::new(Arc::clone(&counter)))];
         let mut next = Next::new(middleware_stack.as_slice());
 
-        let mut req = Request::new("GET / HTTP/1.1\r\n\r\n").unwrap(); // Provide a valid HTTP request string
-        let mut res = Response::new(); // Assuming Response::new() is a valid constructor
+        let mut req = Request::new("GET / HTTP/1.1\r\n\r\n").unwrap();
+        let mut res = Response::new(None);
 
         next.run(&mut req, &mut res).await.unwrap();
         assert_eq!(*counter.lock().await, 1);
     }
 
-    // Test Next::run with multiple middleware
     #[tokio::test]
     async fn test_next_run_multiple_middleware() {
         let counter1 = Arc::new(Mutex::new(0));
@@ -154,8 +150,8 @@ mod tests {
         ];
         let mut next = Next::new(middleware_stack.as_slice());
 
-        let mut req = Request::new("GET / HTTP/1.1\r\n\r\n").unwrap(); // Provide a valid HTTP request string
-        let mut res = Response::new(); // Assuming Response::new() is a valid constructor
+        let mut req = Request::new("GET / HTTP/1.1\r\n\r\n").unwrap();
+        let mut res = Response::new(None);
 
         next.run(&mut req, &mut res).await.unwrap();
         assert_eq!(*counter1.lock().await, 1);

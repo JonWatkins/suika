@@ -2,14 +2,17 @@ use crate::middleware::{Middleware, Next};
 use crate::request::Request;
 use crate::response::Response;
 use std::sync::Arc;
+use std::thread;
+use suika_templates::TemplateEngine;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
-use tokio::runtime::Handle;
+use tokio::runtime::{Builder, Handle};
 
 /// Represents an HTTP server with middleware support.
 pub struct Server {
     address: String,
     middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>>,
+    template_engine: Option<TemplateEngine>,
 }
 
 impl Server {
@@ -30,6 +33,7 @@ impl Server {
         Self {
             address: address.to_string(),
             middleware_stack: Vec::new(),
+            template_engine: None,
         }
     }
 
@@ -69,6 +73,26 @@ impl Server {
         self.middleware_stack.push(mw);
     }
 
+    /// Sets the template engine to be used by the server.
+    ///
+    /// # Arguments
+    ///
+    /// * `engine` - The template engine to use.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_server::server::Server;
+    /// use suika_templates::template_engine::TemplateEngine;
+    ///
+    /// let mut server = Server::new("127.0.0.1:8080");
+    /// let template_engine = TemplateEngine::new();
+    /// server.use_templates(template_engine);
+    /// ```
+    pub fn use_templates(&mut self, engine: TemplateEngine) {
+        self.template_engine = Some(engine);
+    }
+
     /// Runs the server. If an existing runtime handle is provided, it is used to run the server.
     ///
     /// # Arguments
@@ -88,21 +112,34 @@ impl Server {
     pub fn run(&self, existing_runtime: Option<&Handle>) {
         let address = self.address.clone();
         let middleware_stack = self.middleware_stack.clone();
+        let template_engine = self.template_engine.clone();
 
         if let Some(handle) = existing_runtime {
             handle.spawn(async move {
-                Server::run_server(address, middleware_stack).await;
+                Server::run_server(address, middleware_stack, template_engine).await;
             });
         } else {
-            let runtime = tokio::runtime::Runtime::new().unwrap();
+            let num_cores = thread::available_parallelism()
+                .map(|n| n.get())
+                .unwrap_or(1);
+
+            let runtime = Builder::new_multi_thread()
+                .worker_threads(num_cores)
+                .enable_all()
+                .build()
+                .unwrap();
+
             runtime.block_on(async move {
-                Server::run_server(address, middleware_stack).await;
+                Server::run_server(address, middleware_stack, template_engine).await;
             });
         }
     }
 
-    /// The async function that runs the server.
-    async fn run_server(address: String, middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>>) {
+    async fn run_server(
+        address: String,
+        middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>>,
+        template_engine: Option<TemplateEngine>,
+    ) {
         let listener = TcpListener::bind(&address)
             .await
             .expect("Failed to bind address");
@@ -113,13 +150,15 @@ impl Server {
             match listener.accept().await {
                 Ok((mut stream, _)) => {
                     let mw_stack = middleware_stack.clone();
+                    let tmpl_engine = template_engine.clone().map(Arc::new);
+
                     tokio::spawn(async move {
                         let mut buffer = [0; 1024];
                         if let Ok(size) = stream.read(&mut buffer).await {
                             if size > 0 {
                                 let request_str = String::from_utf8_lossy(&buffer[..size]);
                                 let mut req = Request::new(&request_str).unwrap();
-                                let mut res = Response::new();
+                                let mut res = Response::new(tmpl_engine.clone());
 
                                 let mut next = Next::new(&mw_stack);
                                 if let Err(e) = next.run(&mut req, &mut res).await {
@@ -127,7 +166,7 @@ impl Server {
                                 }
 
                                 let status = res.status().await;
-                                if status != Some(200) {
+                                if status == None {
                                     res.set_status(404).await;
                                     res.body("404 Not Found".to_string()).await;
                                 }
@@ -177,7 +216,7 @@ mod tests {
         ) -> MiddlewareFuture<'a> {
             let called = Arc::clone(&self.called);
             Box::pin(async move {
-                println!("MockMiddleware called"); // Debugging
+                println!("MockMiddleware called");
                 {
                     let mut called_lock = called.lock().await;
                     *called_lock = true;
@@ -196,14 +235,11 @@ mod tests {
         let mock_middleware = MockMiddleware::new();
         server.use_middleware(Arc::new(mock_middleware.clone()));
 
-        // Use the current runtime handle to run the server
         let runtime_handle = tokio::runtime::Handle::current();
         server.run(Some(&runtime_handle));
 
-        // Give the server a moment to start up
         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
-        // Simulate a client request
         let mut stream = TcpStream::connect(address).await.unwrap();
         stream.write_all(b"GET / HTTP/1.1\r\n\r\n").await.unwrap();
 
@@ -211,14 +247,12 @@ mod tests {
         let size = stream.read(&mut buffer).await.unwrap();
         let response_str = String::from_utf8_lossy(&buffer[..size]);
 
-        // Check that the response contains the mock response body
         assert!(
             response_str.contains("Mock response"),
             "Response: {}",
             response_str
         );
 
-        // Check that the middleware was called
         let called = *mock_middleware.called.lock().await;
         assert!(called);
     }
@@ -227,15 +261,11 @@ mod tests {
     async fn test_server_without_middleware() {
         let address = "127.0.0.1:8082";
         let server = Server::new(address);
-
-        // Use the current runtime handle to run the server
         let runtime_handle = tokio::runtime::Handle::current();
-        server.run(Some(&runtime_handle));
 
-        // Give the server a moment to start up
+        server.run(Some(&runtime_handle));
         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
-        // Simulate a client request
         let mut stream = TcpStream::connect(address).await.unwrap();
         stream.write_all(b"GET / HTTP/1.1\r\n\r\n").await.unwrap();
 
@@ -243,7 +273,6 @@ mod tests {
         let size = stream.read(&mut buffer).await.unwrap();
         let response_str = String::from_utf8_lossy(&buffer[..size]);
 
-        // Check that the response contains a 404 Not Found status
         assert!(response_str.contains("404 Not Found"));
     }
 }

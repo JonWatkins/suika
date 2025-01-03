@@ -169,7 +169,7 @@ mod tests {
             tempfile.path().file_name().unwrap().to_str().unwrap()
         ))
         .unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let static_file_middleware = StaticFileMiddleware::new("/static", &file_dir, 3600);
         let next_middleware = MockNextMiddleware::new();
@@ -200,7 +200,7 @@ mod tests {
     #[tokio::test]
     async fn test_static_file_middleware_passes_other_paths() {
         let mut req = Request::new("GET /other/path HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let static_file_middleware = StaticFileMiddleware::new("/static", "some/directory", 3600);
         let next_middleware = MockNextMiddleware::new();

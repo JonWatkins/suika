@@ -55,7 +55,7 @@ const JS_FILE: &str = include_str!("../wasm/suika_ui.js");
 /// #[tokio::main]
 /// async fn main() {
 ///     let mut req = Request::new("GET /static/suika_ui_bg.wasm HTTP/1.1\r\n\r\n").unwrap();
-///     let mut res = Response::new();
+///     let mut res = Response::new(None);
 ///
 ///     let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
 ///     let next_middleware = MockNextMiddleware::new();
@@ -152,7 +152,7 @@ impl Middleware for WasmFileMiddleware {
     /// #[tokio::main]
     /// async fn main() {
     ///     let mut req = Request::new("GET /static/suika_ui.js HTTP/1.1\r\n\r\n").unwrap();
-    ///     let mut res = Response::new();
+    ///     let mut res = Response::new(None);
     ///
     ///     let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
     ///     let next_middleware = MockNextMiddleware::new();
@@ -244,7 +244,7 @@ mod tests {
     #[tokio::test]
     async fn test_wasm_file_middleware_serves_wasm_file() {
         let mut req = Request::new("GET /static/suika_ui_bg.wasm HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
         let next_middleware = MockNextMiddleware::new();
@@ -265,7 +265,7 @@ mod tests {
     #[tokio::test]
     async fn test_wasm_file_middleware_serves_js_file() {
         let mut req = Request::new("GET /static/suika_ui.js HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
         let next_middleware = MockNextMiddleware::new();
@@ -286,7 +286,7 @@ mod tests {
     #[tokio::test]
     async fn test_wasm_file_middleware_passes_other_paths() {
         let mut req = Request::new("GET /other/path HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let wasm_file_middleware = WasmFileMiddleware::new("/static", 3600);
         let next_middleware = MockNextMiddleware::new();

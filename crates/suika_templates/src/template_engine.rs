@@ -9,7 +9,7 @@ use std::fs;
 use std::path::Path;
 use suika_utils::minify_html;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct TemplateEngine {
     templates: HashMap<String, String>,
 }

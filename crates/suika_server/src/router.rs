@@ -73,7 +73,7 @@ pub struct Route {
 ///     });
 ///
 ///     let mut req = Request::new("GET /api/test HTTP/1.1\r\n\r\n").unwrap();
-///     let mut res = Response::new();
+///     let mut res = Response::new(None);
 ///
 ///     let next_middleware = MockNextMiddleware::new();
 ///     let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> = vec![Arc::new(next_middleware.clone())];
@@ -306,7 +306,7 @@ impl Middleware for Router {
     ///     });
     ///
     ///     let mut req = Request::new("GET /api/test HTTP/1.1\r\n\r\n").unwrap();
-    ///     let mut res = Response::new();
+    ///     let mut res = Response::new(None);
     ///
     ///     let next_middleware = MockNextMiddleware::new();
     ///     let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> = vec![Arc::new(next_middleware.clone())];
@@ -392,7 +392,7 @@ mod tests {
         });
 
         let mut req = Request::new("GET /api/test HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
@@ -426,7 +426,7 @@ mod tests {
         });
 
         let mut req = Request::new("GET /api/test/123 HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
@@ -465,7 +465,7 @@ mod tests {
         router.mount(sub_router);
 
         let mut req = Request::new("GET /api/sub/test HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =
@@ -501,7 +501,7 @@ mod tests {
         });
 
         let mut req = Request::new("GET /other/path HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new();
+        let mut res = Response::new(None);
 
         let next_middleware = MockNextMiddleware::new();
         let middleware_stack: Vec<Arc<dyn Middleware + Send + Sync>> =

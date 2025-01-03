@@ -424,7 +424,7 @@ dependencies = [
 
 [[package]]
 name = "suika"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "suika_json",
  "suika_mime",
@@ -454,12 +454,13 @@ version = "0.1.1"
 
 [[package]]
 name = "suika_server"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "futures",
  "regex",
  "suika_json",
  "suika_mime",
+ "suika_templates",
  "suika_utils",
  "tempfile",
  "tokio",
@@ -467,7 +468,7 @@ dependencies = [
 
 [[package]]
 name = "suika_templates"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "suika_utils",
 ]
@@ -486,7 +487,7 @@ version = "0.1.1"
 
 [[package]]
 name = "suika_wasm"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "async-trait",
  "futures",

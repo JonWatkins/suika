@@ -14,7 +14,7 @@ fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut main_router = Router::new("/");
 
-    let template_engine = Arc::new({
+    let template_engine = {
         let mut engine = TemplateEngine::new();
 
         engine
@@ -22,7 +22,9 @@ fn main() {
             .expect("Failed to load templates from directory");
 
         engine
-    });
+    };
+
+    server.use_templates(template_engine);
 
     main_router.add_route(Some("GET"), r"/$", |_req, res| {
         Box::pin(async move {
@@ -33,150 +35,95 @@ fn main() {
         })
     });
 
-    {
-        let template_engine = Arc::clone(&template_engine);
-        main_router.add_route(Some("GET"), "/hello", move |_req, res| {
-            let template_engine = Arc::clone(&template_engine);
-            Box::pin(async move {
-                let mut context = HashMap::new();
+    main_router.add_route(Some("GET"), "/hello",  |_req, res| {
+        Box::pin(async move {
+            let mut context = HashMap::new();
 
-                context.insert(
-                    "name".to_string(),
-                    TemplateValue::String("World".to_string()),
-                );
+            context.insert(
+                "name".to_string(),
+                TemplateValue::String("World".to_string()),
+            );
 
-                match template_engine.render("hello.html", &context) {
-                    Ok(rendered) => {
-                        res.set_status(200).await;
-                        res.body(rendered).await;
-                    }
-                    Err(_e) => {
-                        res.set_status(500).await;
-                        res.body("Template rendering error.".to_string()).await;
-                    }
-                }
-                Ok(())
-            })
-        });
-    }
+            res.set_status(200).await;
+            res.render_template("hello.html", &context).await?;
 
-    {
-        let template_engine = Arc::clone(&template_engine);
-        main_router.add_route(Some("GET"), "/include", move |_req, res| {
-            let template_engine = Arc::clone(&template_engine);
-            Box::pin(async move {
-                let mut context = HashMap::new();
+            Ok(())
+        })
+    });
 
-                context.insert(
-                    "name".to_string(),
-                    TemplateValue::String("World".to_string()),
-                );
+    main_router.add_route(Some("GET"), "/include", |_req, res| {
+        Box::pin(async move {
+            let mut context = HashMap::new();
 
-                match template_engine.render("include.html", &context) {
-                    Ok(rendered) => {
-                        res.set_status(200).await;
-                        res.body(rendered).await;
-                    }
-                    Err(_e) => {
-                        res.set_status(500).await;
-                        res.body("Template rendering error.".to_string()).await;
-                    }
-                }
-                Ok(())
-            })
-        });
-    }
+            context.insert(
+                "name".to_string(),
+                TemplateValue::String("World".to_string()),
+            );
 
-    {
-        let template_engine = Arc::clone(&template_engine);
-        main_router.add_route(Some("GET"), "/conditional", move |_req, res| {
-            let template_engine = Arc::clone(&template_engine);
-            Box::pin(async move {
-                let mut context = HashMap::new();
+            res.set_status(200).await;
+            res.render_template("include.html", &context).await?;
 
-                context.insert("is_member".to_string(), TemplateValue::Boolean(true));
+            Ok(())
+        })
+    });
 
-                context.insert("name".to_string(), TemplateValue::String("Bob".to_string()));
+    main_router.add_route(Some("GET"), "/conditional", |_req, res| {
+        Box::pin(async move {
+            let mut context = HashMap::new();
 
-                match template_engine.render("conditional.html", &context) {
-                    Ok(rendered) => {
-                        res.set_status(200).await;
-                        res.body(rendered).await;
-                    }
-                    Err(_e) => {
-                        res.set_status(500).await;
-                        res.body("Template rendering error.".to_string()).await;
-                    }
-                }
-                Ok(())
-            })
-        });
-    }
+            context.insert("is_member".to_string(), TemplateValue::Boolean(true));
+            context.insert("name".to_string(), TemplateValue::String("Bob".to_string()));
 
-    {
-        let template_engine = Arc::clone(&template_engine);
-        main_router.add_route(Some("GET"), "/loop", move |_req, res| {
-            let template_engine = Arc::clone(&template_engine);
-            Box::pin(async move {
-                let mut context = HashMap::new();
+            res.set_status(200).await;
+            res.render_template("conditional.html", &context).await?;
 
-                context.insert(
-                    "items".to_string(),
-                    TemplateValue::Array(vec![
-                        TemplateValue::String("One".to_string()),
-                        TemplateValue::String("Two".to_string()),
-                        TemplateValue::String("Three".to_string()),
-                    ]),
-                );
+            Ok(())
+        })
+    });
 
-                match template_engine.render("loop.html", &context) {
-                    Ok(rendered) => {
-                        res.set_status(200).await;
-                        res.body(rendered).await;
-                    }
-                    Err(_e) => {
-                        res.set_status(500).await;
-                        res.body("Template rendering error.".to_string()).await;
-                    }
-                }
-                Ok(())
-            })
-        });
-    }
+    main_router.add_route(Some("GET"), "/loop", |_req, res| {
+        Box::pin(async move {
+            let mut context = HashMap::new();
 
-    {
-        let template_engine = Arc::clone(&template_engine);
-        main_router.add_route(Some("GET"), "/user", move |_req, res| {
-            let template_engine = Arc::clone(&template_engine);
-            Box::pin(async move {
-                let mut user = HashMap::new();
-                user.insert(
-                    "name".to_string(),
-                    TemplateValue::String("Alice".to_string()),
-                );
-                user.insert("age".to_string(), TemplateValue::String("30".to_string()));
-                user.insert(
-                    "email".to_string(),
-                    TemplateValue::String("alice@example.com".to_string()),
-                );
+            context.insert(
+                "items".to_string(),
+                TemplateValue::Array(vec![
+                    TemplateValue::String("One".to_string()),
+                    TemplateValue::String("Two".to_string()),
+                    TemplateValue::String("Three".to_string()),
+                ]),
+            );
 
-                let mut context = HashMap::new();
-                context.insert("user".to_string(), TemplateValue::Object(user));
+            res.set_status(200).await;
+            res.render_template("loop.html", &context).await?;
 
-                match template_engine.render("user.html", &context) {
-                    Ok(rendered) => {
-                        res.set_status(200).await;
-                        res.body(rendered).await;
-                    }
-                    Err(_e) => {
-                        res.set_status(500).await;
-                        res.body("Template rendering error.".to_string()).await;
-                    }
-                }
-                Ok(())
-            })
-        });
-    }
+            Ok(())
+        })
+    });
+
+    main_router.add_route(Some("GET"), "/user", |_req, res| {
+        Box::pin(async move {
+            let mut user = HashMap::new();
+
+            user.insert(
+                "name".to_string(),
+                TemplateValue::String("Alice".to_string()),
+            );
+            user.insert("age".to_string(), TemplateValue::String("30".to_string()));
+            user.insert(
+                "email".to_string(),
+                TemplateValue::String("alice@example.com".to_string()),
+            );
+
+            let mut context = HashMap::new();
+            context.insert("user".to_string(), TemplateValue::Object(user));
+
+            res.set_status(200).await;
+            res.render_template("user.html", &context).await?;
+
+            Ok(())
+        })
+    });
 
     main_router.add_route(Some("GET"), r"/items/(?P<id>\d+)$", |req, res| {
         Box::pin(async move {

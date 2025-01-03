@@ -88,7 +88,7 @@ mod tests {
     #[tokio::test]
     async fn test_cors_middleware_headers() {
         let mut req = Request::new("GET / HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new(); // Response does not need to be mutable
+        let mut res = Response::new(None);
 
         let cors_middleware = CorsMiddleware;
         let next_middleware = MockNextMiddleware::new();
@@ -122,7 +122,7 @@ mod tests {
     #[tokio::test]
     async fn test_cors_middleware_options_request() {
         let mut req = Request::new("OPTIONS / HTTP/1.1\r\n\r\n").unwrap();
-        let mut res = Response::new(); // Response does not need to be mutable
+        let mut res = Response::new(None);
 
         let cors_middleware = CorsMiddleware;
         let next_middleware = MockNextMiddleware::new();
