@@ -204,42 +204,33 @@ pub fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut router = Router::new("/");
 
-    let template_engine = Arc::new({
+    let template_engine = {
         let mut engine = TemplateEngine::new();
 
         engine
-            .load_templates_from_directory("templates")
+            .load_templates_from_directory("crates/suika_example/templates")
             .expect("Failed to load templates from directory");
 
         engine
+    };
+
+    server.use_templates(template_engine);
+
+    router.add_route(Some("GET"), "/", move |_req, res| {
+        Box::pin(async move {
+            let mut context = HashMap::new();
+
+            context.insert(
+                "name".to_string(),
+                TemplateValue::String("World".to_string()),
+            );
+
+            res.set_status(200).await;
+            res.render_template("hello.html", &context).await?;
+
+            Ok(())
+        })
     });
-
-    {
-        let template_engine = Arc::clone(&template_engine);
-        router.add_route(Some("GET"), "/", move |_req, res| {
-            let template_engine = Arc::clone(&template_engine);
-            Box::pin(async move {
-                let mut context = HashMap::new();
-
-                context.insert(
-                    "name".to_string(),
-                    TemplateValue::String("World".to_string()),
-                );
-
-                match template_engine.render("hello.html", &context) {
-                    Ok(rendered) => {
-                        res.set_status(200).await;
-                        res.body(rendered).await;
-                    }
-                    Err(_e) => {
-                        res.set_status(500).await;
-                        res.body("Template rendering error.".to_string()).await;
-                    }
-                }
-                Ok(())
-            })
-        });
-    }
 
     server.use_middleware(Arc::new(router));
     server.run(None);
