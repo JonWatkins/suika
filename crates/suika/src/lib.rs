@@ -24,6 +24,7 @@ pub mod templates {
 pub mod server {
   pub use suika_server::server::Server;
   pub use suika_server::router::Router;
+  pub use suika_server::error::HttpError;
 }
 
 pub mod middleware {
