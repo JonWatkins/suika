@@ -51,7 +51,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/todo", |req, res| {
+    main_router.add_route(Some("GET"), "/todo_json", |req, res| {
         Box::pin(async move {
             if let Some(store) = req.module::<TodoStore>("todo_store") {
                 let todos = store.to_json();
@@ -202,17 +202,72 @@ fn main() {
         })
     });
 
-    let mut user_router = Router::new("/users");
+    let mut ui_router = Router::new("/ui");
 
-    user_router.add_route(Some("POST"), r"/?$", |_req, res| {
+    ui_router.add_route(Some("GET"), r"/?$", |_req, res| {
         Box::pin(async move {
-            res.set_status(201).await;
-            res.body("New user created!".to_string()).await;
+            let context = HashMap::new();
+            res.set_status(200).await;
+            res.render_template("ui.html", &context).await?;
             Ok(())
         })
     });
 
-    main_router.mount(user_router);
+    ui_router.add_route(Some("GET"), "/todos", |req, res| {
+        Box::pin(async move {
+            let mut context = HashMap::new();
+
+            if let Some(store) = req.module::<TodoStore>("todo_store") {
+                let todos = store.get_todos();
+
+                context.insert(
+                    "todos".to_string(),
+                    TemplateValue::Array(
+                        todos
+                            .iter()
+                            .map(|todo| {
+                                let mut todo_map = HashMap::new();
+                                todo_map.insert(
+                                    "id".to_string(),
+                                    TemplateValue::String(todo.id.to_string()),
+                                );
+                                todo_map.insert(
+                                    "title".to_string(),
+                                    TemplateValue::String(todo.title.clone()),
+                                );
+                                todo_map.insert(
+                                    "slug".to_string(),
+                                    TemplateValue::String(todo.slug.clone()),
+                                );
+                                todo_map.insert(
+                                    "content".to_string(),
+                                    TemplateValue::String(todo.content.clone()),
+                                );
+                                TemplateValue::Object(todo_map)
+                            })
+                            .collect(),
+                    ),
+                );                
+
+                res.set_status(200).await;
+                res.header("Content-Type", "text/html").await;
+                res.render_template("ui_todos.html", &context).await?;
+            } else {
+                res.set_status(404).await;
+                res.body("No todos found".to_string()).await;
+            }
+
+            Ok(())
+        })
+    });
+
+    ui_router.add_route(Some("POST"), "/add_post", move |req, res| {
+        Box::pin(async move {
+            Ok(())
+        })
+    });
+
+    main_router.mount(ui_router);
 
     server.use_middleware(Arc::new(CorsMiddleware));
     server.use_middleware(Arc::new(LoggerMiddleware));

@@ -50,6 +50,11 @@ impl TodoStore {
         todo
     }
 
+    pub fn get_todos(&self) -> Vec<Todo> {
+        let todos = self.todos.read().unwrap();
+        todos.clone()
+    }
+
     pub fn to_json(&self) -> JsonValue {
         let todos = self.todos.read().unwrap();
         JsonValue::Array(todos.iter().map(|todo| todo.to_json()).collect())

@@ -1,0 +1,31 @@
+<html>
+<body>
+  
+  <button data-sx-get="/ui/todos" data-sx-target="#get-result" data-sx-trigger="click">
+    Fetch Data (GET)
+  </button>
+
+  <div id="get-result">Click the button to fetch data via GET request.</div>
+  
+  <form data-sx-post="https://jsonplaceholder.typicode.com/posts" data-sx-target="#post-result" data-sx-trigger="submit">
+      <input type="text" name="title" placeholder="Title" required>
+      <input type="text" name="body" placeholder="Body" required>
+      <input type="hidden" name="userId" value="1">
+      <button type="submit">Submit Data (POST)</button>
+  </form>
+  
+  <div id="post-result">Submit the form to send data via POST request.</div>
+
+  <script type="module">
+    import init from '/wasm/suika_ui.js';
+    async function loadWasm() {
+      try {
+        const wasm = await init('/wasm/suika_ui_bg.wasm');
+      } catch (error) {
+        console.error('Failed to load WebAssembly module:', error);
+      }
+    }
+    window.addEventListener('load', loadWasm);
+  </script>
+</body>
+</html>
