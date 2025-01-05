@@ -16,7 +16,7 @@ pub fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut router = Router::new("/");
 
-    router.add_route(Some("GET"), r"/?$", |_req, res| {
+    router.get(r"/?$", |_req, res| {
         Box::pin(async move {
             res.set_status(201).await;
             res.body("Hello World!".to_string()).await;

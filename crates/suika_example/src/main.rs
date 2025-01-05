@@ -42,7 +42,7 @@ fn main() {
     server.use_templates(template_engine);
     server.use_module("todo_store", todo_store);
 
-    main_router.add_route(Some("GET"), r"/$", |_req, res| {
+    main_router.get(r"/$", |_req, res| {
         Box::pin(async move {
             if let Err(e) = res.send_file("crates/suika_example/index.html").await {
                 res.error(e).await;
@@ -51,7 +51,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/todo_json", |req, res| {
+    main_router.get("/todo_json", |req, res| {
         Box::pin(async move {
             if let Some(store) = req.module::<TodoStore>("todo_store") {
                 let todos = store.to_json();
@@ -66,7 +66,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "json", |_req, res| {
+    main_router.get("json", |_req, res| {
         Box::pin(async move {
             let json = JsonValue::Object(vec![
                 (
@@ -102,7 +102,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/hello", |_req, res| {
+    main_router.get("/hello", |_req, res| {
         Box::pin(async move {
             let mut context = HashMap::new();
 
@@ -118,7 +118,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/include", |_req, res| {
+    main_router.get("/include", |_req, res| {
         Box::pin(async move {
             let mut context = HashMap::new();
 
@@ -134,7 +134,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/conditional", |_req, res| {
+    main_router.get("/conditional", |_req, res| {
         Box::pin(async move {
             let mut context = HashMap::new();
 
@@ -148,7 +148,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/loop", |_req, res| {
+    main_router.get("/loop", |_req, res| {
         Box::pin(async move {
             let mut context = HashMap::new();
 
@@ -168,7 +168,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), "/user", |_req, res| {
+    main_router.get("/user", |_req, res| {
         Box::pin(async move {
             let mut user = HashMap::new();
 
@@ -192,7 +192,7 @@ fn main() {
         })
     });
 
-    main_router.add_route(Some("GET"), r"/items/(?P<id>\d+)$", |req, res| {
+    main_router.get(r"/items/(?P<id>\d+)$", |req, res| {
         Box::pin(async move {
             res.set_status(200).await;
             let item_id = req.param("id").map(|s| s.to_string()).unwrap_or_default();
@@ -204,7 +204,7 @@ fn main() {
 
     let mut ui_router = Router::new("/ui");
 
-    ui_router.add_route(Some("GET"), r"/?$", |_req, res| {
+    ui_router.get(r"/?$", |_req, res| {
         Box::pin(async move {
             let context = HashMap::new();
             res.set_status(200).await;
@@ -213,7 +213,7 @@ fn main() {
         })
     });
 
-    ui_router.add_route(Some("GET"), "/todos", |req, res| {
+    ui_router.get("/todos", |req, res| {
         Box::pin(async move {
             let mut context = HashMap::new();
 
@@ -261,7 +261,7 @@ fn main() {
         })
     });
 
-    ui_router.add_route(Some("POST"), "/add_post", move |_req, _res| {
+    ui_router.post("/add_post", move |_req, _res| {
         Box::pin(async move {
             Ok(())
         })

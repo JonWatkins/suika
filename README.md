@@ -51,7 +51,7 @@ pub fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut router = Router::new("/");
 
-    router.add_route(Some("GET"), "/", |_req, res| {
+    router.get("/", |_req, res| {
         Box::pin(async move {
             res.set_status(200).await;
             res.body("Hello World".to_string()).await;
@@ -89,7 +89,7 @@ pub fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut router = Router::new("/");
 
-    router.add_route(Some("POST"), "/json", |req, res| {
+    router.post("/json", |req, res| {
         Box::pin(async move {
             if let Some(json_body) = req.json_body() {
                 let response_message = format!("Data received: {:?}\n", json_body);
@@ -103,7 +103,7 @@ pub fn main() {
         })
     });
 
-    router.add_route(Some("POST"), "/form", |req, res| {
+    router.post("/form", |req, res| {
         Box::pin(async move {
             if let Some(form_data) = req.form_data() {
                 let response_message = format!("Form Data received: {:?}\n", form_data);
@@ -132,7 +132,7 @@ pub fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut router = Router::new("/");
 
-    router.add_route(Some("GET"), "/", |_req, res| {
+    router.get("/", |_req, res| {
         Box::pin(async move {
             if let Err(e) = res.send_file("index.html").await {
                 res.error(e).await;
@@ -163,7 +163,7 @@ pub fn main() {
     let mut server = Server::new("127.0.0.1:8080");
     let mut router = Router::new("/");
 
-    router.add_route(Some("GET"), "/", |_req, res| {
+    router.get("/", |_req, res| {
         Box::pin(async move {
             res.set_status(200).await;
             res.body("Hello World".to_string()).await;
@@ -216,7 +216,7 @@ pub fn main() {
 
     server.use_templates(template_engine);
 
-    router.add_route(Some("GET"), "/", move |_req, res| {
+    router.get("/", move |_req, res| {
         Box::pin(async move {
             let mut context = HashMap::new();
 
