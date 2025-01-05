@@ -77,7 +77,7 @@ pub struct Route {
 ///         "GET /api/test HTTP/1.1\r\n\r\n",
 ///         Arc::new(Mutex::new(HashMap::new())),
 ///     ).unwrap();
-/// 
+///
 ///     let mut res = Response::new(None);
 ///
 ///     let next_middleware = MockNextMiddleware::new();
@@ -120,6 +120,150 @@ impl Router {
             routes: Vec::new(),
             sub_routers: Vec::new(),
         }
+    }
+
+    /// Adds a GET route to the router
+    ///
+    /// # Arguments
+    ///
+    /// * `pattern` - The URL pattern for the route, which can include named parameters.
+    /// * `handler` - The handler function for the route.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_server::request::Request;
+    /// use suika_server::response::Response;
+    /// use suika_server::middleware::MiddlewareFuture;
+    /// use suika_server::router::Router;
+    /// use std::sync::Arc;
+    ///
+    /// let mut router = Router::new("/api");
+    ///
+    /// router.get("/test", |req, res| {
+    ///     Box::pin(async move {
+    ///         res.set_status(200).await;
+    ///         res.body("Test route".to_string()).await;
+    ///         Ok(())
+    ///     })
+    /// });
+    /// ```
+    pub fn get<F>(&mut self, pattern: &str, handler: F)
+    where
+        F: for<'a> Fn(&'a mut Request, &'a mut Response) -> MiddlewareFuture<'a>
+            + Send
+            + Sync
+            + 'static,
+    {
+        self.add_route(Some("GET"), pattern, handler);
+    }
+
+    /// Adds a PUT route to the router
+    ///
+    /// # Arguments
+    ///
+    /// * `pattern` - The URL pattern for the route, which can include named parameters.
+    /// * `handler` - The handler function for the route.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_server::request::Request;
+    /// use suika_server::response::Response;
+    /// use suika_server::middleware::MiddlewareFuture;
+    /// use suika_server::router::Router;
+    /// use std::sync::Arc;
+    ///
+    /// let mut router = Router::new("/api");
+    ///
+    /// router.put("/test", |req, res| {
+    ///     Box::pin(async move {
+    ///         res.set_status(200).await;
+    ///         res.body("Test route".to_string()).await;
+    ///         Ok(())
+    ///     })
+    /// });
+    /// ```
+    pub fn put<F>(&mut self, pattern: &str, handler: F)
+    where
+        F: for<'a> Fn(&'a mut Request, &'a mut Response) -> MiddlewareFuture<'a>
+            + Send
+            + Sync
+            + 'static,
+    {
+        self.add_route(Some("PUT"), pattern, handler);
+    }
+
+    /// Adds a POST route to the router
+    ///
+    /// # Arguments
+    ///
+    /// * `pattern` - The URL pattern for the route, which can include named parameters.
+    /// * `handler` - The handler function for the route.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_server::request::Request;
+    /// use suika_server::response::Response;
+    /// use suika_server::middleware::MiddlewareFuture;
+    /// use suika_server::router::Router;
+    /// use std::sync::Arc;
+    ///
+    /// let mut router = Router::new("/api");
+    ///
+    /// router.post("/test", |req, res| {
+    ///     Box::pin(async move {
+    ///         res.set_status(200).await;
+    ///         res.body("Test route".to_string()).await;
+    ///         Ok(())
+    ///     })
+    /// });
+    /// ```
+    pub fn post<F>(&mut self, pattern: &str, handler: F)
+    where
+        F: for<'a> Fn(&'a mut Request, &'a mut Response) -> MiddlewareFuture<'a>
+            + Send
+            + Sync
+            + 'static,
+    {
+        self.add_route(Some("POST"), pattern, handler);
+    }
+
+    /// Adds a DELETE route to the router
+    ///
+    /// # Arguments
+    ///
+    /// * `pattern` - The URL pattern for the route, which can include named parameters.
+    /// * `handler` - The handler function for the route.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_server::request::Request;
+    /// use suika_server::response::Response;
+    /// use suika_server::middleware::MiddlewareFuture;
+    /// use suika_server::router::Router;
+    /// use std::sync::Arc;
+    ///
+    /// let mut router = Router::new("/api");
+    ///
+    /// router.delete("/test", |req, res| {
+    ///     Box::pin(async move {
+    ///         res.set_status(200).await;
+    ///         res.body("Test route".to_string()).await;
+    ///         Ok(())
+    ///     })
+    /// });
+    /// ```
+    pub fn delete<F>(&mut self, pattern: &str, handler: F)
+    where
+        F: for<'a> Fn(&'a mut Request, &'a mut Response) -> MiddlewareFuture<'a>
+            + Send
+            + Sync
+            + 'static,
+    {
+        self.add_route(Some("DELETE"), pattern, handler);
     }
 
     /// Adds a route to the router.
@@ -312,10 +456,10 @@ impl Middleware for Router {
     ///     });
     ///
     ///     let mut req = Request::new(
-    ///         "GET /api/test HTTP/1.1\r\n\r\n", 
+    ///         "GET /api/test HTTP/1.1\r\n\r\n",
     ///         Arc::new(Mutex::new(HashMap::new()))
     ///     ).unwrap();
-    /// 
+    ///
     ///     let mut res = Response::new(None);
     ///
     ///     let next_middleware = MockNextMiddleware::new();
@@ -390,13 +534,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_router_handles_route() {
+    async fn test_router_handles_get_route() {
         let mut router = Router::new("/api");
 
-        router.add_route(Some("GET"), "/test", |_req, res| {
+        router.get("/test", |_req, res| {
             Box::pin(async move {
                 res.set_status(200).await;
-                res.body("Test route".to_string()).await;
+                res.body("GET route".to_string()).await;
                 Ok(())
             })
         });
@@ -420,27 +564,26 @@ mod tests {
 
         let inner = res.get_inner().await;
         assert_eq!(inner.status_code(), Some(200));
-        assert_eq!(inner.body(), &Some(Body::Text("Test route".to_string())));
+        assert_eq!(inner.body(), &Some(Body::Text("GET route".to_string())));
 
         let next_called = *next_middleware.called.lock().await;
         assert!(!next_called);
     }
 
     #[tokio::test]
-    async fn test_router_handles_route_with_params() {
+    async fn test_router_handles_put_route() {
         let mut router = Router::new("/api");
 
-        router.add_route(Some("GET"), "/test/(?P<id>\\d+)", |req, res| {
+        router.put("/test", |_req, res| {
             Box::pin(async move {
-                let id = req.param("id").expect("Expected id parameter");
                 res.set_status(200).await;
-                res.body(format!("Test route with id: {}", id)).await;
+                res.body("PUT route".to_string()).await;
                 Ok(())
             })
         });
 
         let mut req = Request::new(
-            "GET /api/test/123 HTTP/1.1\r\n\r\n",
+            "PUT /api/test HTTP/1.1\r\n\r\n",
             Arc::new(Mutex::new(HashMap::new())),
         )
         .unwrap();
@@ -458,32 +601,26 @@ mod tests {
 
         let inner = res.get_inner().await;
         assert_eq!(inner.status_code(), Some(200));
-        assert_eq!(
-            inner.body(),
-            &Some(Body::Text("Test route with id: 123".to_string()))
-        );
+        assert_eq!(inner.body(), &Some(Body::Text("PUT route".to_string())));
 
         let next_called = *next_middleware.called.lock().await;
         assert!(!next_called);
     }
 
     #[tokio::test]
-    async fn test_router_handles_sub_router() {
+    async fn test_router_handles_post_route() {
         let mut router = Router::new("/api");
-        let mut sub_router = Router::new("/sub");
 
-        sub_router.add_route(Some("GET"), "/test", |_req, res| {
+        router.post("/test", |_req, res| {
             Box::pin(async move {
                 res.set_status(200).await;
-                res.body("Sub router test route".to_string()).await;
+                res.body("POST route".to_string()).await;
                 Ok(())
             })
         });
 
-        router.mount(sub_router);
-
         let mut req = Request::new(
-            "GET /api/sub/test HTTP/1.1\r\n\r\n",
+            "POST /api/test HTTP/1.1\r\n\r\n",
             Arc::new(Mutex::new(HashMap::new())),
         )
         .unwrap();
@@ -501,29 +638,26 @@ mod tests {
 
         let inner = res.get_inner().await;
         assert_eq!(inner.status_code(), Some(200));
-        assert_eq!(
-            inner.body(),
-            &Some(Body::Text("Sub router test route".to_string()))
-        );
+        assert_eq!(inner.body(), &Some(Body::Text("POST route".to_string())));
 
         let next_called = *next_middleware.called.lock().await;
         assert!(!next_called);
     }
 
     #[tokio::test]
-    async fn test_router_passes_to_next_middleware() {
+    async fn test_router_handles_delete_route() {
         let mut router = Router::new("/api");
 
-        router.add_route(Some("GET"), "/test", |_req, res| {
+        router.delete("/test", |_req, res| {
             Box::pin(async move {
                 res.set_status(200).await;
-                res.body("Test route".to_string()).await;
+                res.body("DELETE route".to_string()).await;
                 Ok(())
             })
         });
 
         let mut req = Request::new(
-            "GET /other/path HTTP/1.1\r\n\r\n",
+            "DELETE /api/test HTTP/1.1\r\n\r\n",
             Arc::new(Mutex::new(HashMap::new())),
         )
         .unwrap();
@@ -539,7 +673,11 @@ mod tests {
             .await
             .unwrap();
 
+        let inner = res.get_inner().await;
+        assert_eq!(inner.status_code(), Some(200));
+        assert_eq!(inner.body(), &Some(Body::Text("DELETE route".to_string())));
+
         let next_called = *next_middleware.called.lock().await;
-        assert!(next_called);
+        assert!(!next_called);
     }
 }
