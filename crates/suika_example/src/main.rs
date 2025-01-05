@@ -261,7 +261,7 @@ fn main() {
         })
     });
 
-    ui_router.add_route(Some("POST"), "/add_post", move |req, res| {
+    ui_router.add_route(Some("POST"), "/add_post", move |_req, _res| {
         Box::pin(async move {
             Ok(())
         })

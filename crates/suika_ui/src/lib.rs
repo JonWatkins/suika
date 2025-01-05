@@ -63,6 +63,7 @@ pub fn main() -> Result<(), JsValue> {
 }
 
 // Define the SuikaUI struct
+#[allow(dead_code)]
 struct SuikaUI {
     window: Window,
     document: Document,

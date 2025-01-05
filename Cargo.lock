@@ -424,7 +424,7 @@ dependencies = [
 
 [[package]]
 name = "suika"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "suika_json",
  "suika_mime",
@@ -488,7 +488,7 @@ version = "0.1.1"
 
 [[package]]
 name = "suika_wasm"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "async-trait",
  "futures",
