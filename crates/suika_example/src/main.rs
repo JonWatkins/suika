@@ -1,10 +1,11 @@
 mod todos;
+mod user;
 
 use crate::todos::TodoStore;
+use crate::user::{Address, User};
 use std::sync::Arc;
 
 use suika::{
-    json::JsonValue,
     middleware::{
         CorsMiddleware, FaviconMiddleware, LoggerMiddleware, StaticFileMiddleware,
         WasmFileMiddleware,
@@ -67,35 +68,21 @@ fn main() {
 
     main_router.get("json", |_req, res| {
         Box::pin(async move {
-            let json = JsonValue::Object(vec![
-                (
-                    "name".to_string(),
-                    JsonValue::String("John Doe".to_string()),
-                ),
-                ("age".to_string(), JsonValue::Number(30.0)),
-                ("is_student".to_string(), JsonValue::Boolean(false)),
-                (
-                    "address".to_string(),
-                    JsonValue::Object(vec![
-                        (
-                            "street".to_string(),
-                            JsonValue::String("123 Main St".to_string()),
-                        ),
-                        ("city".to_string(), JsonValue::String("Anytown".to_string())),
-                        ("zip".to_string(), JsonValue::String("12345".to_string())),
-                    ]),
-                ),
-                (
-                    "courses".to_string(),
-                    JsonValue::Array(vec![
-                        JsonValue::String("Math".to_string()),
-                        JsonValue::String("Science".to_string()),
-                    ]),
-                ),
-            ]);
+            let user = User {
+                name: "John Doe".to_string(),
+                age: 30,
+                is_student: false,
+                email: None,
+                address: Some(Address {
+                    street: "123 Main St".to_string(),
+                    city: "Anytown".to_string(),
+                    zip: "12345".to_string(),
+                }),
+                courses: vec!["Math".to_string(), "Science".to_string()],
+            };
 
             res.set_status(200).await;
-            res.body_json(json).await;
+            res.body_json(user.into()).await;
 
             Ok(())
         })
@@ -151,23 +138,26 @@ fn main() {
         })
     });
 
-    // main_router.get("/user", |_req, res| {
-    //     Box::pin(async move {
-    //         let mut user = HashMap::new();
+    main_router.get("/user", |_req, res| {
+        Box::pin(async move {
+            let user = User {
+                name: "Alice".to_string(),
+                age: 30,
+                is_student: false,
+                email: Some("alice@example.com".to_string()),
+                address: None,
+                courses: vec![],
+            };
 
-    //         user.insert("name", "Alice");
-    //         user.insert("age", "30");
-    //         user.insert("email", "alice@example.com");
+            let mut context = Context::new();
+            context.insert("user", user);
 
-    //         let mut context = Context::new();
-    //         context.insert("user", JsonValue::Object(user));
+            res.set_status(200).await;
+            res.render_template("user.html", &context).await?;
 
-    //         res.set_status(200).await;
-    //         res.render_template("user.html", &context).await?;
-
-    //         Ok(())
-    //     })
-    // });
+            Ok(())
+        })
+    });
 
     main_router.get(r"/items/(?P<id>\d+)$", |req, res| {
         Box::pin(async move {
@@ -190,53 +180,24 @@ fn main() {
         })
     });
 
-    // ui_router.get("/todos", |req, res| {
-    //     Box::pin(async move {
-    //         let mut context = HashMap::new();
+    ui_router.get("/todos", |req, res| {
+        Box::pin(async move {
+            if let Some(store) = req.module::<TodoStore>("todo_store") {
+                let todos = store.to_json();
+                let mut context = Context::new();
+                context.insert("todos", todos);
 
-    //         if let Some(store) = req.module::<TodoStore>("todo_store") {
-    //             let todos = store.get_todos();
+                res.set_status(200).await;
+                res.header("Content-Type", "text/html").await;
+                res.render_template("ui_todos.html", &context).await?;
+            } else {
+                res.set_status(404).await;
+                res.body("No todos found".to_string()).await;
+            }
 
-    //             context.insert(
-    //                 "todos".to_string(),
-    //                 TemplateValue::Array(
-    //                     todos
-    //                         .iter()
-    //                         .map(|todo| {
-    //                             let mut todo_map = HashMap::new();
-    //                             todo_map.insert(
-    //                                 "id".to_string(),
-    //                                 TemplateValue::String(todo.id.to_string()),
-    //                             );
-    //                             todo_map.insert(
-    //                                 "title".to_string(),
-    //                                 TemplateValue::String(todo.title.clone()),
-    //                             );
-    //                             todo_map.insert(
-    //                                 "slug".to_string(),
-    //                                 TemplateValue::String(todo.slug.clone()),
-    //                             );
-    //                             todo_map.insert(
-    //                                 "content".to_string(),
-    //                                 TemplateValue::String(todo.content.clone()),
-    //                             );
-    //                             TemplateValue::Object(todo_map)
-    //                         })
-    //                         .collect(),
-    //                 ),
-    //             );
-
-    //             res.set_status(200).await;
-    //             res.header("Content-Type", "text/html").await;
-    //             res.render_template("ui_todos.html", &context).await?;
-    //         } else {
-    //             res.set_status(404).await;
-    //             res.body("No todos found".to_string()).await;
-    //         }
-
-    //         Ok(())
-    //     })
-    // });
+            Ok(())
+        })
+    });
 
     ui_router.post("/add_post", move |_req, _res| {
         Box::pin(async move { Ok(()) })

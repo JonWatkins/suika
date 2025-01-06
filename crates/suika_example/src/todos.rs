@@ -9,13 +9,13 @@ pub struct Todo {
     pub content: String,
 }
 
-impl Todo {
-    pub fn to_json(&self) -> JsonValue {
+impl Into<JsonValue> for Todo {
+    fn into(self) -> JsonValue {
         JsonValue::Object(vec![
             ("id".to_string(), JsonValue::Number(self.id as f64)),
-            ("title".to_string(), JsonValue::String(self.title.clone())),
-            ("slug".to_string(), JsonValue::String(self.slug.clone())),
-            ("content".to_string(), JsonValue::String(self.content.clone())),
+            ("title".to_string(), JsonValue::String(self.title)),
+            ("slug".to_string(), JsonValue::String(self.slug)),
+            ("content".to_string(), JsonValue::String(self.content)),
         ])
     }
 }
@@ -33,15 +33,16 @@ impl TodoStore {
         }
     }
 
-    pub fn add_todo(&self, title: String, content: String) -> Todo {
+    pub fn add_todo<T: Into<String>, U: Into<String>>(&self, title: T, content: U) -> Todo {
         let mut todos = self.todos.write().unwrap();
         let mut next_id = self.next_id.write().unwrap();
 
+        let title: String = title.into();
         let todo = Todo {
             id: *next_id,
             title: title.clone(),
             slug: Self::generate_slug(&title),
-            content,
+            content: content.into(),
         };
 
         todos.push(todo.clone());
@@ -50,14 +51,9 @@ impl TodoStore {
         todo
     }
 
-    pub fn get_todos(&self) -> Vec<Todo> {
-        let todos = self.todos.read().unwrap();
-        todos.clone()
-    }
-
     pub fn to_json(&self) -> JsonValue {
         let todos = self.todos.read().unwrap();
-        JsonValue::Array(todos.iter().map(|todo| todo.to_json()).collect())
+        JsonValue::Array(todos.iter().map(|todo| todo.clone().into()).collect())
     }
 
     fn generate_slug(title: &str) -> String {
