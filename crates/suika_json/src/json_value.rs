@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fmt;
 
 /// Represents a JSON value (object, array, string, number, boolean, or null).
@@ -116,6 +117,48 @@ impl fmt::Display for JsonValue {
     }
 }
 
+impl From<String> for JsonValue {
+    fn from(value: String) -> Self {
+        JsonValue::String(value)
+    }
+}
+
+impl From<&str> for JsonValue {
+    fn from(value: &str) -> Self {
+        JsonValue::String(value.to_string())
+    }
+}
+
+impl From<f64> for JsonValue {
+    fn from(value: f64) -> Self {
+        JsonValue::Number(value)
+    }
+}
+
+impl From<i64> for JsonValue {
+    fn from(value: i64) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<bool> for JsonValue {
+    fn from(value: bool) -> Self {
+        JsonValue::Boolean(value)
+    }
+}
+
+impl<T: Into<JsonValue>> From<Vec<T>> for JsonValue {
+    fn from(value: Vec<T>) -> Self {
+        JsonValue::Array(value.into_iter().map(|item| item.into()).collect())
+    }
+}
+
+impl From<HashMap<String, JsonValue>> for JsonValue {
+    fn from(value: HashMap<String, JsonValue>) -> Self {
+        JsonValue::Object(value.into_iter().collect())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -180,5 +223,60 @@ mod tests {
         // Test empty array
         let empty_array = JsonValue::Array(vec![]);
         assert_eq!(empty_array.to_string(), "[]");
+    }
+
+    #[test]
+    fn test_from_string() {
+        let json = JsonValue::from("hello");
+        assert_eq!(json, JsonValue::String("hello".to_string()));
+    }
+
+    #[test]
+    fn test_from_i64() {
+        let json = JsonValue::from(42i64);
+        assert_eq!(json, JsonValue::Number(42.0));
+    }
+
+    #[test]
+    fn test_from_f64() {
+        let json = JsonValue::from(42.0f64);
+        assert_eq!(json, JsonValue::Number(42.0));
+    }
+
+    #[test]
+    fn test_from_bool() {
+        let json = JsonValue::from(true);
+        assert_eq!(json, JsonValue::Boolean(true));
+    }
+
+    #[test]
+    fn test_from_vec() {
+        let json = JsonValue::from(vec!["One", "Two", "Three"]);
+        assert_eq!(
+            json,
+            JsonValue::Array(vec![
+                JsonValue::String("One".to_string()),
+                JsonValue::String("Two".to_string()),
+                JsonValue::String("Three".to_string())
+            ])
+        );
+    }
+
+    #[test]
+    fn test_from_hashmap() {
+        let mut map = HashMap::new();
+        map.insert("key1".to_string(), JsonValue::String("value1".to_string()));
+        map.insert("key2".to_string(), JsonValue::Number(42.0));
+
+        let json = JsonValue::from(map);
+
+        if let JsonValue::Object(obj) = json {
+            let mut obj_map: HashMap<String, JsonValue> = obj.into_iter().collect();
+            assert_eq!(obj_map.remove("key1"), Some(JsonValue::String("value1".to_string())));
+            assert_eq!(obj_map.remove("key2"), Some(JsonValue::Number(42.0)));
+            assert!(obj_map.is_empty());
+        } else {
+            panic!("Expected JsonValue::Object");
+        }
     }
 }

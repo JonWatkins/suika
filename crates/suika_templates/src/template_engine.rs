@@ -3,10 +3,13 @@
 //! The `TemplateEngine` struct provides methods to manage and render templates with
 //! various directives and context values.
 
-use super::{TemplateParser, TemplateToken, TemplateValue};
+use crate::context::Context;
+use crate::TemplateParser;
+use crate::TemplateToken;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use suika_json::JsonValue;
 use suika_utils::minify_html;
 
 #[derive(Debug, Clone)]
@@ -114,7 +117,7 @@ impl TemplateEngine {
     /// # Arguments
     ///
     /// * `name` - The name of the template to render.
-    /// * `context` - A `HashMap` containing the context values to use in the template.
+    /// * `context` - A `Context` containing the context values to use in the template.
     ///
     /// # Errors
     ///
@@ -124,23 +127,18 @@ impl TemplateEngine {
     ///
     /// ```
     /// use suika_templates::template_engine::TemplateEngine;
-    /// use suika_templates::template_value::TemplateValue;
-    /// use std::collections::HashMap;
+    /// use suika_templates::context::Context;
     ///
     /// let mut engine = TemplateEngine::new();
     /// engine.add_template("hello", "Hello, <%= name %>!");
     ///
-    /// let mut context = HashMap::new();
-    /// context.insert("name".to_string(), TemplateValue::String("World".to_string()));
+    /// let mut context = Context::new();
+    /// context.insert("name", "World");
     ///
     /// let result = engine.render("hello", &context).expect("Failed to render template");
     /// assert_eq!(result, "Hello, World!");
     /// ```
-    pub fn render(
-        &self,
-        name: &str,
-        context: &HashMap<String, TemplateValue>,
-    ) -> Result<String, String> {
+    pub fn render(&self, name: &str, context: &Context) -> Result<String, String> {
         let template = self
             .templates
             .get(name)
@@ -217,7 +215,7 @@ impl TemplateEngine {
     fn process_tokens(
         &self,
         tokens: &[TemplateToken],
-        context: &HashMap<String, TemplateValue>,
+        context: &Context,
     ) -> Result<String, String> {
         let mut output = String::new();
         let mut i = 0;
@@ -250,7 +248,7 @@ impl TemplateEngine {
     fn process_variable(
         &self,
         name: &str,
-        context: &HashMap<String, TemplateValue>,
+        context: &Context,
         output: &mut String,
     ) -> Result<(), String> {
         if let Some(value) = self.resolve_variable(name, context) {
@@ -259,11 +257,46 @@ impl TemplateEngine {
         Ok(())
     }
 
+    fn resolve_variable(&self, name: &str, context: &Context) -> Option<String> {
+        let parts: Vec<&str> = name.split('.').collect();
+        let mut current_value = context.get(parts[0])?;
+
+        for part in &parts[1..] {
+            match current_value {
+                JsonValue::Object(map) => {
+                    current_value = &map.iter().find(|(k, _)| k == part)?.1;
+                }
+                _ => return None,
+            }
+        }
+
+        match current_value {
+            JsonValue::String(s) => Some(s.clone()),
+            JsonValue::Boolean(b) => Some(b.to_string()),
+            JsonValue::Array(arr) => Some(format!(
+                "[{}]",
+                arr.iter()
+                    .map(|v| v.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+            JsonValue::Object(obj) => Some(format!(
+                "{{{}}}",
+                obj.iter()
+                    .map(|(k, v)| format!("{}: {}", k, v))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+            JsonValue::Number(n) => Some(n.to_string()),
+            JsonValue::Null => Some("null".to_string()),
+        }
+    }
+
     fn process_if(
         &self,
         condition: &str,
         tokens: &[TemplateToken],
-        context: &HashMap<String, TemplateValue>,
+        context: &Context,
         output: &mut String,
         mut i: usize,
     ) -> Result<usize, String> {
@@ -285,7 +318,7 @@ impl TemplateEngine {
             }
             i += 1;
         }
-        if let Some(TemplateValue::Boolean(true)) = context.get(condition) {
+        if let Some(JsonValue::Boolean(true)) = context.get(condition) {
             output.push_str(&self.process_tokens(&if_tokens, context)?);
         } else {
             output.push_str(&self.process_tokens(&else_tokens, context)?);
@@ -298,11 +331,11 @@ impl TemplateEngine {
         var: &str,
         array: &str,
         tokens: &[TemplateToken],
-        context: &HashMap<String, TemplateValue>,
+        context: &Context,
         output: &mut String,
         mut i: usize,
     ) -> Result<usize, String> {
-        if let Some(TemplateValue::Array(values)) = context.get(array) {
+        if let Some(JsonValue::Array(values)) = context.get(array) {
             let mut for_tokens = Vec::new();
             i += 1;
             while i < tokens.len() {
@@ -314,7 +347,7 @@ impl TemplateEngine {
             }
             for value in values {
                 let mut loop_context = context.clone();
-                loop_context.insert(var.to_string(), value.clone());
+                loop_context.insert(var, value.clone());
                 output.push_str(&self.process_tokens(&for_tokens, &loop_context)?);
             }
         } else {
@@ -331,49 +364,12 @@ impl TemplateEngine {
     fn process_include(
         &self,
         template_name: &str,
-        context: &HashMap<String, TemplateValue>,
+        context: &Context,
         output: &mut String,
     ) -> Result<(), String> {
         let include_tokens = self.get_template_tokens(template_name)?;
         output.push_str(&self.process_tokens(&include_tokens, context)?);
         Ok(())
-    }
-
-    fn resolve_variable(
-        &self,
-        name: &str,
-        context: &HashMap<String, TemplateValue>,
-    ) -> Option<String> {
-        let parts: Vec<&str> = name.split('.').collect();
-        let mut current_value = context.get(parts[0])?;
-
-        for part in &parts[1..] {
-            match current_value {
-                TemplateValue::Object(map) => {
-                    current_value = map.get(*part)?;
-                }
-                _ => return None,
-            }
-        }
-
-        match current_value {
-            TemplateValue::String(s) => Some(s.clone()),
-            TemplateValue::Boolean(b) => Some(b.to_string()),
-            TemplateValue::Array(arr) => Some(format!(
-                "[{}]",
-                arr.iter()
-                    .map(|v| v.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
-            )),
-            TemplateValue::Object(obj) => Some(format!(
-                "{{{}}}",
-                obj.iter()
-                    .map(|(k, v)| format!("{}: {}", k, v))
-                    .collect::<Vec<String>>()
-                    .join(", ")
-            )),
-        }
     }
 }
 
@@ -384,18 +380,47 @@ mod tests {
     use std::fs::{self, File};
     use std::io::Write;
 
+    #[derive(Debug, Clone)]
+    struct Product {
+        name: String,
+    }
+
+    impl From<Product> for JsonValue {
+        fn from(product: Product) -> Self {
+            JsonValue::Object(vec![("name".to_string(), JsonValue::String(product.name))])
+        }
+    }
+
     #[test]
     fn test_render_variable() {
         let mut engine = TemplateEngine::new();
         engine.add_template("hello", "Hello, <%= name %>!");
 
-        let mut context = HashMap::new();
-        context.insert("name".to_string(), TemplateValue::String("World".to_string()));
+        let mut context = Context::new();
+        context.insert("name", "World");
 
         let result = engine
             .render("hello", &context)
             .expect("Failed to render template");
         assert_eq!(result, "Hello, World!");
+    }
+
+    #[test]
+    fn test_render_struct() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template("product", "Product: <%= product.name %>");
+
+        let product = Product {
+            name: "Widget".to_string(),
+        };
+
+        let mut context = Context::new();
+        context.insert("product", JsonValue::from(product));
+
+        let result = engine
+            .render("product", &context)
+            .expect("Failed to render template");
+        assert_eq!(result, "Product: Widget");
     }
 
     #[test]
@@ -406,9 +431,9 @@ mod tests {
             "<% if is_member %>Welcome, <%= name %>!<% endif %>",
         );
 
-        let mut context = HashMap::new();
-        context.insert("is_member".to_string(), TemplateValue::Boolean(true));
-        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
+        let mut context = Context::new();
+        context.insert("is_member", true);
+        context.insert("name", "Alice");
 
         let result = engine
             .render("conditional", &context)
@@ -424,9 +449,9 @@ mod tests {
             "<% if is_member %>Welcome, <%= name %>!<% endif %>",
         );
 
-        let mut context = HashMap::new();
-        context.insert("is_member".to_string(), TemplateValue::Boolean(false));
-        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
+        let mut context = Context::new();
+        context.insert("is_member", false);
+        context.insert("name", "Alice");
 
         let result = engine
             .render("conditional", &context)
@@ -442,9 +467,9 @@ mod tests {
             "<% if is_member %>Welcome, <%= name %>!<% else %>Please log in.<% endif %>",
         );
 
-        let mut context = HashMap::new();
-        context.insert("is_member".to_string(), TemplateValue::Boolean(true));
-        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
+        let mut context = Context::new();
+        context.insert("is_member", true);
+        context.insert("name", "Alice");
 
         let result = engine
             .render("conditional", &context)
@@ -460,9 +485,9 @@ mod tests {
             "<% if is_member %>Welcome, <%= name %>!<% else %>Please log in.<% endif %>",
         );
 
-        let mut context = HashMap::new();
-        context.insert("is_member".to_string(), TemplateValue::Boolean(false));
-        context.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
+        let mut context = Context::new();
+        context.insert("is_member", false);
+        context.insert("name", "Alice");
 
         let result = engine
             .render("conditional", &context)
@@ -475,15 +500,8 @@ mod tests {
         let mut engine = TemplateEngine::new();
         engine.add_template("loop", "<% for item in items %><%= item %> <% endfor %>");
 
-        let mut context = HashMap::new();
-        context.insert(
-            "items".to_string(),
-            TemplateValue::Array(vec![
-                TemplateValue::String("One".to_string()),
-                TemplateValue::String("Two".to_string()),
-                TemplateValue::String("Three".to_string()),
-            ]),
-        );
+        let mut context = Context::new();
+        context.insert("items", vec!["One", "Two", "Three"]);
 
         let result = engine
             .render("loop", &context)
@@ -504,7 +522,7 @@ mod tests {
         );
 
         let result = engine
-            .render("child.html", &HashMap::new())
+            .render("child.html", &Context::new())
             .expect("Failed to render template");
         assert_eq!(result, "Base content. Child content");
     }
@@ -516,7 +534,7 @@ mod tests {
         engine.add_template("page.html", "<% include header.html %> Page content");
 
         let result = engine
-            .render("page.html", &HashMap::new())
+            .render("page.html", &Context::new())
             .expect("Failed to render template");
         assert_eq!(result, "Header content Page content");
     }
@@ -545,12 +563,12 @@ mod tests {
             .expect("Failed to load templates");
 
         let result = engine
-            .render("template1.html", &HashMap::new())
+            .render("template1.html", &Context::new())
             .expect("Failed to render template");
         assert_eq!(result, "<html><body>Template 1</body></html>");
 
         let result = engine
-            .render("template2.html", &HashMap::new())
+            .render("template2.html", &Context::new())
             .expect("Failed to render template");
         assert_eq!(result, "<html><body>Template 2</body></html>");
 
@@ -585,10 +603,10 @@ mod tests {
         engine.add_template("greeting", "Hello, <%= user.name %>!");
 
         let mut user = HashMap::new();
-        user.insert("name".to_string(), TemplateValue::String("Alice".to_string()));
+        user.insert("name".to_string(), JsonValue::String("Alice".to_string()));
 
-        let mut context = HashMap::new();
-        context.insert("user".to_string(), TemplateValue::Object(user));
+        let mut context = Context::new();
+        context.insert("user", JsonValue::Object(user.into_iter().collect()));
 
         let result = engine
             .render("greeting", &context)
@@ -624,9 +642,9 @@ mod tests {
         "#,
         );
 
-        let mut context = HashMap::new();
-        context.insert("title".to_string(), TemplateValue::String("Test Page".to_string()));
-        context.insert("heading".to_string(), TemplateValue::String("Welcome!".to_string()));
+        let mut context = Context::new();
+        context.insert("title", "Test Page");
+        context.insert("heading", "Welcome!");
 
         let result = engine
             .render("script_test", &context)
@@ -667,18 +685,11 @@ mod tests {
         "#,
         );
 
-        let mut context = HashMap::new();
-        context.insert("title".to_string(), TemplateValue::String("Test Page with Loop".to_string()));
-        context.insert("heading".to_string(), TemplateValue::String("Welcome!".to_string()));
-        context.insert("is_enabled".to_string(), TemplateValue::Boolean(true));
-        context.insert(
-            "messages".to_string(),
-            TemplateValue::Array(vec![
-                TemplateValue::String("Message 1".to_string()),
-                TemplateValue::String("Message 2".to_string()),
-                TemplateValue::String("Message 3".to_string()),
-            ]),
-        );
+        let mut context = Context::new();
+        context.insert("title", "Test Page with Loop");
+        context.insert("heading", "Welcome!");
+        context.insert("is_enabled", true);
+        context.insert("messages", vec!["Message 1", "Message 2", "Message 3"]);
 
         let result = engine
             .render("script_loop_test", &context)

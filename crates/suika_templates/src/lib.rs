@@ -35,6 +35,7 @@
 //! println!("Rendered Template 2:\n{}", result);
 //! ```
 
+pub mod context;
 pub mod parser;
 pub mod template_engine;
 pub mod template_token;

@@ -6,6 +6,7 @@ use std::sync::Arc;
 use suika_json::JsonValue;
 use suika_mime::get_mime_type_from_path;
 use suika_templates::TemplateEngine;
+use suika_templates::context::Context;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::Mutex;
@@ -177,12 +178,12 @@ impl Response {
     pub async fn render_template(
         &self,
         template_name: &str,
-        context: &HashMap<String, suika_templates::template_value::TemplateValue>,
+        context: &Context,
     ) -> Result<(), HttpError> {
         let inner = self.inner.lock().await;
         if let Some(template_engine) = &inner.template_engine {
             let rendered = template_engine
-                .render(template_name, context)
+                .render(template_name, &context)
                 .map_err(|e| {
                     HttpError::InternalServerError(format!("Failed to render template: {}", e))
                 })?;
@@ -216,9 +217,8 @@ mod tests {
     use crate::error::HttpError;
     use std::pin::Pin;
     use std::sync::Arc;
-    use std::task::{Context, Poll};
+    use std::task::{Context as STDContext, Poll};
     use suika_templates::template_engine::TemplateEngine;
-    use suika_templates::template_value::TemplateValue;
     use tokio::io::{AsyncWrite, AsyncWriteExt};
     use tokio::sync::Mutex;
 
@@ -242,7 +242,7 @@ mod tests {
     impl AsyncWrite for MockStream {
         fn poll_write(
             self: Pin<&mut Self>,
-            _: &mut Context<'_>,
+            _: &mut STDContext<'_>,
             buf: &[u8],
         ) -> Poll<std::io::Result<usize>> {
             let mut data = futures::executor::block_on(self.data.lock());
@@ -250,11 +250,11 @@ mod tests {
             Poll::Ready(Ok(buf.len()))
         }
 
-        fn poll_flush(self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<std::io::Result<()>> {
+        fn poll_flush(self: Pin<&mut Self>, _: &mut STDContext<'_>) -> Poll<std::io::Result<()>> {
             Poll::Ready(Ok(()))
         }
 
-        fn poll_shutdown(self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<std::io::Result<()>> {
+        fn poll_shutdown(self: Pin<&mut Self>, _: &mut STDContext<'_>) -> Poll<std::io::Result<()>> {
             Poll::Ready(Ok(()))
         }
     }
@@ -378,11 +378,9 @@ mod tests {
 
         let template_engine = Arc::new(template_engine);
         let response = Response::new(Some(template_engine.clone()));
-        let mut context = HashMap::new();
-        context.insert(
-            "name".to_string(),
-            TemplateValue::String("World".to_string()),
-        );
+        let mut context = Context::new();
+
+        context.insert("name", "World");
 
         response
             .render_template("hello.html", &context)

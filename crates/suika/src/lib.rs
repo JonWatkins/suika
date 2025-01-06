@@ -17,7 +17,8 @@ pub mod utils {
 
 pub mod templates {
   pub use suika_templates::{
-      TemplateEngine, TemplateParser, TemplateToken, TemplateValue
+      TemplateEngine, TemplateParser, TemplateToken, TemplateValue,
+      context::Context
   };
 }
 

@@ -80,25 +80,32 @@ impl<'a> TemplateParser<'a> {
 
     fn next_token(&mut self) -> Result<Option<TemplateToken>, String> {
         match self.current_char {
-            Some('<') => {
-                self.next_char();
-                if self.current_char == Some('%') {
-                    self.next_char();
-                    self.parse_template_directive()
-                } else {
-                    self.parse_text('<')
-                }
-            }
-            Some(_) => self.parse_text(' '),
+            Some('<') => self.handle_opening_bracket(),
+            Some(_) => self.parse_text(),
             None => Ok(None),
         }
     }
 
-    fn parse_text(&mut self, initial_char: char) -> Result<Option<TemplateToken>, String> {
+    fn handle_opening_bracket(&mut self) -> Result<Option<TemplateToken>, String> {
+        self.next_char();
+        if self.current_char == Some('%') {
+            self.next_char();
+            self.parse_template_directive()
+        } else {
+            self.parse_text_with_initial('<')
+        }
+    }
+
+    fn parse_text(&mut self) -> Result<Option<TemplateToken>, String> {
+        self.parse_text_with_initial(' ')
+    }
+
+    fn parse_text_with_initial(&mut self, initial_char: char) -> Result<Option<TemplateToken>, String> {
         let mut text = String::new();
         if !initial_char.is_whitespace() {
             text.push(initial_char);
         }
+
         while let Some(c) = self.current_char {
             if c == '<' && self.chars.as_str().starts_with("%") {
                 break;
@@ -106,11 +113,13 @@ impl<'a> TemplateParser<'a> {
             text.push(c);
             self.next_char();
         }
+
         Ok(Some(TemplateToken::Text(text)))
     }
 
     fn parse_variable(&mut self) -> Result<Option<TemplateToken>, String> {
         let mut var_name = String::new();
+
         while let Some(c) = self.current_char {
             if c == '%' && self.chars.as_str().starts_with(">") {
                 self.next_char();
@@ -120,6 +129,7 @@ impl<'a> TemplateParser<'a> {
             var_name.push(c);
             self.next_char();
         }
+
         Err("Unexpected end of input in variable".to_string())
     }
 
@@ -136,50 +146,51 @@ impl<'a> TemplateParser<'a> {
 
     fn parse_directive(&mut self) -> Result<Option<TemplateToken>, String> {
         let mut directive = String::new();
+
         while let Some(c) = self.current_char {
             if c == '%' && self.chars.as_str().starts_with(">") {
                 self.next_char();
                 self.next_char();
-                directive = directive.trim().to_string();
-                if directive.starts_with("if ") {
-                    return Ok(Some(TemplateToken::If(directive[3..].to_string())));
-                } else if directive == "else" {
-                    return Ok(Some(TemplateToken::Else));
-                } else if directive == "endif" {
-                    return Ok(Some(TemplateToken::EndIf));
-                } else if directive.starts_with("for ") {
-                    let parts: Vec<&str> = directive[4..].split_whitespace().collect();
-                    if parts.len() == 3 && parts[1] == "in" {
-                        return Ok(Some(TemplateToken::For(
-                            parts[0].to_string(),
-                            parts[2].to_string(),
-                        )));
-                    }
-                    return Err(format!("Invalid for directive: {}", directive));
-                } else if directive == "endfor" {
-                    return Ok(Some(TemplateToken::EndFor));
-                } else if directive.starts_with("extend ") {
-                    return Ok(Some(TemplateToken::Extend(
-                        directive[7..].trim().to_string(),
-                    )));
-                } else if directive.starts_with("include ") {
-                    return Ok(Some(TemplateToken::Include(
-                        directive[8..].trim().to_string(),
-                    )));
-                } else if directive.starts_with("block ") {
-                    return Ok(Some(TemplateToken::Block(
-                        directive[6..].trim().to_string(),
-                    )));
-                } else if directive == "endblock" {
-                    return Ok(Some(TemplateToken::EndBlock));
-                } else {
-                    return Err(format!("Unknown directive: {}", directive));
-                }
+                return self.process_directive(directive.trim().to_string());
             }
             directive.push(c);
             self.next_char();
         }
+
         Err("Unexpected end of input in directive".to_string())
+    }
+
+    fn process_directive(&self, directive: String) -> Result<Option<TemplateToken>, String> {
+        if directive.starts_with("if ") {
+            Ok(Some(TemplateToken::If(directive[3..].to_string())))
+        } else if directive == "else" {
+            Ok(Some(TemplateToken::Else))
+        } else if directive == "endif" {
+            Ok(Some(TemplateToken::EndIf))
+        } else if directive.starts_with("for ") {
+            self.parse_for_directive(directive)
+        } else if directive == "endfor" {
+            Ok(Some(TemplateToken::EndFor))
+        } else if directive.starts_with("extend ") {
+            Ok(Some(TemplateToken::Extend(directive[7..].trim().to_string())))
+        } else if directive.starts_with("include ") {
+            Ok(Some(TemplateToken::Include(directive[8..].trim().to_string())))
+        } else if directive.starts_with("block ") {
+            Ok(Some(TemplateToken::Block(directive[6..].trim().to_string())))
+        } else if directive == "endblock" {
+            Ok(Some(TemplateToken::EndBlock))
+        } else {
+            Err(format!("Unknown directive: {}", directive))
+        }
+    }
+
+    fn parse_for_directive(&self, directive: String) -> Result<Option<TemplateToken>, String> {
+        let parts: Vec<&str> = directive[4..].split_whitespace().collect();
+        if parts.len() == 3 && parts[1] == "in" {
+            Ok(Some(TemplateToken::For(parts[0].to_string(), parts[2].to_string())))
+        } else {
+            Err(format!("Invalid for directive: {}", directive))
+        }
     }
 }
 

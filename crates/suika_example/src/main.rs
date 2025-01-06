@@ -1,7 +1,6 @@
 mod todos;
 
 use crate::todos::TodoStore;
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use suika::{
@@ -11,7 +10,7 @@ use suika::{
         WasmFileMiddleware,
     },
     server::{Router, Server},
-    templates::{TemplateEngine, TemplateValue},
+    templates::{Context, TemplateEngine},
 };
 
 fn main() {
@@ -104,12 +103,8 @@ fn main() {
 
     main_router.get("/hello", |_req, res| {
         Box::pin(async move {
-            let mut context = HashMap::new();
-
-            context.insert(
-                "name".to_string(),
-                TemplateValue::String("World".to_string()),
-            );
+            let mut context = Context::new();
+            context.insert("name", "World");
 
             res.set_status(200).await;
             res.render_template("hello.html", &context).await?;
@@ -120,12 +115,8 @@ fn main() {
 
     main_router.get("/include", |_req, res| {
         Box::pin(async move {
-            let mut context = HashMap::new();
-
-            context.insert(
-                "name".to_string(),
-                TemplateValue::String("World".to_string()),
-            );
+            let mut context = Context::new();
+            context.insert("name", "World");
 
             res.set_status(200).await;
             res.render_template("include.html", &context).await?;
@@ -136,10 +127,10 @@ fn main() {
 
     main_router.get("/conditional", |_req, res| {
         Box::pin(async move {
-            let mut context = HashMap::new();
+            let mut context = Context::new();
 
-            context.insert("is_member".to_string(), TemplateValue::Boolean(true));
-            context.insert("name".to_string(), TemplateValue::String("Bob".to_string()));
+            context.insert("is_member", true);
+            context.insert("name", "Bob");
 
             res.set_status(200).await;
             res.render_template("conditional.html", &context).await?;
@@ -150,16 +141,8 @@ fn main() {
 
     main_router.get("/loop", |_req, res| {
         Box::pin(async move {
-            let mut context = HashMap::new();
-
-            context.insert(
-                "items".to_string(),
-                TemplateValue::Array(vec![
-                    TemplateValue::String("One".to_string()),
-                    TemplateValue::String("Two".to_string()),
-                    TemplateValue::String("Three".to_string()),
-                ]),
-            );
+            let mut context = Context::new();
+            context.insert("items", vec!["One", "Two", "Three"]);
 
             res.set_status(200).await;
             res.render_template("loop.html", &context).await?;
@@ -168,29 +151,23 @@ fn main() {
         })
     });
 
-    main_router.get("/user", |_req, res| {
-        Box::pin(async move {
-            let mut user = HashMap::new();
+    // main_router.get("/user", |_req, res| {
+    //     Box::pin(async move {
+    //         let mut user = HashMap::new();
 
-            user.insert(
-                "name".to_string(),
-                TemplateValue::String("Alice".to_string()),
-            );
-            user.insert("age".to_string(), TemplateValue::String("30".to_string()));
-            user.insert(
-                "email".to_string(),
-                TemplateValue::String("alice@example.com".to_string()),
-            );
+    //         user.insert("name", "Alice");
+    //         user.insert("age", "30");
+    //         user.insert("email", "alice@example.com");
 
-            let mut context = HashMap::new();
-            context.insert("user".to_string(), TemplateValue::Object(user));
+    //         let mut context = Context::new();
+    //         context.insert("user", JsonValue::Object(user));
 
-            res.set_status(200).await;
-            res.render_template("user.html", &context).await?;
+    //         res.set_status(200).await;
+    //         res.render_template("user.html", &context).await?;
 
-            Ok(())
-        })
-    });
+    //         Ok(())
+    //     })
+    // });
 
     main_router.get(r"/items/(?P<id>\d+)$", |req, res| {
         Box::pin(async move {
@@ -206,65 +183,63 @@ fn main() {
 
     ui_router.get(r"/?$", |_req, res| {
         Box::pin(async move {
-            let context = HashMap::new();
+            let context = Context::new();
             res.set_status(200).await;
             res.render_template("ui.html", &context).await?;
             Ok(())
         })
     });
 
-    ui_router.get("/todos", |req, res| {
-        Box::pin(async move {
-            let mut context = HashMap::new();
+    // ui_router.get("/todos", |req, res| {
+    //     Box::pin(async move {
+    //         let mut context = HashMap::new();
 
-            if let Some(store) = req.module::<TodoStore>("todo_store") {
-                let todos = store.get_todos();
+    //         if let Some(store) = req.module::<TodoStore>("todo_store") {
+    //             let todos = store.get_todos();
 
-                context.insert(
-                    "todos".to_string(),
-                    TemplateValue::Array(
-                        todos
-                            .iter()
-                            .map(|todo| {
-                                let mut todo_map = HashMap::new();
-                                todo_map.insert(
-                                    "id".to_string(),
-                                    TemplateValue::String(todo.id.to_string()),
-                                );
-                                todo_map.insert(
-                                    "title".to_string(),
-                                    TemplateValue::String(todo.title.clone()),
-                                );
-                                todo_map.insert(
-                                    "slug".to_string(),
-                                    TemplateValue::String(todo.slug.clone()),
-                                );
-                                todo_map.insert(
-                                    "content".to_string(),
-                                    TemplateValue::String(todo.content.clone()),
-                                );
-                                TemplateValue::Object(todo_map)
-                            })
-                            .collect(),
-                    ),
-                );                
+    //             context.insert(
+    //                 "todos".to_string(),
+    //                 TemplateValue::Array(
+    //                     todos
+    //                         .iter()
+    //                         .map(|todo| {
+    //                             let mut todo_map = HashMap::new();
+    //                             todo_map.insert(
+    //                                 "id".to_string(),
+    //                                 TemplateValue::String(todo.id.to_string()),
+    //                             );
+    //                             todo_map.insert(
+    //                                 "title".to_string(),
+    //                                 TemplateValue::String(todo.title.clone()),
+    //                             );
+    //                             todo_map.insert(
+    //                                 "slug".to_string(),
+    //                                 TemplateValue::String(todo.slug.clone()),
+    //                             );
+    //                             todo_map.insert(
+    //                                 "content".to_string(),
+    //                                 TemplateValue::String(todo.content.clone()),
+    //                             );
+    //                             TemplateValue::Object(todo_map)
+    //                         })
+    //                         .collect(),
+    //                 ),
+    //             );
 
-                res.set_status(200).await;
-                res.header("Content-Type", "text/html").await;
-                res.render_template("ui_todos.html", &context).await?;
-            } else {
-                res.set_status(404).await;
-                res.body("No todos found".to_string()).await;
-            }
+    //             res.set_status(200).await;
+    //             res.header("Content-Type", "text/html").await;
+    //             res.render_template("ui_todos.html", &context).await?;
+    //         } else {
+    //             res.set_status(404).await;
+    //             res.body("No todos found".to_string()).await;
+    //         }
 
-            Ok(())
-        })
-    });
+    //         Ok(())
+    //     })
+    // });
 
     ui_router.post("/add_post", move |_req, _res| {
-        Box::pin(async move {
-            Ok(())
-        })
+        Box::pin(async move { Ok(()) })
     });
 
     main_router.mount(ui_router);
