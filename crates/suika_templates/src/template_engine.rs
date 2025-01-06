@@ -1,11 +1,7 @@
-//! # TemplateEngine
-//!
-//! The `TemplateEngine` struct provides methods to manage and render templates with
-//! various directives and context values.
-
 use crate::context::Context;
 use crate::TemplateParser;
 use crate::TemplateToken;
+use glob::glob;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -52,64 +48,81 @@ impl TemplateEngine {
         self.templates.insert(name.to_string(), content.to_string());
     }
 
-    /// Loads templates from the specified directory.
-    ///
-    /// # Arguments
-    ///
-    /// * `dir` - The path to the directory containing the templates.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the specified path is not a directory or if there is an issue reading the files.
-    ///
-    /// # Examples
-    ///
     /// ```
     /// use suika_templates::template_engine::TemplateEngine;
-    /// use std::fs::{self, File};
+    /// use suika_templates::context::Context;
+    /// use std::fs;
+    /// use std::fs::File;
     /// use std::io::Write;
     ///
-    /// // Create a temporary directory for testing
+    /// // Setup: Create a temporary directory and files for the test
     /// let temp_dir = "temp_templates";
-    /// fs::create_dir(temp_dir).expect("Failed to create temp directory");
+    /// let nested_dir = format!("{}/nested", temp_dir);
     ///
-    /// // Create temporary template files
+    /// fs::create_dir_all(&nested_dir).expect("Failed to create temp directory");
     /// let mut file = File::create(format!("{}/template1.html", temp_dir)).expect("Failed to create file");
     /// writeln!(file, "<html><body>Template 1</body></html>").expect("Failed to write to file");
-    ///
-    /// let mut file = File::create(format!("{}/template2.html", temp_dir)).expect("Failed to create file");
+    /// let mut file = File::create(format!("{}/template2.html", &nested_dir)).expect("Failed to create file");
     /// writeln!(file, "<html><body>Template 2</body></html>").expect("Failed to write to file");
     ///
-    /// // Load templates from the temporary directory
+    /// // Test: Load templates
     /// let mut engine = TemplateEngine::new();
-    /// engine.load_templates_from_directory(temp_dir).expect("Failed to load templates");
+    /// engine.load_templates("temp_templates/**/*.html").expect("Failed to load templates");
     ///
-    /// // Clean up temporary files
-    /// fs::remove_file(format!("{}/template1.html", temp_dir)).expect("Failed to remove file");
-    /// fs::remove_file(format!("{}/template2.html", temp_dir)).expect("Failed to remove file");
-    /// fs::remove_dir(temp_dir).expect("Failed to remove directory");
+    /// // Verify: Render templates and check results
+    /// let result = engine.render("template1.html", &Context::new()).expect("Failed to render template");
+    /// assert_eq!(result, "<html><body>Template 1</body></html>");
+    /// let result = engine.render("nested/template2.html", &Context::new()).expect("Failed to render template");
+    /// assert_eq!(result, "<html><body>Template 2</body></html>");
+    ///
+    /// // Teardown: Remove the temporary directory and files
+    /// fs::remove_dir_all(temp_dir).expect("Failed to remove temp directory");
     /// ```
-    pub fn load_templates_from_directory(&mut self, dir: &str) -> Result<(), String> {
-        let path = Path::new(dir);
-        if !path.is_dir() {
-            return Err(format!("{} is not a directory", dir));
+    pub fn load_templates(&mut self, pattern: &str) -> Result<(), String> {
+        let base_dir = Path::new(pattern)
+            .parent()
+            .and_then(Path::parent)
+            .ok_or("Invalid base directory in pattern")?;
+
+        if !base_dir.exists() {
+            return Err("Base directory does not exist".to_string());
         }
 
-        for entry in fs::read_dir(path).map_err(|e| e.to_string())? {
-            let entry = entry.map_err(|e| e.to_string())?;
-            let path = entry.path();
-            if path.is_file() {
-                if let Some(extension) = path.extension() {
-                    if extension == "html" {
-                        if let Some(template_name) = path.file_name().and_then(|n| n.to_str()) {
+        if !base_dir.is_dir() {
+            return Err("Base directory is not a directory".to_string());
+        }
+
+        for entry in glob(pattern).map_err(|e| e.to_string())? {
+            match entry {
+                Ok(path) => {
+                    if path.is_file() {
+                        if let Some(template_name) = self.construct_template_name(base_dir, &path) {
                             let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
-                            self.add_template(template_name, content.trim());
+                            self.add_template(&template_name, content.trim());
                         }
                     }
                 }
+                Err(e) => return Err(e.to_string()),
             }
         }
         Ok(())
+    }
+
+    /// Constructs a template name based on the file path, stripping the base directory.
+    ///
+    /// # Arguments
+    ///
+    /// * `base_dir` - The base directory to strip from the template path.
+    /// * `path` - The path of the template file.
+    ///
+    /// # Returns
+    ///
+    /// Returns a string with the constructed template name.
+    fn construct_template_name(&self, base_dir: &Path, path: &Path) -> Option<String> {
+        path.strip_prefix(base_dir)
+            .ok()?
+            .to_str()
+            .map(|s| s.to_string())
     }
 
     /// Renders a template with the given name and context.
@@ -380,6 +393,7 @@ mod tests {
     use std::fs::{self, File};
     use std::io::Write;
 
+    // Define a sample Product struct to test the rendering with structs
     #[derive(Debug, Clone)]
     struct Product {
         name: String,
@@ -541,47 +555,60 @@ mod tests {
 
     #[test]
     fn test_load_templates_from_directory() {
-        let temp_dir = "temp_templates";
+        let temp_dir = "crates/suika_example/templates";
 
         if std::path::Path::new(temp_dir).exists() {
             fs::remove_dir_all(temp_dir).expect("Failed to remove existing temp directory");
         }
 
-        fs::create_dir(temp_dir).expect("Failed to create temp directory");
+        fs::create_dir_all(format!("{}/ui", temp_dir)).expect("Failed to create temp directory");
 
         let mut file =
-            File::create(format!("{}/template1.html", temp_dir)).expect("Failed to create file");
-        writeln!(file, "<html><body>Template 1</body></html>").expect("Failed to write to file");
+            File::create(format!("{}/index.html", temp_dir)).expect("Failed to create file");
+        writeln!(file, "<html><body>Index Template</body></html>")
+            .expect("Failed to write to file");
 
         let mut file =
-            File::create(format!("{}/template2.html", temp_dir)).expect("Failed to create file");
-        writeln!(file, "<html><body>Template 2</body></html>").expect("Failed to write to file");
+            File::create(format!("{}/ui/index.html", temp_dir)).expect("Failed to create file");
+        writeln!(file, "<html><body>UI Index Template</body></html>")
+            .expect("Failed to write to file");
+
+        let mut file =
+            File::create(format!("{}/ui/todos.html", temp_dir)).expect("Failed to create file");
+        writeln!(file, "<html><body>Todos Template</body></html>")
+            .expect("Failed to write to file");
 
         let mut engine = TemplateEngine::new();
         engine
-            .load_templates_from_directory(temp_dir)
+            .load_templates("crates/suika_example/templates/**/*.html")
             .expect("Failed to load templates");
 
         let result = engine
-            .render("template1.html", &Context::new())
+            .render("index.html", &Context::new())
             .expect("Failed to render template");
-        assert_eq!(result, "<html><body>Template 1</body></html>");
+        assert_eq!(result, "<html><body>Index Template</body></html>");
 
         let result = engine
-            .render("template2.html", &Context::new())
+            .render("ui/index.html", &Context::new())
             .expect("Failed to render template");
-        assert_eq!(result, "<html><body>Template 2</body></html>");
+        assert_eq!(result, "<html><body>UI Index Template</body></html>");
 
-        fs::remove_file(format!("{}/template1.html", temp_dir)).expect("Failed to remove file");
-        fs::remove_file(format!("{}/template2.html", temp_dir)).expect("Failed to remove file");
-        fs::remove_dir(temp_dir).expect("Failed to remove directory");
+        let result = engine
+            .render("ui/todos.html", &Context::new())
+            .expect("Failed to render template");
+        assert_eq!(result, "<html><body>Todos Template</body></html>");
+
+        fs::remove_dir_all(temp_dir).expect("Failed to remove temp directory");
     }
 
     #[test]
     fn test_load_templates_from_nonexistent_directory() {
         let mut engine = TemplateEngine::new();
-        let result = engine.load_templates_from_directory("nonexistent_directory");
-        assert!(result.is_err());
+        let result = engine.load_templates("nonexistent_directory/*.html");
+        assert!(
+            result.is_err(),
+            "Expected error when loading templates from nonexistent directory"
+        );
     }
 
     #[test]
@@ -591,8 +618,11 @@ mod tests {
         writeln!(file, "This is a temp file").expect("Failed to write to file");
 
         let mut engine = TemplateEngine::new();
-        let result = engine.load_templates_from_directory(temp_file);
-        assert!(result.is_err());
+        let result = engine.load_templates(temp_file);
+        assert!(
+            result.is_err(),
+            "Expected error when loading templates from an invalid directory"
+        );
 
         fs::remove_file(temp_file).expect("Failed to remove file");
     }

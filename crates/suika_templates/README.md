@@ -31,15 +31,14 @@ Here's an example of how to use `suika_templates` to parse and render a
 template:
 
 ```rust
-use suika_templates::{TemplateEngine, TemplateValue};
-use std::collections::HashMap;
+use suika_templates::{TemplateEngine, Context};
 
 fn main() {
     let mut engine = TemplateEngine::new();
     engine.add_template("hello", "Hello, {{ name }}!");
 
-    let mut context = HashMap::new();
-    context.insert("name".to_string(), TemplateValue::String("World".to_string()));
+    let mut context = Context::new();
+    context.insert("name", "World"));
 
     let result = engine.render("hello", &context).expect("Failed to render template");
     assert_eq!(result, "Hello, World!");
@@ -51,21 +50,21 @@ fn main() {
 You can also load multiple templates from a directory:
 
 ```rust
-use suika_templates::TemplateEngine;
-use std::collections::HashMap;
+use suika_templates::{TemplateEngine, Context};
 
 fn main() {
     // Create a new TemplateEngine
     let mut engine = TemplateEngine::new();
+    let context = Context::new();
 
     // Load templates from the specified directory
-    engine.load_templates_from_directory("templates").expect("Failed to load templates");
+    engine.load_templates("templates/**/*.html").expect("Failed to load templates");
 
     // Render the templates
-    let result = engine.render("template1.html", &HashMap::new()).expect("Failed to render template");
+    let result = engine.render("template1.html", &context).expect("Failed to render template");
     println!("Rendered Template 1:\n{}", result);
 
-    let result = engine.render("template2.html", &HashMap::new()).expect("Failed to render template");
+    let result = engine.render("template2.html", &context).expect("Failed to render template");
     println!("Rendered Template 2:\n{}", result);
 }
 ```

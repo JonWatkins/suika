@@ -192,12 +192,11 @@ pub fn main() {
 ### Template Engine
 
 ```rust
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use suika::{
     server::{Router, Server},
-    templates::{TemplateEngine, TemplateValue},
+    templates::{TemplateEngine, Context},
 };
 
 pub fn main() {
@@ -208,7 +207,7 @@ pub fn main() {
         let mut engine = TemplateEngine::new();
 
         engine
-            .load_templates_from_directory("crates/suika_example/templates")
+            .load_templates("templates/**/*.html")
             .expect("Failed to load templates from directory");
 
         engine
@@ -218,12 +217,8 @@ pub fn main() {
 
     router.get("/", move |_req, res| {
         Box::pin(async move {
-            let mut context = HashMap::new();
-
-            context.insert(
-                "name".to_string(),
-                TemplateValue::String("World".to_string()),
-            );
+            let mut context = Context::new();
+            context.insert("name", "World");
 
             res.set_status(200).await;
             res.render_template("hello.html", &context).await?;

@@ -23,7 +23,7 @@ fn main() {
         let mut engine = TemplateEngine::new();
 
         engine
-            .load_templates_from_directory("crates/suika_example/templates")
+            .load_templates("crates/suika_example/templates/**/*.html")
             .expect("Failed to load templates from directory");
 
         engine
@@ -169,18 +169,18 @@ fn main() {
         })
     });
 
-    let mut ui_router = Router::new("/ui");
+    let mut todo_router = Router::new("/todos");
 
-    ui_router.get(r"/?$", |_req, res| {
+    todo_router.get(r"/?$", |_req, res| {
         Box::pin(async move {
             let context = Context::new();
             res.set_status(200).await;
-            res.render_template("ui.html", &context).await?;
+            res.render_template("todos/index.html", &context).await?;
             Ok(())
         })
     });
 
-    ui_router.get("/todos", |req, res| {
+    todo_router.get("/list", |req, res| {
         Box::pin(async move {
             if let Some(store) = req.module::<TodoStore>("todo_store") {
                 let todos = store.to_json();
@@ -189,7 +189,7 @@ fn main() {
 
                 res.set_status(200).await;
                 res.header("Content-Type", "text/html").await;
-                res.render_template("ui_todos.html", &context).await?;
+                res.render_template("todos/list.html", &context).await?;
             } else {
                 res.set_status(404).await;
                 res.body("No todos found".to_string()).await;
@@ -199,11 +199,11 @@ fn main() {
         })
     });
 
-    ui_router.post("/add_post", move |_req, _res| {
+    todo_router.post("/add_post", move |_req, _res| {
         Box::pin(async move { Ok(()) })
     });
 
-    main_router.mount(ui_router);
+    main_router.mount(todo_router);
 
     server.use_middleware(Arc::new(CorsMiddleware));
     server.use_middleware(Arc::new(LoggerMiddleware));
