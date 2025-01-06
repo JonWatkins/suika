@@ -9,13 +9,13 @@ pub struct Todo {
     pub content: String,
 }
 
-impl Into<JsonValue> for Todo {
-    fn into(self) -> JsonValue {
+impl From<Todo> for JsonValue {
+    fn from(todo: Todo) -> Self {
         JsonValue::Object(vec![
-            ("id".to_string(), JsonValue::Number(self.id as f64)),
-            ("title".to_string(), JsonValue::String(self.title)),
-            ("slug".to_string(), JsonValue::String(self.slug)),
-            ("content".to_string(), JsonValue::String(self.content)),
+            ("id".to_string(), JsonValue::Number(todo.id as f64)),
+            ("title".to_string(), JsonValue::String(todo.title)),
+            ("slug".to_string(), JsonValue::String(todo.slug)),
+            ("content".to_string(), JsonValue::String(todo.content)),
         ])
     }
 }
@@ -53,7 +53,12 @@ impl TodoStore {
 
     pub fn to_json(&self) -> JsonValue {
         let todos = self.todos.read().unwrap();
-        JsonValue::Array(todos.iter().map(|todo| todo.clone().into()).collect())
+        JsonValue::Array(
+            todos
+                .iter()
+                .map(|todo| JsonValue::from(todo.clone()))
+                .collect(),
+        )
     }
 
     fn generate_slug(title: &str) -> String {
