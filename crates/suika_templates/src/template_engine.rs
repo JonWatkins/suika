@@ -288,7 +288,7 @@ impl TemplateEngine {
                         i += 1;
                     }
                 }
-                TemplateToken::Comment(_) => {},  // Skip comments
+                TemplateToken::Comment(_) => {} // Skip comments
                 _ => {}
             }
             i += 1;
@@ -396,12 +396,103 @@ impl TemplateEngine {
             }
             i += 1;
         }
-        if let Some(JsonValue::Boolean(true)) = context.get(condition) {
+        if self.evaluate_condition(condition, context) {
             output.push_str(&self.process_tokens(&if_tokens, context)?);
         } else {
             output.push_str(&self.process_tokens(&else_tokens, context)?);
         }
         Ok(i)
+    }
+
+    fn collect_loop_tokens(
+        &self,
+        tokens: &[TemplateToken],
+        start_index: usize,
+    ) -> (Vec<TemplateToken>, usize) {
+        let mut i = start_index + 1;
+        let mut depth = 1;
+        let mut loop_tokens = Vec::new();
+
+        while i < tokens.len() {
+            match &tokens[i] {
+                TemplateToken::For(_, _) => depth += 1,
+                TemplateToken::EndFor => {
+                    depth -= 1;
+                    if depth == 0 {
+                        break;
+                    }
+                }
+                token => loop_tokens.push(token.clone()),
+            }
+            i += 1;
+        }
+        (loop_tokens, i)
+    }
+
+    fn process_if_block(
+        &self,
+        tokens: &[TemplateToken],
+        start_index: usize,
+        context: &Context,
+    ) -> Result<(String, bool, bool, usize), String> {
+        let mut output = String::new();
+        let mut j = start_index;
+
+        while j < tokens.len() && !matches!(tokens[j], TemplateToken::EndIf) {
+            match &tokens[j] {
+                TemplateToken::Break => return Ok((output, true, false, j)),
+                TemplateToken::Continue => return Ok((output, false, true, j)),
+                token => output.push_str(&self.process_tokens(&[token.clone()], context)?),
+            }
+            j += 1;
+        }
+
+        Ok((output, false, false, j))
+    }
+
+    fn skip_to_endif(&self, tokens: &[TemplateToken], mut index: usize) -> usize {
+        while index < tokens.len() && !matches!(tokens[index], TemplateToken::EndIf) {
+            index += 1;
+        }
+        index
+    }
+
+    fn process_loop_iteration(
+        &self,
+        tokens: &[TemplateToken],
+        context: &Context,
+    ) -> Result<(String, bool), String> {
+        let mut output = String::new();
+        let mut j = 0;
+
+        while j < tokens.len() {
+            match &tokens[j] {
+                TemplateToken::If(condition) => {
+                    if self.evaluate_condition(condition, context) {
+                        let (if_output, should_break, should_continue, new_j) =
+                            self.process_if_block(tokens, j + 1, context)?;
+
+                        output.push_str(&if_output);
+
+                        if should_break {
+                            return Ok((output, true));
+                        }
+                        if should_continue {
+                            return Ok((String::new(), false));
+                        }
+                        j = new_j;
+                    } else {
+                        j = self.skip_to_endif(tokens, j);
+                    }
+                }
+                token => {
+                    output.push_str(&self.process_tokens(&[token.clone()], context)?);
+                }
+            }
+            j += 1;
+        }
+
+        Ok((output, false))
     }
 
     fn process_for(
@@ -411,32 +502,26 @@ impl TemplateEngine {
         tokens: &[TemplateToken],
         context: &Context,
         output: &mut String,
-        mut i: usize,
+        start_index: usize,
     ) -> Result<usize, String> {
-        if let Some(JsonValue::Array(values)) = context.get(array) {
-            let mut for_tokens = Vec::new();
-            i += 1;
-            while i < tokens.len() {
-                if let TemplateToken::EndFor = &tokens[i] {
-                    break;
-                }
-                for_tokens.push(tokens[i].clone());
-                i += 1;
-            }
-            for value in values {
+        let (loop_tokens, end_index) = { self.collect_loop_tokens(tokens, start_index) };
+
+        if let Some(JsonValue::Array(items)) = context.get(array) {
+            for item in items {
                 let mut loop_context = context.clone();
-                loop_context.insert(var, value.clone());
-                output.push_str(&self.process_tokens(&for_tokens, &loop_context)?);
-            }
-        } else {
-            while i < tokens.len() {
-                if let TemplateToken::EndFor = &tokens[i] {
+                loop_context.insert(var, item.clone());
+
+                let (iteration_output, should_break) =
+                    self.process_loop_iteration(&loop_tokens, &loop_context)?;
+                output.push_str(&iteration_output);
+
+                if should_break {
                     break;
                 }
-                i += 1;
             }
         }
-        Ok(i)
+
+        Ok(end_index)
     }
 
     fn process_include(
@@ -544,6 +629,37 @@ impl TemplateEngine {
             Ok(())
         } else {
             Err(format!("Macro '{}' not found", name))
+        }
+    }
+
+    fn evaluate_condition(&self, condition: &str, context: &Context) -> bool {
+        if condition.contains(" is ") {
+            let parts: Vec<&str> = condition.split(" is ").collect();
+            let var_name = parts[0].trim();
+            let test_value = parts[1].trim().trim_matches('"');
+
+            match test_value {
+                "defined" => context.get(var_name).is_some(),
+                "empty" => match context.get(var_name) {
+                    Some(JsonValue::Array(arr)) => arr.is_empty(),
+                    Some(JsonValue::String(s)) => s.is_empty(),
+                    Some(JsonValue::Object(obj)) => obj.is_empty(),
+                    _ => false,
+                },
+                _ => match context.get(var_name) {
+                    Some(JsonValue::String(s)) => s == test_value,
+                    Some(JsonValue::Number(n)) => n.to_string() == test_value,
+                    _ => false,
+                },
+            }
+        } else {
+            context
+                .get(condition)
+                .and_then(|v| match v {
+                    JsonValue::Boolean(b) => Some(*b),
+                    _ => None,
+                })
+                .unwrap_or(false)
         }
     }
 }
@@ -1001,7 +1117,7 @@ mod tests {
         let mut engine = TemplateEngine::new();
         engine.add_template(
             "with_comment",
-            "Hello<%# This is a comment %>, <%= name %>!"
+            "Hello<%# This is a comment %>, <%= name %>!",
         );
 
         let mut context = Context::new();
@@ -1011,5 +1127,71 @@ mod tests {
             .render("with_comment", &context)
             .expect("Failed to render template");
         assert_eq!(result, "Hello, World!");
+    }
+
+    #[test]
+    fn test_render_loop_with_break() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "loop_break",
+            "<% for item in items %><%= item %><% if item is \"Two\" %><% break %><% endif %> <% endfor %>"
+        );
+
+        let mut context = Context::new();
+        context.insert("items", vec!["One", "Two", "Three"]);
+
+        let result = engine
+            .render("loop_break", &context)
+            .expect("Failed to render template");
+        assert_eq!(result.trim(), "One Two");
+    }
+
+    #[test]
+    fn test_render_loop_with_continue() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "loop_continue",
+            "<% for item in items %><% if item is \"Two\" %><% continue %><% endif %><%= item %> <% endfor %>"
+        );
+
+        let mut context = Context::new();
+        context.insert("items", vec!["One", "Two", "Three"]);
+
+        let result = engine
+            .render("loop_continue", &context)
+            .expect("Failed to render template");
+        assert_eq!(result.trim(), "One Three");
+    }
+
+    #[test]
+    fn test_render_with_is_defined() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template("test", "<% if user is defined %>Yes<% else %>No<% endif %>");
+
+        let mut context = Context::new();
+        let result1 = engine.render("test", &context).unwrap();
+        assert_eq!(result1, "No");
+
+        context.insert("user", "Alice");
+        let result2 = engine.render("test", &context).unwrap();
+        assert_eq!(result2, "Yes");
+    }
+
+    #[test]
+    fn test_render_with_is_empty() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "test",
+            "<% if items is empty %>Empty<% else %>Not Empty<% endif %>",
+        );
+
+        let mut context = Context::new();
+        context.insert("items", Vec::<String>::new());
+        let result1 = engine.render("test", &context).unwrap();
+        assert_eq!(result1, "Empty");
+
+        context.insert("items", vec!["item"]);
+        let result2 = engine.render("test", &context).unwrap();
+        assert_eq!(result2, "Not Empty");
     }
 }

@@ -22,17 +22,35 @@ The API is subject to change.
 
 The `suika_templates` library supports the following syntax:
 
+## Template Syntax
+
+### Basic Features
 - **Comments**: `<%# This is a comment %>` (not rendered in output)
 - **Variables**: `<%= variable_name %>` or `<%= user.name %>`
 - **Filters**: `<%= name|upper %>` or `<%= items|length %>`
-- **Conditionals**: `<% if condition %> ... <% else %> ... <% endif %>`
-- **Loops**: `<% for item in items %> ... <% endfor %>`
+
+### Control Flow
+- **Conditionals**: 
+  - Basic: `<% if condition %> ... <% else %> ... <% endif %>`
+  - Testing Functions:
+    - Defined: `<% if user is defined %> ... <% endif %>`
+    - Empty: `<% if array is empty %> ... <% endif %>`
+    - Value Compare: `<% if item is "value" %> ... <% endif %>`
+
+- **Loops**: 
+  - Basic: `<% for item in items %> ... <% endfor %>`
+  - Control:
+    - Break: `<% break %>` (exit loop)
+    - Continue: `<% continue %>` (skip to next iteration)
+
+### Template Structure
 - **Extends**: `<% extend base.html %>`
 - **Includes**: `<% include header.html %>`
 - **Blocks**: `<% block content %> ... <% endblock %>`
-- **Macros**: 
-  - Definition: `<% macro name(param1, param2="default") %> ... <% endmacro %>`
-  - Usage: `<% call name(value1, value2) %>`
+
+### Macros
+- **Definition**: `<% macro name(param1, param2="default") %> ... <% endmacro %>`
+- **Usage**: `<% call name(value1, value2) %>`
 
 ## Built-in Filters
 

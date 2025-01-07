@@ -209,51 +209,36 @@ impl<'a> TemplateParser<'a> {
 
     fn parse_directive(&mut self) -> Result<Option<TemplateToken>, String> {
         let mut directive = String::new();
-
-        while let Some(c) = self.current_char {
-            if c == '%' && self.chars.as_str().starts_with(">") {
-                self.next_char();
-                self.next_char();
-                return self.process_directive(directive.trim().to_string());
+        while let Some(ch) = self.current_char {
+            if ch == '%' && self.chars.as_str().starts_with(">") {
+                self.next_char(); // consume %
+                self.next_char(); // consume >
+                let directive = directive.trim();
+                return Ok(Some(match directive {
+                    "break" => TemplateToken::Break,
+                    "continue" => TemplateToken::Continue,
+                    "else" => TemplateToken::Else,
+                    "endif" => TemplateToken::EndIf,
+                    "endfor" => TemplateToken::EndFor,
+                    "endblock" => TemplateToken::EndBlock,
+                    "endmacro" => TemplateToken::EndMacro,
+                    _ if directive.starts_with("if ") => TemplateToken::If(directive[3..].to_string()),
+                    _ if directive.starts_with("for ") => self.parse_for_directive(directive)?.unwrap(),
+                    _ if directive.starts_with("extend ") => TemplateToken::Extend(directive[7..].trim().to_string()),
+                    _ if directive.starts_with("include ") => TemplateToken::Include(directive[8..].trim().to_string()),
+                    _ if directive.starts_with("block ") => TemplateToken::Block(directive[6..].trim().to_string()),
+                    _ if directive.starts_with("macro ") => self.parse_macro_definition(directive)?.unwrap(),
+                    _ if directive.starts_with("call ") => self.parse_macro_call(directive)?.unwrap(),
+                    _ => return Err(format!("Unknown directive: {}", directive)),
+                }));
             }
-            directive.push(c);
+            directive.push(ch);
             self.next_char();
         }
-
-        Err("Unexpected end of input in directive".to_string())
+        Err("Unclosed directive tag".to_string())
     }
 
-    fn process_directive(&self, directive: String) -> Result<Option<TemplateToken>, String> {
-        if directive.starts_with("if ") {
-            Ok(Some(TemplateToken::If(directive[3..].to_string())))
-        } else if directive == "else" {
-            Ok(Some(TemplateToken::Else))
-        } else if directive == "endif" {
-            Ok(Some(TemplateToken::EndIf))
-        } else if directive.starts_with("for ") {
-            self.parse_for_directive(directive)
-        } else if directive == "endfor" {
-            Ok(Some(TemplateToken::EndFor))
-        } else if directive.starts_with("extend ") {
-            Ok(Some(TemplateToken::Extend(directive[7..].trim().to_string())))
-        } else if directive.starts_with("include ") {
-            Ok(Some(TemplateToken::Include(directive[8..].trim().to_string())))
-        } else if directive.starts_with("block ") {
-            Ok(Some(TemplateToken::Block(directive[6..].trim().to_string())))
-        } else if directive == "endblock" {
-            Ok(Some(TemplateToken::EndBlock))
-        } else if directive.starts_with("macro ") {
-            self.parse_macro_definition(&directive)
-        } else if directive == "endmacro" {
-            Ok(Some(TemplateToken::EndMacro))
-        } else if directive.starts_with("call ") {
-            self.parse_macro_call(&directive)
-        } else {
-            Err(format!("Unknown directive: {}", directive))
-        }
-    }
-
-    fn parse_for_directive(&self, directive: String) -> Result<Option<TemplateToken>, String> {
+    fn parse_for_directive(&self, directive: &str) -> Result<Option<TemplateToken>, String> {
         let parts: Vec<&str> = directive[4..].split_whitespace().collect();
         if parts.len() == 3 && parts[1] == "in" {
             Ok(Some(TemplateToken::For(
@@ -478,5 +463,20 @@ mod tests {
                 TemplateToken::Text("World".to_string())
             ]
         );
+    }
+
+    #[test]
+    fn test_parse_break_continue() {
+        let mut parser = TemplateParser::new(
+            "<% for item in items %><%= item %><% if item == 2 %><% break %><% endif %><% endfor %>"
+        );
+        let tokens = parser.parse().unwrap();
+        assert!(tokens.contains(&TemplateToken::Break));
+
+        let mut parser = TemplateParser::new(
+            "<% for item in items %><%= item %><% if item < 2 %><% continue %><% endif %><% endfor %>"
+        );
+        let tokens = parser.parse().unwrap();
+        assert!(tokens.contains(&TemplateToken::Continue));
     }
 }

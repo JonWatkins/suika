@@ -27,6 +27,8 @@ pub enum TemplateToken {
     Raw(String),
     EndRaw,
     Comment(String),
+    Break,
+    Continue,
 }
 
 #[cfg(test)]
