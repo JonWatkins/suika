@@ -22,6 +22,7 @@ The API is subject to change.
 
 The `suika_templates` library supports the following syntax:
 
+- **Comments**: `<%# This is a comment %>` (not rendered in output)
 - **Variables**: `<%= variable_name %>` or `<%= user.name %>`
 - **Filters**: `<%= name|upper %>` or `<%= items|length %>`
 - **Conditionals**: `<% if condition %> ... <% else %> ... <% endif %>`

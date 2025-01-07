@@ -288,6 +288,7 @@ impl TemplateEngine {
                         i += 1;
                     }
                 }
+                TemplateToken::Comment(_) => {},  // Skip comments
                 _ => {}
             }
             i += 1;
@@ -993,5 +994,22 @@ mod tests {
             .expect("Failed to render template");
 
         assert_eq!(result, "<div>Hello, Alice!</div>");
+    }
+
+    #[test]
+    fn test_render_with_comment() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "with_comment",
+            "Hello<%# This is a comment %>, <%= name %>!"
+        );
+
+        let mut context = Context::new();
+        context.insert("name", "World");
+
+        let result = engine
+            .render("with_comment", &context)
+            .expect("Failed to render template");
+        assert_eq!(result, "Hello, World!");
     }
 }

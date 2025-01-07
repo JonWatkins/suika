@@ -194,6 +194,10 @@ impl<'a> TemplateParser<'a> {
 
     fn parse_template_directive(&mut self) -> Result<Option<TemplateToken>, String> {
         match self.current_char {
+            Some('#') => {
+                self.next_char();
+                self.parse_comment()
+            }
             Some('=') => {
                 self.next_char();
                 self.parse_variable()
@@ -291,6 +295,20 @@ impl<'a> TemplateParser<'a> {
             .map(|s| s.trim().to_string())
             .collect();
         Ok(Some(TemplateToken::MacroCall(name, args)))
+    }
+
+    fn parse_comment(&mut self) -> Result<Option<TemplateToken>, String> {
+        let mut content = String::new();
+        while let Some(ch) = self.current_char {
+            if ch == '%' && self.chars.as_str().starts_with(">") {
+                self.next_char(); // consume %
+                self.next_char(); // consume >
+                return Ok(Some(TemplateToken::Comment(content.trim().to_string())));
+            }
+            content.push(ch);
+            self.next_char();
+        }
+        Err("Unclosed comment tag".to_string())
     }
 }
 
@@ -444,6 +462,20 @@ mod tests {
                     vec!["upper".to_string(), "trim".to_string()]
                 ),
                 TemplateToken::Text("!".to_string())
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_comment() {
+        let mut parser = TemplateParser::new("Hello<%# This is a comment %>World");
+        let tokens = parser.parse().unwrap();
+        assert_eq!(
+            tokens,
+            vec![
+                TemplateToken::Text("Hello".to_string()),
+                TemplateToken::Comment("This is a comment".to_string()),
+                TemplateToken::Text("World".to_string())
             ]
         );
     }
