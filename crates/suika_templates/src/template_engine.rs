@@ -1,6 +1,7 @@
 use crate::context::Context;
 use crate::TemplateParser;
 use crate::TemplateToken;
+use crate::filters::{FilterFn, FilterRegistry};
 use glob::glob;
 use std::collections::HashMap;
 use std::fs;
@@ -11,6 +12,8 @@ use suika_utils::minify_html;
 #[derive(Debug, Clone)]
 pub struct TemplateEngine {
     templates: HashMap<String, String>,
+    filters: FilterRegistry,
+    macros: HashMap<String, (Vec<String>, Vec<TemplateToken>)>,
 }
 
 impl TemplateEngine {
@@ -26,6 +29,8 @@ impl TemplateEngine {
     pub fn new() -> Self {
         Self {
             templates: HashMap::new(),
+            filters: FilterRegistry::new(),
+            macros: HashMap::new(),
         }
     }
 
@@ -235,8 +240,8 @@ impl TemplateEngine {
         while i < tokens.len() {
             match &tokens[i] {
                 TemplateToken::Text(text) => self.process_text(text, &mut output),
-                TemplateToken::Variable(name) => {
-                    self.process_variable(name, context, &mut output)?
+                TemplateToken::Variable(name, filters) => {
+                    self.process_variable(name, filters, context, &mut output)?
                 }
                 TemplateToken::If(condition) => {
                     i = self.process_if(condition, tokens, context, &mut output, i)?
@@ -261,13 +266,36 @@ impl TemplateEngine {
     fn process_variable(
         &self,
         name: &str,
+        filters: &[String],
         context: &Context,
         output: &mut String,
     ) -> Result<(), String> {
-        if let Some(value) = self.resolve_variable(name, context) {
-            output.push_str(&value);
+        if let Some(value_str) = self.resolve_variable(name, context) {
+            let mut value = match context.get(name) {
+                Some(v) => v.clone(),
+                None => JsonValue::String(value_str),
+            };
+            
+            // Apply filters in order
+            for filter_name in filters {
+                if let Some(filter) = self.filters.get(filter_name) {
+                    value = filter(value, vec![])?;
+                } else {
+                    return Err(format!("Filter '{}' not found", filter_name));
+                }
+            }
+            
+            // Convert the final value to a string without quotes
+            match value {
+                JsonValue::String(s) => output.push_str(&s),
+                JsonValue::Number(n) => output.push_str(&n.to_string()),
+                JsonValue::Array(arr) => output.push_str(&arr.len().to_string()),
+                _ => output.push_str(&value.to_string()),
+            }
+            Ok(())
+        } else {
+            Err(format!("Variable '{}' not found in context", name))
         }
-        Ok(())
     }
 
     fn resolve_variable(&self, name: &str, context: &Context) -> Option<String> {
@@ -383,6 +411,10 @@ impl TemplateEngine {
         let include_tokens = self.get_template_tokens(template_name)?;
         output.push_str(&self.process_tokens(&include_tokens, context)?);
         Ok(())
+    }
+
+    pub fn register_filter(&mut self, name: &str, filter: FilterFn) {
+        self.filters.register(name, filter);
     }
 }
 
@@ -729,5 +761,41 @@ mod tests {
         let expected = r#"<html><head><title>Test Page with Loop</title><script type="module">const messages = ["Message 1", "Message 2", "Message 3", ];messages.forEach(message => {console.log(message);});console.log("Feature is enabled");</script></head><body><h1>Welcome!</h1></body></html>"#;
 
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_render_with_upper_filter() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template("greeting", "Hello, <%= name|upper %>!");
+
+        let mut context = Context::new();
+        context.insert("name", "world");
+
+        let result = engine.render("greeting", &context).expect("Failed to render template");
+        assert_eq!(result, "Hello, WORLD!");
+    }
+
+    #[test]
+    fn test_render_with_multiple_filters() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template("greeting", "Hello, <%= name|lower|upper %>!");
+
+        let mut context = Context::new();
+        context.insert("name", "World");
+
+        let result = engine.render("greeting", &context).expect("Failed to render template");
+        assert_eq!(result, "Hello, WORLD!");
+    }
+
+    #[test]
+    fn test_render_with_length_filter() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template("array_length", "Items: <%= items|length %>");
+
+        let mut context = Context::new();
+        context.insert("items", vec!["a", "b", "c"]);
+
+        let result = engine.render("array_length", &context).expect("Failed to render template");
+        assert_eq!(result, "Items: 3");
     }
 }

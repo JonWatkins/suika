@@ -1,7 +1,7 @@
 [package]
 name = "suika_wasm"
 description = "A middleware for the suika web stack to serve pre-compiled WebAssembly (Wasm) files."
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_wasm"
@@ -10,7 +10,7 @@ readme = "README.md"
 include = ["wasm/**", "src/**", "README.md", "Cargo.toml"]
 
 [dependencies]
-suika_server = "0.1.5"
+suika_server = "0.1.7"
 suika_mime = "0.1.1"
 suika_utils = "0.1.1"
 wasm-bindgen = "0.2"

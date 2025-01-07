@@ -1,7 +1,7 @@
 # Suika Templates
 
 Suika Templates is a simple template engine for the Suika web stack, enabling
-dynamic HTML generation.
+dynamic HTML generation with support for filters, inheritance, and HTML minification.
 
 **Note:** Suika is under active development and not intended for production use.
 The API is subject to change and may lack comprehensive testing and
@@ -9,23 +9,35 @@ documentation.
 
 ## Features
 
-- Parse and render templates with context values.
-- Support for template directives such as variables, conditionals, loops,
-  extends, includes, and blocks.
-- Load templates from files or directories.
+- Parse and render templates with context values
+- Support for template directives (variables, conditionals, loops)
+- Template inheritance with extends and blocks
+- Include other templates
+- Filter system for value transformation
+- Automatic HTML minification
+- Load templates from files or directories
+- Nested object access (e.g., user.name)
 
-## Template Directives
+## Template Syntax
 
-The `suika_templates` library supports various directives within templates:
+The `suika_templates` library supports the following syntax:
 
-- **Variables**: `{{ variable_name }}`
-- **Conditionals**: `{% if condition %} ... {% else %} ... {% endif %}`
-- **Loops**: `{% for item in items %} ... {% endfor %}`
-- **Extends**: `{% extend "base.html" %}`
-- **Includes**: `{% include "header.html" %}`
-- **Blocks**: `{% block content %} ... {% endblock %}`
+- **Variables**: `<%= variable_name %>` or `<%= user.name %>`
+- **Filters**: `<%= name|upper %>` or `<%= items|length %>`
+- **Conditionals**: `<% if condition %> ... <% else %> ... <% endif %>`
+- **Loops**: `<% for item in items %> ... <% endfor %>`
+- **Extends**: `<% extend base.html %>`
+- **Includes**: `<% include header.html %>`
+- **Blocks**: `<% block content %> ... <% endblock %>`
+
+## Built-in Filters
+
+- `upper`: Convert text to uppercase
+- `lower`: Convert text to lowercase
+- `length`: Get length of arrays or strings
 
 ## Usage
+
 
 Here's an example of how to use `suika_templates` to parse and render a
 template:

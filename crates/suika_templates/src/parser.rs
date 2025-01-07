@@ -14,7 +14,7 @@ use std::str::Chars;
 ///
 /// assert_eq!(tokens, vec![
 ///     TemplateToken::Text("Hello, ".to_string()),
-///     TemplateToken::Variable("name".to_string()),
+///     TemplateToken::Variable("name".to_string(), vec![]),
 ///     TemplateToken::Text("!".to_string())
 /// ]);
 /// ```
@@ -62,7 +62,7 @@ impl<'a> TemplateParser<'a> {
     ///
     /// assert_eq!(tokens, vec![
     ///     TemplateToken::Text("Hello, ".to_string()),
-    ///     TemplateToken::Variable("name".to_string()),
+    ///     TemplateToken::Variable("name".to_string(), vec![]),
     ///     TemplateToken::Text("!".to_string())
     /// ]);
     /// ```
@@ -119,18 +119,74 @@ impl<'a> TemplateParser<'a> {
 
     fn parse_variable(&mut self) -> Result<Option<TemplateToken>, String> {
         let mut var_name = String::new();
-
+        let mut filters = Vec::new();
+        
+        // Parse variable name until we hit a pipe or end tag
         while let Some(c) = self.current_char {
-            if c == '%' && self.chars.as_str().starts_with(">") {
-                self.next_char();
-                self.next_char();
-                return Ok(Some(TemplateToken::Variable(var_name.trim().to_string())));
+            match c {
+                '|' => {
+                    self.next_char();
+                    filters.push(self.parse_filter()?);
+                }
+                '%' if self.chars.as_str().starts_with(">") => {
+                    self.next_char();
+                    self.next_char();
+                    return Ok(Some(TemplateToken::Variable(
+                        var_name.trim().to_string(),
+                        filters,
+                    )));
+                }
+                _ => {
+                    if c == '|' {
+                        break;
+                    }
+                    var_name.push(c);
+                    self.next_char();
+                }
             }
-            var_name.push(c);
+        }
+        
+        // Continue parsing filters if we hit a pipe
+        while let Some(c) = self.current_char {
+            if c == '|' {
+                self.next_char();
+                filters.push(self.parse_filter()?);
+            } else if c == '%' && self.chars.as_str().starts_with(">") {
+                self.next_char();
+                self.next_char();
+                return Ok(Some(TemplateToken::Variable(
+                    var_name.trim().to_string(),
+                    filters,
+                )));
+            } else {
+                self.next_char();
+            }
+        }
+        
+        Err("Unexpected end of input in variable".to_string())
+    }
+
+    fn parse_filter(&mut self) -> Result<String, String> {
+        let mut filter = String::new();
+        
+        // Skip whitespace
+        while let Some(c) = self.current_char {
+            if !c.is_whitespace() {
+                break;
+            }
             self.next_char();
         }
-
-        Err("Unexpected end of input in variable".to_string())
+        
+        // Parse filter name
+        while let Some(c) = self.current_char {
+            if c == '|' || (c == '%' && self.chars.as_str().starts_with(">")) {
+                break;
+            }
+            filter.push(c);
+            self.next_char();
+        }
+        
+        Ok(filter.trim().to_string())
     }
 
     fn parse_template_directive(&mut self) -> Result<Option<TemplateToken>, String> {
@@ -216,7 +272,7 @@ mod tests {
             tokens,
             vec![
                 TemplateToken::Text("Hello, ".to_string()),
-                TemplateToken::Variable("name".to_string()),
+                TemplateToken::Variable("name".to_string(), vec![]),
                 TemplateToken::Text("!".to_string())
             ]
         );
@@ -262,7 +318,7 @@ mod tests {
             vec![
                 TemplateToken::For("item".to_string(), "items".to_string()),
                 TemplateToken::Text(" ".to_string()),
-                TemplateToken::Variable("item".to_string()),
+                TemplateToken::Variable("item".to_string(), vec![]),
                 TemplateToken::Text(" ".to_string()),
                 TemplateToken::EndFor
             ]
@@ -296,6 +352,54 @@ mod tests {
                 TemplateToken::Block("content".to_string()),
                 TemplateToken::Text("Block content".to_string()),
                 TemplateToken::EndBlock
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_variable_with_single_filter() {
+        let mut parser = TemplateParser::new("Hello, <%= name|upper %>!");
+        let tokens = parser.parse().unwrap();
+        assert_eq!(
+            tokens,
+            vec![
+                TemplateToken::Text("Hello, ".to_string()),
+                TemplateToken::Variable("name".to_string(), vec!["upper".to_string()]),
+                TemplateToken::Text("!".to_string())
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_variable_with_multiple_filters() {
+        let mut parser = TemplateParser::new("Hello, <%= name|lower|capitalize %>!");
+        let tokens = parser.parse().unwrap();
+        assert_eq!(
+            tokens,
+            vec![
+                TemplateToken::Text("Hello, ".to_string()),
+                TemplateToken::Variable(
+                    "name".to_string(),
+                    vec!["lower".to_string(), "capitalize".to_string()]
+                ),
+                TemplateToken::Text("!".to_string())
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_variable_with_filter_and_whitespace() {
+        let mut parser = TemplateParser::new("Hello, <%= name | upper | trim %>!");
+        let tokens = parser.parse().unwrap();
+        assert_eq!(
+            tokens,
+            vec![
+                TemplateToken::Text("Hello, ".to_string()),
+                TemplateToken::Variable(
+                    "name".to_string(),
+                    vec!["upper".to_string(), "trim".to_string()]
+                ),
+                TemplateToken::Text("!".to_string())
             ]
         );
     }
