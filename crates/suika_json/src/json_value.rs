@@ -159,6 +159,72 @@ impl From<HashMap<String, JsonValue>> for JsonValue {
     }
 }
 
+impl From<usize> for JsonValue {
+    fn from(value: usize) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<i32> for JsonValue {
+    fn from(value: i32) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<i16> for JsonValue {
+    fn from(value: i16) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<i8> for JsonValue {
+    fn from(value: i8) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<u64> for JsonValue {
+    fn from(value: u64) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<u32> for JsonValue {
+    fn from(value: u32) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<u16> for JsonValue {
+    fn from(value: u16) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<u8> for JsonValue {
+    fn from(value: u8) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl From<f32> for JsonValue {
+    fn from(value: f32) -> Self {
+        JsonValue::Number(value as f64)
+    }
+}
+
+impl<T: Into<JsonValue>, const N: usize> From<[T; N]> for JsonValue {
+    fn from(arr: [T; N]) -> Self {
+        JsonValue::Array(arr.into_iter().map(|x| x.into()).collect())
+    }
+}
+
+impl From<()> for JsonValue {
+    fn from(_: ()) -> Self {
+        JsonValue::Null
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -278,5 +344,17 @@ mod tests {
         } else {
             panic!("Expected JsonValue::Object");
         }
+    }
+
+    #[test]
+    fn test_from_various_number_types() {
+        assert_eq!(JsonValue::from(42i32), JsonValue::Number(42.0));
+        assert_eq!(JsonValue::from(42i16), JsonValue::Number(42.0));
+        assert_eq!(JsonValue::from(42i8), JsonValue::Number(42.0));
+        assert_eq!(JsonValue::from(42u64), JsonValue::Number(42.0));
+        assert_eq!(JsonValue::from(42u32), JsonValue::Number(42.0));
+        assert_eq!(JsonValue::from(42u16), JsonValue::Number(42.0));
+        assert_eq!(JsonValue::from(42u8), JsonValue::Number(42.0));
+        assert_eq!(JsonValue::from(42.0f32), JsonValue::Number(42.0));
     }
 }

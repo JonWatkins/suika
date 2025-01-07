@@ -13,6 +13,7 @@ pub enum TemplateToken {
     Text(String),
     Variable(String, Vec<String>),
     If(String),
+    Elif(String),
     Else,
     EndIf,
     For(String, String),
@@ -29,6 +30,13 @@ pub enum TemplateToken {
     Comment(String),
     Break,
     Continue,
+}
+
+#[derive(Debug)]
+pub enum IfSection {
+    If,
+    Elif(usize),
+    Else,
 }
 
 #[cfg(test)]

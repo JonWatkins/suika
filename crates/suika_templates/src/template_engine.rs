@@ -1,5 +1,6 @@
 use crate::context::Context;
 use crate::filters::{FilterRegistry, FromJsonValue, IntoJsonValue};
+use crate::template_token::IfSection;
 use crate::TemplateParser;
 use crate::TemplateToken;
 use glob::glob;
@@ -7,7 +8,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use suika_json::JsonValue;
+use suika_json::{json, JsonValue};
 use suika_utils::minify_html;
 
 #[derive(Debug, Clone)]
@@ -378,28 +379,49 @@ impl TemplateEngine {
         output: &mut String,
         mut i: usize,
     ) -> Result<usize, String> {
-        let mut if_tokens = Vec::new();
+        let mut current_tokens = Vec::new();
+        let mut elif_conditions = Vec::new();
+        let mut elif_tokens = Vec::new();
         let mut else_tokens = Vec::new();
-        let mut in_else = false;
+        let mut current_section = IfSection::If;
+
         i += 1;
         while i < tokens.len() {
             match &tokens[i] {
                 TemplateToken::EndIf => break,
-                TemplateToken::Else => in_else = true,
-                _ => {
-                    if in_else {
-                        else_tokens.push(tokens[i].clone());
-                    } else {
-                        if_tokens.push(tokens[i].clone());
+                TemplateToken::Elif(cond) => {
+                    elif_conditions.push(cond.clone());
+                    elif_tokens.push(Vec::new());
+                    current_section = IfSection::Elif(elif_conditions.len() - 1);
+                }
+                TemplateToken::Else => {
+                    current_section = IfSection::Else;
+                }
+                token => {
+                    match current_section {
+                        IfSection::If => current_tokens.push(token.clone()),
+                        IfSection::Else => else_tokens.push(token.clone()),
+                        IfSection::Elif(n) => elif_tokens[n].push(token.clone()),
                     }
                 }
             }
             i += 1;
         }
+
         if self.evaluate_condition(condition, context) {
-            output.push_str(&self.process_tokens(&if_tokens, context)?);
+            output.push_str(&self.process_tokens(&current_tokens, context)?);
         } else {
-            output.push_str(&self.process_tokens(&else_tokens, context)?);
+            let mut condition_met = false;
+            for (idx, elif_condition) in elif_conditions.iter().enumerate() {
+                if self.evaluate_condition(elif_condition, context) {
+                    output.push_str(&self.process_tokens(&elif_tokens[idx], context)?);
+                    condition_met = true;
+                    break;
+                }
+            }
+            if !condition_met {
+                output.push_str(&self.process_tokens(&else_tokens, context)?);
+            }
         }
         Ok(i)
     }
@@ -504,14 +526,26 @@ impl TemplateEngine {
         output: &mut String,
         start_index: usize,
     ) -> Result<usize, String> {
-        let (loop_tokens, end_index) = { self.collect_loop_tokens(tokens, start_index) };
+        let (loop_tokens, end_index) = self.collect_loop_tokens(tokens, start_index);
 
         if let Some(JsonValue::Array(items)) = context.get(array) {
-            for item in items {
+            let total = items.len();
+            for (index, item) in items.iter().enumerate() {
                 let mut loop_context = context.clone();
                 loop_context.insert(var, item.clone());
+                
+                // Add loop variables
+                let loop_vars = json!({
+                    "index" => index,
+                    "index1" => index + 1,
+                    "first" => index == 0,
+                    "last" => index == total - 1,
+                    "length" => total
+                });
+                
+                loop_context.insert("loop", loop_vars);
 
-                let (iteration_output, should_break) =
+                let (iteration_output, should_break) = 
                     self.process_loop_iteration(&loop_tokens, &loop_context)?;
                 output.push_str(&iteration_output);
 

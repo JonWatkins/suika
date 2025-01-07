@@ -31,7 +31,7 @@ The `suika_templates` library supports the following syntax:
 
 ### Control Flow
 - **Conditionals**: 
-  - Basic: `<% if condition %> ... <% else %> ... <% endif %>`
+  - Basic: `<% if condition %> ... <% elif condition %> ... <% else %> ... <% endif %>`
   - Testing Functions:
     - Defined: `<% if user is defined %> ... <% endif %>`
     - Empty: `<% if array is empty %> ... <% endif %>`
@@ -42,6 +42,12 @@ The `suika_templates` library supports the following syntax:
 
 - **Loops**: 
   - Basic: `<% for item in items %> ... <% endfor %>`
+  - Loop Variables:
+    - `loop.index`: Zero-based iteration counter
+    - `loop.index1`: One-based iteration counter
+    - `loop.first`: True if first iteration
+    - `loop.last`: True if last iteration
+    - `loop.length`: Total number of items
   - Control:
     - Break: `<% break %>` (exit loop)
     - Continue: `<% continue %>` (skip to next iteration)
