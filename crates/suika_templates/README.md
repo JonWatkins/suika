@@ -36,6 +36,9 @@ The `suika_templates` library supports the following syntax:
     - Defined: `<% if user is defined %> ... <% endif %>`
     - Empty: `<% if array is empty %> ... <% endif %>`
     - Value Compare: `<% if item is "value" %> ... <% endif %>`
+    - Number Type: 
+      - `<% if num is odd %> ... <% endif %>`
+      - `<% if num is even %> ... <% endif %>`
 
 - **Loops**: 
   - Basic: `<% for item in items %> ... <% endfor %>`

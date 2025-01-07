@@ -637,13 +637,25 @@ impl TemplateEngine {
             let parts: Vec<&str> = condition.split(" is ").collect();
             let var_name = parts[0].trim();
             let test_value = parts[1].trim().trim_matches('"');
-
+            
             match test_value {
                 "defined" => context.get(var_name).is_some(),
                 "empty" => match context.get(var_name) {
                     Some(JsonValue::Array(arr)) => arr.is_empty(),
                     Some(JsonValue::String(s)) => s.is_empty(),
                     Some(JsonValue::Object(obj)) => obj.is_empty(),
+                    _ => false,
+                },
+                "odd" => match context.get(var_name) {
+                    Some(JsonValue::Number(n)) => {
+                        (*n as i64) % 2 != 0
+                    },
+                    _ => false,
+                },
+                "even" => match context.get(var_name) {
+                    Some(JsonValue::Number(n)) => {
+                        (*n as i64) % 2 == 0
+                    },
                     _ => false,
                 },
                 _ => match context.get(var_name) {
@@ -1193,5 +1205,23 @@ mod tests {
         context.insert("items", vec!["item"]);
         let result2 = engine.render("test", &context).unwrap();
         assert_eq!(result2, "Not Empty");
+    }
+
+    #[test]
+    fn test_render_with_odd_even() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "test",
+            "<% if num is odd %>Odd<% else %>Even<% endif %>"
+        );
+
+        let mut context = Context::new();
+        context.insert("num", 3);
+        let result1 = engine.render("test", &context).unwrap();
+        assert_eq!(result1, "Odd");
+
+        context.insert("num", 4);
+        let result2 = engine.render("test", &context).unwrap();
+        assert_eq!(result2, "Even");
     }
 }
