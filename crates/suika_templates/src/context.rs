@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use suika_json::JsonValue;
+use std::collections::HashMap;
 
 /// A context for storing key-value pairs where the values are JSON values.
 ///
@@ -28,7 +28,9 @@ use suika_json::JsonValue;
 /// ```
 #[derive(Clone)]
 pub struct Context {
-    data: HashMap<String, JsonValue>,
+    values: HashMap<String, JsonValue>,
+    parent: Option<Box<Context>>,
+    macro_args: Option<HashMap<String, JsonValue>>,
 }
 
 impl Context {
@@ -43,8 +45,49 @@ impl Context {
     /// assert!(context.get("key").is_none());
     /// ```
     pub fn new() -> Self {
-        Context {
-            data: HashMap::new(),
+        Self {
+            values: HashMap::new(),
+            parent: None,
+            macro_args: None,
+        }
+    }
+
+    /// Creates a new `Context` with a parent context.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_templates::context::Context;
+    ///
+    /// let parent = Context::new();
+    /// let child = Context::with_parent(parent);
+    /// assert!(child.get("key").is_none());
+    /// ```
+    pub fn with_parent(parent: Context) -> Self {
+        Self {
+            values: HashMap::new(),
+            parent: Some(Box::new(parent)),
+            macro_args: None,
+        }
+    }
+
+    /// Creates a new `Context` with a parent context and macro arguments.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use suika_templates::context::Context;
+    /// use std::collections::HashMap;
+    ///
+    /// let parent = Context::new();
+    /// let child = Context::with_macro_args(parent, HashMap::new());
+    /// assert!(child.get("key").is_none());
+    /// ```
+    pub fn with_macro_args(parent: Context, args: HashMap<String, JsonValue>) -> Self {
+        Self {
+            values: HashMap::new(),
+            parent: Some(Box::new(parent)),
+            macro_args: Some(args),
         }
     }
 
@@ -63,8 +106,11 @@ impl Context {
     /// context.insert("name", "John");
     /// assert_eq!(context.get("name"), Some(&JsonValue::String("John".to_string())));
     /// ```
-    pub fn insert<T: Into<JsonValue>>(&mut self, key: &str, value: T) {
-        self.data.insert(key.to_string(), value.into());
+    pub fn insert<T>(&mut self, key: &str, value: T)
+    where
+        T: Into<JsonValue>,
+    {
+        self.values.insert(key.to_string(), value.into());
     }
 
     /// Returns a reference to the value corresponding to the key.
@@ -83,7 +129,22 @@ impl Context {
     /// assert!(context.get("age").is_none());
     /// ```
     pub fn get(&self, key: &str) -> Option<&JsonValue> {
-        self.data.get(key)
+        // First check macro arguments
+        if let Some(macro_args) = &self.macro_args {
+            if let Some(value) = macro_args.get(key) {
+                return Some(value);
+            }
+        }
+
+        // Then check local values
+        self.values.get(key).or_else(|| {
+            // Finally check parent context
+            self.parent.as_ref().and_then(|p| p.get(key))
+        })
+    }
+
+    pub fn iter(&self) -> std::collections::hash_map::Iter<String, JsonValue> {
+        self.values.iter()
     }
 }
 

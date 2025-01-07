@@ -6,6 +6,7 @@ use glob::glob;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use std::sync::{Arc, Mutex};
 use suika_json::JsonValue;
 use suika_utils::minify_html;
 
@@ -13,7 +14,7 @@ use suika_utils::minify_html;
 pub struct TemplateEngine {
     templates: HashMap<String, String>,
     filters: FilterRegistry,
-    macros: HashMap<String, (Vec<String>, Vec<TemplateToken>)>,
+    macros: Arc<Mutex<HashMap<String, (Vec<String>, Vec<TemplateToken>)>>>,
 }
 
 impl TemplateEngine {
@@ -30,7 +31,7 @@ impl TemplateEngine {
         Self {
             templates: HashMap::new(),
             filters: FilterRegistry::new(),
-            macros: HashMap::new(),
+            macros: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
@@ -50,6 +51,27 @@ impl TemplateEngine {
     /// engine.add_template("hello", "Hello, {{ name }}!");
     /// ```
     pub fn add_template(&mut self, name: &str, content: &str) {
+        let mut parser = TemplateParser::new(content);
+        if let Ok(tokens) = parser.parse() {
+            // Process macros first
+            for (i, token) in tokens.iter().enumerate() {
+                if let TemplateToken::MacroDefinition(name, params) = token {
+                    let mut macro_tokens = Vec::new();
+                    let mut j = i + 1;
+                    while j < tokens.len() {
+                        if let TemplateToken::EndMacro = tokens[j] {
+                            break;
+                        }
+                        macro_tokens.push(tokens[j].clone());
+                        j += 1;
+                    }
+                    self.macros
+                        .lock()
+                        .unwrap()
+                        .insert(name.clone(), (params.clone(), macro_tokens));
+                }
+            }
+        }
         self.templates.insert(name.to_string(), content.to_string());
     }
 
@@ -252,6 +274,25 @@ impl TemplateEngine {
                 TemplateToken::Include(template_name) => {
                     self.process_include(template_name, context, &mut output)?
                 }
+                TemplateToken::MacroCall(name, args) => {
+                    self.process_macro_call(name, args, context, &mut output)?
+                }
+                TemplateToken::MacroDefinition(name, params) => {
+                    // Store the macro definition
+                    let mut macro_tokens = Vec::new();
+                    i += 1;
+                    while i < tokens.len() {
+                        if let TemplateToken::EndMacro = tokens[i] {
+                            break;
+                        }
+                        macro_tokens.push(tokens[i].clone());
+                        i += 1;
+                    }
+                    self.macros
+                        .lock()
+                        .unwrap()
+                        .insert(name.clone(), (params.clone(), macro_tokens));
+                }
                 _ => {}
             }
             i += 1;
@@ -409,6 +450,27 @@ impl TemplateEngine {
         output: &mut String,
     ) -> Result<(), String> {
         let include_tokens = self.get_template_tokens(template_name)?;
+
+        // First pass: process macro definitions
+        for token in &include_tokens {
+            if let TemplateToken::MacroDefinition(name, params) = token {
+                let mut macro_tokens = Vec::new();
+                let mut i = 0;
+                while i < include_tokens.len() {
+                    if let TemplateToken::EndMacro = include_tokens[i] {
+                        break;
+                    }
+                    macro_tokens.push(include_tokens[i].clone());
+                    i += 1;
+                }
+                self.macros
+                    .lock()
+                    .unwrap()
+                    .insert(name.clone(), (params.clone(), macro_tokens));
+            }
+        }
+
+        // Second pass: process the rest of the template
         output.push_str(&self.process_tokens(&include_tokens, context)?);
         Ok(())
     }
@@ -420,6 +482,51 @@ impl TemplateEngine {
         R: IntoJsonValue,
     {
         self.filters.register(name, filter);
+    }
+
+    fn process_macro_call(
+        &self,
+        name: &str,
+        args: &[String],
+        context: &Context,
+        output: &mut String,
+    ) -> Result<(), String> {
+        if let Some((params, tokens)) = self.macros.lock().unwrap().get(name) {
+            let mut macro_context = Context::new();
+
+            for (i, param) in params.iter().enumerate() {
+                let (param_name, default_value) = if param.contains('=') {
+                    let parts: Vec<&str> = param.split('=').collect();
+                    (parts[0].trim(), Some(parts[1].trim().trim_matches('"')))
+                } else {
+                    (param.trim(), None)
+                };
+
+                let value = if i < args.len() {
+                    // Remove quotes from string literals
+                    let arg = args[i].trim_matches('"');
+                    // Try to get from context first
+                    if let Some(ctx_value) = context.get(arg) {
+                        ctx_value.clone()
+                    } else {
+                        // Use as literal string if not in context
+                        JsonValue::String(arg.to_string())
+                    }
+                } else if let Some(default) = default_value {
+                    JsonValue::String(default.to_string())
+                } else {
+                    return Err(format!("Missing argument for parameter '{}'", param_name));
+                };
+
+                macro_context.insert(param_name, value);
+            }
+
+            let result = self.process_tokens(tokens, &macro_context)?;
+            output.push_str(&result.trim());
+            Ok(())
+        } else {
+            Err(format!("Macro '{}' not found", name))
+        }
     }
 }
 
@@ -808,5 +915,66 @@ mod tests {
             .render("array_length", &context)
             .expect("Failed to render template");
         assert_eq!(result, "Items: 3");
+    }
+
+    #[test]
+    fn test_render_macro() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "macros.html",
+            r#"
+            <% macro input(name, type="text") %>
+                <input type="<%= type %>" name="<%= name %>" />
+            <% endmacro %>
+            "#,
+        );
+        engine.add_template(
+            "form.html",
+            r#"
+            <% include macros.html %>
+            <form>
+                <% call input("username") %>
+                <% call input("password", "password") %>
+            </form>
+            "#,
+        );
+
+        let result = engine
+            .render("form.html", &Context::new())
+            .expect("Failed to render template");
+
+        let expected = r#"<form><input type="text" name="username" /><input type="password" name="password" /></form>"#;
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_macro_with_context() {
+        let mut engine = TemplateEngine::new();
+        engine.add_template(
+            "macros.html",
+            r#"
+            <% macro greeting(name) %>
+                Hello, <%= name %>!
+            <% endmacro %>
+            "#,
+        );
+        engine.add_template(
+            "page.html",
+            r#"
+            <% include macros.html %>
+            <div>
+                <% call greeting(user_name) %>
+            </div>
+            "#,
+        );
+
+        let mut context = Context::new();
+        context.insert("user_name", "Alice");
+
+        let result = engine
+            .render("page.html", &context)
+            .expect("Failed to render template");
+
+        assert_eq!(result, "<div>Hello, Alice!</div>");
     }
 }

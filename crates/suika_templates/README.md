@@ -1,11 +1,10 @@
 # Suika Templates
 
 Suika Templates is a simple template engine for the Suika web stack, enabling
-dynamic HTML generation with support for filters, inheritance, and HTML minification.
+dynamic HTML generation with support for filters, inheritance, macros, and HTML minification.
 
 **Note:** Suika is under active development and not intended for production use.
-The API is subject to change and may lack comprehensive testing and
-documentation.
+The API is subject to change.
 
 ## Features
 
@@ -13,6 +12,7 @@ documentation.
 - Support for template directives (variables, conditionals, loops)
 - Template inheritance with extends and blocks
 - Include other templates
+- Macro system for reusable components
 - Filter system for value transformation
 - Automatic HTML minification
 - Load templates from files or directories
@@ -29,12 +29,17 @@ The `suika_templates` library supports the following syntax:
 - **Extends**: `<% extend base.html %>`
 - **Includes**: `<% include header.html %>`
 - **Blocks**: `<% block content %> ... <% endblock %>`
+- **Macros**: 
+  - Definition: `<% macro name(param1, param2="default") %> ... <% endmacro %>`
+  - Usage: `<% call name(value1, value2) %>`
 
 ## Built-in Filters
 
 - `upper`: Convert text to uppercase
 - `lower`: Convert text to lowercase
 - `length`: Get length of arrays or strings
+- `reverse`: Reverse a string
+
 
 ## Usage
 
