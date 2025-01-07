@@ -3,7 +3,7 @@ use crate::filters::{FilterRegistry, FromJsonValue, IntoJsonValue};
 use crate::TemplateParser;
 use crate::TemplateToken;
 use glob::glob;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -14,7 +14,8 @@ use suika_utils::minify_html;
 pub struct TemplateEngine {
     templates: HashMap<String, String>,
     filters: FilterRegistry,
-    macros: Arc<Mutex<HashMap<String, (Vec<String>, Vec<TemplateToken>)>>>,
+    macros: Arc<Mutex<HashMap<String, (String, Vec<String>, Vec<TemplateToken>)>>>,
+    included_templates: Arc<Mutex<HashSet<String>>>,
 }
 
 impl TemplateEngine {
@@ -32,6 +33,7 @@ impl TemplateEngine {
             templates: HashMap::new(),
             filters: FilterRegistry::new(),
             macros: Arc::new(Mutex::new(HashMap::new())),
+            included_templates: Arc::new(Mutex::new(HashSet::new())),
         }
     }
 
@@ -55,7 +57,7 @@ impl TemplateEngine {
         if let Ok(tokens) = parser.parse() {
             // Process macros first
             for (i, token) in tokens.iter().enumerate() {
-                if let TemplateToken::MacroDefinition(name, params) = token {
+                if let TemplateToken::MacroDefinition(macro_name, params) = token {
                     let mut macro_tokens = Vec::new();
                     let mut j = i + 1;
                     while j < tokens.len() {
@@ -65,10 +67,10 @@ impl TemplateEngine {
                         macro_tokens.push(tokens[j].clone());
                         j += 1;
                     }
-                    self.macros
-                        .lock()
-                        .unwrap()
-                        .insert(name.clone(), (params.clone(), macro_tokens));
+                    self.macros.lock().unwrap().insert(
+                        macro_name.clone(),
+                        (name.to_string(), params.clone(), macro_tokens),
+                    );
                 }
             }
         }
@@ -277,21 +279,14 @@ impl TemplateEngine {
                 TemplateToken::MacroCall(name, args) => {
                     self.process_macro_call(name, args, context, &mut output)?
                 }
-                TemplateToken::MacroDefinition(name, params) => {
-                    // Store the macro definition
-                    let mut macro_tokens = Vec::new();
-                    i += 1;
+                TemplateToken::MacroDefinition(_, _) => {
+                    // Skip over macro definition tokens until we find EndMacro
                     while i < tokens.len() {
                         if let TemplateToken::EndMacro = tokens[i] {
                             break;
                         }
-                        macro_tokens.push(tokens[i].clone());
                         i += 1;
                     }
-                    self.macros
-                        .lock()
-                        .unwrap()
-                        .insert(name.clone(), (params.clone(), macro_tokens));
                 }
                 _ => {}
             }
@@ -449,29 +444,35 @@ impl TemplateEngine {
         context: &Context,
         output: &mut String,
     ) -> Result<(), String> {
+        self.included_templates
+            .lock()
+            .unwrap()
+            .insert(template_name.to_string());
+
         let include_tokens = self.get_template_tokens(template_name)?;
 
         // First pass: process macro definitions
-        for token in &include_tokens {
-            if let TemplateToken::MacroDefinition(name, params) = token {
+        for (i, token) in include_tokens.iter().enumerate() {
+            if let TemplateToken::MacroDefinition(macro_name, params) = token {
                 let mut macro_tokens = Vec::new();
-                let mut i = 0;
-                while i < include_tokens.len() {
-                    if let TemplateToken::EndMacro = include_tokens[i] {
+                let mut j = i + 1;
+                while j < include_tokens.len() {
+                    if let TemplateToken::EndMacro = include_tokens[j] {
                         break;
                     }
-                    macro_tokens.push(include_tokens[i].clone());
-                    i += 1;
+                    macro_tokens.push(include_tokens[j].clone());
+                    j += 1;
                 }
-                self.macros
-                    .lock()
-                    .unwrap()
-                    .insert(name.clone(), (params.clone(), macro_tokens));
+                self.macros.lock().unwrap().insert(
+                    macro_name.clone(),
+                    (template_name.to_string(), params.clone(), macro_tokens),
+                );
             }
         }
 
         // Second pass: process the rest of the template
-        output.push_str(&self.process_tokens(&include_tokens, context)?);
+        let result = self.process_tokens(&include_tokens, context)?;
+        output.push_str(&result);
         Ok(())
     }
 
@@ -491,7 +492,23 @@ impl TemplateEngine {
         context: &Context,
         output: &mut String,
     ) -> Result<(), String> {
-        if let Some((params, tokens)) = self.macros.lock().unwrap().get(name) {
+        // First find the macro definition
+        if let Some((template_name, params, tokens)) =
+            self.macros.lock().unwrap().get(name).cloned()
+        {
+            // Check if the template containing this macro has been included
+            if !self
+                .included_templates
+                .lock()
+                .unwrap()
+                .contains(&template_name)
+            {
+                return Err(format!(
+                    "Macro '{}' cannot be used without including template '{}'",
+                    name, template_name
+                ));
+            }
+
             let mut macro_context = Context::new();
 
             for (i, param) in params.iter().enumerate() {
@@ -521,7 +538,7 @@ impl TemplateEngine {
                 macro_context.insert(param_name, value);
             }
 
-            let result = self.process_tokens(tokens, &macro_context)?;
+            let result = self.process_tokens(&tokens, &macro_context)?;
             output.push_str(&result.trim());
             Ok(())
         } else {
