@@ -35,14 +35,21 @@ The `suika_templates` library supports the following syntax:
 
 ## Built-in Filters
 
+String filters:
 - `upper`: Convert text to uppercase
 - `lower`: Convert text to lowercase
-- `length`: Get length of arrays or strings
-- `reverse`: Reverse a string
+- `capitalize`: Capitalize first letter
+- `trim`: Remove surrounding whitespace
+- `reverse`: Reverse string characters
 
+Collection filters:
+- `length`: Get length of arrays or strings
+- `first`: Get first element of array or string
+- `last`: Get last element of array or string
+- `join`: Join array elements with comma separator
+- `json_encode`: Convert value to JSON string
 
 ## Usage
-
 
 Here's an example of how to use `suika_templates` to parse and render a
 template:
