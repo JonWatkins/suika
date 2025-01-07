@@ -4,31 +4,28 @@
 //! It provides a comprehensive set of tools for building web applications.
 
 pub mod mime {
-  pub use suika_mime::{get_mime_type, get_mime_type_from_path, MimeType};
+    pub use suika_mime::{get_mime_type, get_mime_type_from_path, MimeType};
 }
 
 pub mod json {
-  pub use suika_json::{parse_json, JsonValue};
+    pub use suika_json::{parse_json, JsonValue};
 }
 
 pub mod utils {
-  pub use suika_utils::*;
+    pub use suika_utils::*;
 }
 
 pub mod templates {
-  pub use suika_templates::{
-      TemplateEngine, TemplateParser, TemplateToken, TemplateValue,
-      context::Context
-  };
+    pub use suika_templates::{context::Context, TemplateEngine, TemplateParser, TemplateToken};
 }
 
 pub mod server {
-  pub use suika_server::server::Server;
-  pub use suika_server::router::Router;
-  pub use suika_server::error::HttpError;
+    pub use suika_server::error::HttpError;
+    pub use suika_server::router::Router;
+    pub use suika_server::server::Server;
 }
 
 pub mod middleware {
-  pub use suika_server::middleware::*;
-  pub use suika_wasm::*;
+    pub use suika_server::middleware::*;
+    pub use suika_wasm::*;
 }

@@ -22,6 +22,10 @@ fn main() {
     let template_engine = {
         let mut engine = TemplateEngine::new();
 
+        engine.register_filter("reverse", |value: String| {
+            Ok(value.chars().rev().collect::<String>())
+        });
+
         engine
             .load_templates("crates/suika_example/templates/**/*.html")
             .expect("Failed to load templates from directory");

@@ -100,7 +100,10 @@ impl<'a> TemplateParser<'a> {
         self.parse_text_with_initial(' ')
     }
 
-    fn parse_text_with_initial(&mut self, initial_char: char) -> Result<Option<TemplateToken>, String> {
+    fn parse_text_with_initial(
+        &mut self,
+        initial_char: char,
+    ) -> Result<Option<TemplateToken>, String> {
         let mut text = String::new();
         if !initial_char.is_whitespace() {
             text.push(initial_char);
@@ -120,7 +123,7 @@ impl<'a> TemplateParser<'a> {
     fn parse_variable(&mut self) -> Result<Option<TemplateToken>, String> {
         let mut var_name = String::new();
         let mut filters = Vec::new();
-        
+
         // Parse variable name until we hit a pipe or end tag
         while let Some(c) = self.current_char {
             match c {
@@ -145,7 +148,7 @@ impl<'a> TemplateParser<'a> {
                 }
             }
         }
-        
+
         // Continue parsing filters if we hit a pipe
         while let Some(c) = self.current_char {
             if c == '|' {
@@ -162,13 +165,13 @@ impl<'a> TemplateParser<'a> {
                 self.next_char();
             }
         }
-        
+
         Err("Unexpected end of input in variable".to_string())
     }
 
     fn parse_filter(&mut self) -> Result<String, String> {
         let mut filter = String::new();
-        
+
         // Skip whitespace
         while let Some(c) = self.current_char {
             if !c.is_whitespace() {
@@ -176,7 +179,7 @@ impl<'a> TemplateParser<'a> {
             }
             self.next_char();
         }
-        
+
         // Parse filter name
         while let Some(c) = self.current_char {
             if c == '|' || (c == '%' && self.chars.as_str().starts_with(">")) {
@@ -185,7 +188,7 @@ impl<'a> TemplateParser<'a> {
             filter.push(c);
             self.next_char();
         }
-        
+
         Ok(filter.trim().to_string())
     }
 
@@ -228,11 +231,17 @@ impl<'a> TemplateParser<'a> {
         } else if directive == "endfor" {
             Ok(Some(TemplateToken::EndFor))
         } else if directive.starts_with("extend ") {
-            Ok(Some(TemplateToken::Extend(directive[7..].trim().to_string())))
+            Ok(Some(TemplateToken::Extend(
+                directive[7..].trim().to_string(),
+            )))
         } else if directive.starts_with("include ") {
-            Ok(Some(TemplateToken::Include(directive[8..].trim().to_string())))
+            Ok(Some(TemplateToken::Include(
+                directive[8..].trim().to_string(),
+            )))
         } else if directive.starts_with("block ") {
-            Ok(Some(TemplateToken::Block(directive[6..].trim().to_string())))
+            Ok(Some(TemplateToken::Block(
+                directive[6..].trim().to_string(),
+            )))
         } else if directive == "endblock" {
             Ok(Some(TemplateToken::EndBlock))
         } else {
@@ -243,7 +252,10 @@ impl<'a> TemplateParser<'a> {
     fn parse_for_directive(&self, directive: String) -> Result<Option<TemplateToken>, String> {
         let parts: Vec<&str> = directive[4..].split_whitespace().collect();
         if parts.len() == 3 && parts[1] == "in" {
-            Ok(Some(TemplateToken::For(parts[0].to_string(), parts[2].to_string())))
+            Ok(Some(TemplateToken::For(
+                parts[0].to_string(),
+                parts[2].to_string(),
+            )))
         } else {
             Err(format!("Invalid for directive: {}", directive))
         }

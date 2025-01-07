@@ -36,14 +36,12 @@
 //! ```
 
 pub mod context;
-pub mod filters;
 pub mod parser;
+pub mod filters;
 pub mod template_engine;
 pub mod template_token;
-pub mod template_value;
 
-pub use filters::{FilterFn, FilterRegistry};
+pub use filters::{FilterRegistry, FromJsonValue, IntoJsonValue};
 pub use parser::TemplateParser;
 pub use template_engine::TemplateEngine;
 pub use template_token::TemplateToken;
-pub use template_value::TemplateValue;

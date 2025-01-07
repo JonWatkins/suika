@@ -1,7 +1,7 @@
 use crate::context::Context;
+use crate::filters::{FilterRegistry, FromJsonValue, IntoJsonValue};
 use crate::TemplateParser;
 use crate::TemplateToken;
-use crate::filters::{FilterFn, FilterRegistry};
 use glob::glob;
 use std::collections::HashMap;
 use std::fs;
@@ -275,7 +275,7 @@ impl TemplateEngine {
                 Some(v) => v.clone(),
                 None => JsonValue::String(value_str),
             };
-            
+
             // Apply filters in order
             for filter_name in filters {
                 if let Some(filter) = self.filters.get(filter_name) {
@@ -284,7 +284,7 @@ impl TemplateEngine {
                     return Err(format!("Filter '{}' not found", filter_name));
                 }
             }
-            
+
             // Convert the final value to a string without quotes
             match value {
                 JsonValue::String(s) => output.push_str(&s),
@@ -413,7 +413,12 @@ impl TemplateEngine {
         Ok(())
     }
 
-    pub fn register_filter(&mut self, name: &str, filter: FilterFn) {
+    pub fn register_filter<F, T, R>(&mut self, name: &str, filter: F)
+    where
+        F: Fn(T) -> Result<R, String> + Send + Sync + 'static,
+        T: FromJsonValue,
+        R: IntoJsonValue,
+    {
         self.filters.register(name, filter);
     }
 }
@@ -771,7 +776,9 @@ mod tests {
         let mut context = Context::new();
         context.insert("name", "world");
 
-        let result = engine.render("greeting", &context).expect("Failed to render template");
+        let result = engine
+            .render("greeting", &context)
+            .expect("Failed to render template");
         assert_eq!(result, "Hello, WORLD!");
     }
 
@@ -783,7 +790,9 @@ mod tests {
         let mut context = Context::new();
         context.insert("name", "World");
 
-        let result = engine.render("greeting", &context).expect("Failed to render template");
+        let result = engine
+            .render("greeting", &context)
+            .expect("Failed to render template");
         assert_eq!(result, "Hello, WORLD!");
     }
 
@@ -795,7 +804,9 @@ mod tests {
         let mut context = Context::new();
         context.insert("items", vec!["a", "b", "c"]);
 
-        let result = engine.render("array_length", &context).expect("Failed to render template");
+        let result = engine
+            .render("array_length", &context)
+            .expect("Failed to render template");
         assert_eq!(result, "Items: 3");
     }
 }
