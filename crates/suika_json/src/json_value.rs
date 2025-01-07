@@ -225,6 +225,15 @@ impl From<()> for JsonValue {
     }
 }
 
+impl<T: Into<JsonValue>> From<Option<T>> for JsonValue {
+    fn from(option: Option<T>) -> Self {
+        match option {
+            Some(value) => value.into(),
+            None => JsonValue::Null,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

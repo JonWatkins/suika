@@ -11,6 +11,10 @@ pub mod json {
     pub use suika_json::{parse_json, JsonValue};
 }
 
+pub mod macros {
+    pub use suika_json::json;
+}
+
 pub mod utils {
     pub use suika_utils::*;
 }

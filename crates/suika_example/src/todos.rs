@@ -1,5 +1,5 @@
 use std::sync::{Arc, RwLock};
-use suika::json::JsonValue;
+use suika::{json::JsonValue, macros::json};
 
 #[derive(Debug, Clone)]
 pub struct Todo {
@@ -11,12 +11,12 @@ pub struct Todo {
 
 impl From<Todo> for JsonValue {
     fn from(todo: Todo) -> Self {
-        JsonValue::Object(vec![
-            ("id".to_string(), JsonValue::Number(todo.id as f64)),
-            ("title".to_string(), JsonValue::String(todo.title)),
-            ("slug".to_string(), JsonValue::String(todo.slug)),
-            ("content".to_string(), JsonValue::String(todo.content)),
-        ])
+        json!({
+            "id" => todo.id as f64,
+            "title" => todo.title,
+            "slug" => todo.slug,
+            "content" => todo.content,
+        })
     }
 }
 

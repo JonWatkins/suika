@@ -2,10 +2,11 @@ mod todos;
 mod user;
 
 use crate::todos::TodoStore;
-use crate::user::{Address, User};
+use crate::user::User;
 use std::sync::Arc;
 
 use suika::{
+    macros::json,
     middleware::{
         CorsMiddleware, FaviconMiddleware, LoggerMiddleware, StaticFileMiddleware,
         WasmFileMiddleware,
@@ -72,21 +73,21 @@ fn main() {
 
     main_router.get("json", |_req, res| {
         Box::pin(async move {
-            let user = User {
-                name: "John Doe".to_string(),
-                age: 30,
-                is_student: false,
-                email: None,
-                address: Some(Address {
-                    street: "123 Main St".to_string(),
-                    city: "Anytown".to_string(),
-                    zip: "12345".to_string(),
+            let user = json!({
+                "name" => "John Doe",
+                "age" => 30,
+                "is_student" => false,
+                "email" => None::<String>,
+                "address" => json!({
+                    "street" => "123 Main St",
+                    "city" => "Anytown",
+                    "zip" => "12345",
                 }),
-                courses: vec!["Math".to_string(), "Science".to_string()],
-            };
+                "courses" => vec!["Math", "Science"],
+            });
 
             res.set_status(200).await;
-            res.body_json(user.into()).await;
+            res.body_json(user).await;
 
             Ok(())
         })

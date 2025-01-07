@@ -58,6 +58,13 @@ macro_rules! json {
     ($other:expr) => {
         $crate::JsonValue::from($other)
     };
+
+    ($other:expr) => {
+        match $other {
+            Some(value) => $crate::JsonValue::from(value),
+            None => $crate::JsonValue::Null,
+        }
+    };
 }
 
 #[cfg(test)]
