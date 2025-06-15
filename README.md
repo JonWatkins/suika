@@ -1,45 +1,39 @@
-# Suika
+# Suika: A Toy Web Stack
 
-Suika is an evolving web stack currently under active development. At this
-stage, it is not intended for production use. Significant work remains,
-including API refinement, comprehensive documentation, and extensive testing.
-The API is subject to change as this implementation is in its early stages and
-requires substantial enhancements. For instance, the router currently performs
-basic string matching, with plans to support regular expressions in future
-updates.
+**Important: This is a personal toy project, serving primarily as a learning tool and experimental web stack.**
 
-Please refrain from using this version in production environments, as it has not
-been thoroughly tested for bugs. The primary aim of this project is to serve as
-a learning tool, and therefore, efforts have been made to minimize dependencies
-on external crates.
+**As a toy project, its future development is uncertain. It may or may not receive future updates, maintenance, or bug fixes. Please do not use it in production environments.**
+
+Suika is an evolving web stack, and at this stage, it is not intended for production use. Significant work would be required for it to be production-ready, including API refinement, comprehensive documentation, and extensive testing. The API is subject to change as this implementation is in its early stages and requires substantial enhancements. For instance, the router currently performs basic string matching, with future updates (if any) planned to support regular expressions.
+
+The primary aim of this project is to serve as a learning tool, and therefore, efforts have been made to minimize dependencies on external crates.
 
 ## Library Features
 
-- HTTP Handling
-  - **Request**: Represents an HTTP request.
-  - **Response**: Represents an HTTP response.
-  - **HttpError**: Represents errors that can occur during HTTP handling.
-- Middleware
-  - **CorsMiddleware**: Middleware for handling CORS (Cross-Origin Resource
-    Sharing).
-  - **FaviconMiddleware**: Middleware for serving a favicon.
-  - **LoggerMiddleware**: Middleware for logging HTTP requests and responses.
-  - **StaticFileMiddleware**: Middleware for serving static files.
-- MIME Type Handling
-  - **get_mime_type**: Function to get the MIME type based on a file extension.
-- Routing
-  - **Router**: Represents the routing logic for handling different HTTP routes.
-- Server
-  - **Server**: Represents the HTTP server.
-- Templates
-  - **TemplateEngine**: Represents the template engine for rendering templates.
-  - **TemplateParser**: Parses template strings.
-  - **TemplateToken**: Represents a token in a template.
-  - **TemplateValue**: Represents a value in a template.
-- Utilities
-  - **build_url**: Function to build a URL.
-  - **parse_query_string**: Function to parse a query string.
-  - **parse_url**: Function to parse a URL.
+-   HTTP Handling
+    -   **Request**: Represents an HTTP request.
+    -   **Response**: Represents an HTTP response.
+    -   **HttpError**: Represents errors that can occur during HTTP handling.
+-   Middleware
+    -   **CorsMiddleware**: Middleware for handling CORS (Cross-Origin Resource Sharing).
+    -   **FaviconMiddleware**: Middleware for serving a favicon.
+    -   **LoggerMiddleware**: Middleware for logging HTTP requests and responses.
+    -   **StaticFileMiddleware**: Middleware for serving static files.
+-   MIME Type Handling
+    -   **get_mime_type**: Function to get the MIME type based on a file extension.
+-   Routing
+    -   **Router**: Represents the routing logic for handling different HTTP routes.
+-   Server
+    -   **Server**: Represents the HTTP server.
+-   Templates
+    -   **TemplateEngine**: Represents the template engine for rendering templates.
+    -   **TemplateParser**: Parses template strings.
+    -   **TemplateToken**: Represents a token in a template.
+    -   **TemplateValue**: Represents a value in a template.
+-   Utilities
+    -   **build_url**: Function to build a URL.
+    -   **parse_query_string**: Function to parse a query string.
+    -   **parse_url**: Function to parse a URL.
 
 ## Example usage
 
