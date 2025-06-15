@@ -1,6 +1,6 @@
 # Suika MIME: A Toy MIME Type Utility
 
-**Important: This is a personal toy project, developed as an experiment and learning exercise. It is not intended for production use.**
+**Important: This is a personal toy project, developed as an experiment and learning exercise.**
 
 **As a toy project, its future development is uncertain. It may or may not receive future updates, maintenance, or bug fixes. Please do not use it in production environments.**
 
