@@ -397,13 +397,11 @@ impl TemplateEngine {
                 TemplateToken::Else => {
                     current_section = IfSection::Else;
                 }
-                token => {
-                    match current_section {
-                        IfSection::If => current_tokens.push(token.clone()),
-                        IfSection::Else => else_tokens.push(token.clone()),
-                        IfSection::Elif(n) => elif_tokens[n].push(token.clone()),
-                    }
-                }
+                token => match current_section {
+                    IfSection::If => current_tokens.push(token.clone()),
+                    IfSection::Else => else_tokens.push(token.clone()),
+                    IfSection::Elif(n) => elif_tokens[n].push(token.clone()),
+                },
             }
             i += 1;
         }
@@ -533,7 +531,7 @@ impl TemplateEngine {
             for (index, item) in items.iter().enumerate() {
                 let mut loop_context = context.clone();
                 loop_context.insert(var, item.clone());
-                
+
                 // Add loop variables
                 let loop_vars = json!({
                     "index" => index,
@@ -542,10 +540,10 @@ impl TemplateEngine {
                     "last" => index == total - 1,
                     "length" => total
                 });
-                
+
                 loop_context.insert("loop", loop_vars);
 
-                let (iteration_output, should_break) = 
+                let (iteration_output, should_break) =
                     self.process_loop_iteration(&loop_tokens, &loop_context)?;
                 output.push_str(&iteration_output);
 
@@ -671,7 +669,7 @@ impl TemplateEngine {
             let parts: Vec<&str> = condition.split(" is ").collect();
             let var_name = parts[0].trim();
             let test_value = parts[1].trim().trim_matches('"');
-            
+
             match test_value {
                 "defined" => context.get(var_name).is_some(),
                 "empty" => match context.get(var_name) {
@@ -681,15 +679,11 @@ impl TemplateEngine {
                     _ => false,
                 },
                 "odd" => match context.get(var_name) {
-                    Some(JsonValue::Number(n)) => {
-                        (*n as i64) % 2 != 0
-                    },
+                    Some(JsonValue::Number(n)) => (*n as i64) % 2 != 0,
                     _ => false,
                 },
                 "even" => match context.get(var_name) {
-                    Some(JsonValue::Number(n)) => {
-                        (*n as i64) % 2 == 0
-                    },
+                    Some(JsonValue::Number(n)) => (*n as i64) % 2 == 0,
                     _ => false,
                 },
                 _ => match context.get(var_name) {
@@ -1244,10 +1238,7 @@ mod tests {
     #[test]
     fn test_render_with_odd_even() {
         let mut engine = TemplateEngine::new();
-        engine.add_template(
-            "test",
-            "<% if num is odd %>Odd<% else %>Even<% endif %>"
-        );
+        engine.add_template("test", "<% if num is odd %>Odd<% else %>Even<% endif %>");
 
         let mut context = Context::new();
         context.insert("num", 3);

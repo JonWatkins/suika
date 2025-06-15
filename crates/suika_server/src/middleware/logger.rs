@@ -53,7 +53,7 @@ use crate::response::Response;
 ///         "GET /test HTTP/1.1\r\n\r\n",
 ///         Arc::new(Mutex::new(HashMap::new())),
 ///     ).unwrap();
-/// 
+///
 ///     let mut res = Response::new(None);
 ///
 ///     let logger_middleware = LoggerMiddleware;
@@ -128,7 +128,7 @@ impl Middleware for LoggerMiddleware {
     ///         "GET /test HTTP/1.1\r\n\r\n",
     ///         Arc::new(Mutex::new(HashMap::new())),
     ///     ).unwrap();
-    /// 
+    ///
     ///     let mut res = Response::new(None);
     ///
     ///     let logger_middleware = LoggerMiddleware;
@@ -202,7 +202,7 @@ mod tests {
             Arc::new(Mutex::new(HashMap::new())),
         )
         .unwrap();
-    
+
         let mut res = Response::new(None);
 
         let logger_middleware = LoggerMiddleware;

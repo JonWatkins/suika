@@ -1,7 +1,7 @@
 [package]
 name = "suika_json"
 description = "A JSON handling library for the suika web stack"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["Jon Watkins"]
 repository = "https://github.com/JonWatkins/suika/tree/master/crates/suika_json"
@@ -9,7 +9,7 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
-suika_utils = "0.1.1"
+suika_utils = "0.1.2"
 
 [lib]
 name = "suika_json"

@@ -4,18 +4,7 @@
 <body>
   <h1><% call greeting("World") %>!</h1>
   <p>Lorem ipsum dolor sit amet</p>
-  <script type="text/javascript" src="/public//test.js"></script>
-  <script type="module">
-    import init from '/wasm/suika_ui.js';
-    async function loadWasm() {
-      try {
-        const wasm = await init('/wasm/suika_ui_bg.wasm');
-      } catch (error) {
-        console.error('Failed to load WebAssembly module:', error);
-      }
-    }
-    window.addEventListener('load', loadWasm);
-  </script>
+  <script type="text/javascript" src="/public/test.js"></script>
 </body>
 
 </html>

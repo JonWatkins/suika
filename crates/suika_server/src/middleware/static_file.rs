@@ -209,7 +209,7 @@ mod tests {
             Arc::new(Mutex::new(HashMap::new())),
         )
         .unwrap();
-    
+
         let mut res = Response::new(None);
 
         let static_file_middleware = StaticFileMiddleware::new("/static", "some/directory", 3600);

@@ -347,7 +347,10 @@ mod tests {
 
         if let JsonValue::Object(obj) = json {
             let mut obj_map: HashMap<String, JsonValue> = obj.into_iter().collect();
-            assert_eq!(obj_map.remove("key1"), Some(JsonValue::String("value1".to_string())));
+            assert_eq!(
+                obj_map.remove("key1"),
+                Some(JsonValue::String("value1".to_string()))
+            );
             assert_eq!(obj_map.remove("key2"), Some(JsonValue::Number(42.0)));
             assert!(obj_map.is_empty());
         } else {

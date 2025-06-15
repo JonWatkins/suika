@@ -7,16 +7,13 @@ use std::sync::Arc;
 
 use suika::{
     macros::json,
-    middleware::{
-        CorsMiddleware, FaviconMiddleware, LoggerMiddleware, StaticFileMiddleware,
-        WasmFileMiddleware,
-    },
+    middleware::{CorsMiddleware, FaviconMiddleware, LoggerMiddleware, StaticFileMiddleware},
     server::{Router, Server},
     templates::{Context, TemplateEngine},
 };
 
 fn main() {
-    let mut server = Server::new("127.0.0.1:8080");
+    let mut server = Server::new("127.0.0.1:1337");
     let mut main_router = Router::new("/");
     let todo_store = TodoStore::new();
 
@@ -52,6 +49,25 @@ fn main() {
             if let Err(e) = res.send_file("crates/suika_example/index.html").await {
                 res.error(e).await;
             }
+            Ok(())
+        })
+    });
+
+    main_router.get("/todos", |req, res| {
+        Box::pin(async move {
+            if let Some(store) = req.module::<TodoStore>("todo_store") {
+                let todos = store.to_json();
+                let mut context = Context::new();
+                context.insert("todos", todos);
+
+                res.set_status(200).await;
+                res.header("Content-Type", "text/html").await;
+                res.render_template("todos/list.html", &context).await?;
+            } else {
+                res.set_status(404).await;
+                res.body("No todos found".to_string()).await;
+            }
+
             Ok(())
         })
     });
@@ -174,42 +190,6 @@ fn main() {
         })
     });
 
-    let mut todo_router = Router::new("/todos");
-
-    todo_router.get(r"/?$", |_req, res| {
-        Box::pin(async move {
-            let context = Context::new();
-            res.set_status(200).await;
-            res.render_template("todos/index.html", &context).await?;
-            Ok(())
-        })
-    });
-
-    todo_router.get("/list", |req, res| {
-        Box::pin(async move {
-            if let Some(store) = req.module::<TodoStore>("todo_store") {
-                let todos = store.to_json();
-                let mut context = Context::new();
-                context.insert("todos", todos);
-
-                res.set_status(200).await;
-                res.header("Content-Type", "text/html").await;
-                res.render_template("todos/list.html", &context).await?;
-            } else {
-                res.set_status(404).await;
-                res.body("No todos found".to_string()).await;
-            }
-
-            Ok(())
-        })
-    });
-
-    todo_router.post("/add_post", move |_req, _res| {
-        Box::pin(async move { Ok(()) })
-    });
-
-    main_router.mount(todo_router);
-
     server.use_middleware(Arc::new(CorsMiddleware));
     server.use_middleware(Arc::new(LoggerMiddleware));
 
@@ -223,7 +203,6 @@ fn main() {
         3600,
     )));
 
-    server.use_middleware(Arc::new(WasmFileMiddleware::new("/wasm", 86400)));
     server.use_middleware(Arc::new(main_router));
 
     server.run(None);

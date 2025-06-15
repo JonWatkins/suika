@@ -7,8 +7,6 @@ members = [
     "crates/suika_mime",
     "crates/suika_json",
     "crates/suika_templates",
-    "crates/suika_wasm",
-    "crates/suika_ui",
     "crates/suika_example",
 ]
 
@@ -19,6 +17,4 @@ suika_mime = { path = "crates/suika_mime" }
 suika_utils = { path = "crates/suika_utils" }
 suika_templates = { path = "crates/suika_templates" }
 suika_server = { path = "crates/suika_server" }
-suika_wasm = { path = "crates/suika_wasm" }
-suika_ui = { path = "crates/suika_ui" }
 suika_example = { path = "crates/suika_example" }

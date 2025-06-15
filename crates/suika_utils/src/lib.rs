@@ -397,7 +397,8 @@ mod tests {
                 </body>
             </html>
         "#;
-        let expected = "<html><head><title>Test</title></head><body><h1>Hello, World!</h1></body></html>";
+        let expected =
+            "<html><head><title>Test</title></head><body><h1>Hello, World!</h1></body></html>";
         let minified = minify_html(html);
         assert_eq!(minified, expected);
     }

@@ -248,9 +248,15 @@ mod tests {
         assert_eq!(get_mime_type("tar"), "application/x-tar".to_string());
         assert_eq!(get_mime_type("gz"), "application/gzip".to_string());
         assert_eq!(get_mime_type("bz2"), "application/x-bzip2".to_string());
-        assert_eq!(get_mime_type("7z"), "application/x-7z-compressed".to_string());
+        assert_eq!(
+            get_mime_type("7z"),
+            "application/x-7z-compressed".to_string()
+        );
         assert_eq!(get_mime_type("rar"), "application/vnd.rar".to_string());
-        assert_eq!(get_mime_type("exe"), "application/vnd.microsoft.portable-executable".to_string());
+        assert_eq!(
+            get_mime_type("exe"),
+            "application/vnd.microsoft.portable-executable".to_string()
+        );
         assert_eq!(get_mime_type("msi"), "application/x-msdownload".to_string());
         assert_eq!(get_mime_type("bin"), "application/octet-stream".to_string());
         assert_eq!(get_mime_type("dll"), "application/octet-stream".to_string());
@@ -282,30 +288,81 @@ mod tests {
         assert_eq!(get_mime_type("csv"), "text/csv".to_string());
         assert_eq!(get_mime_type("md"), "text/markdown".to_string());
         assert_eq!(get_mime_type("rtf"), "application/rtf".to_string());
-        assert_eq!(get_mime_type("odt"), "application/vnd.oasis.opendocument.text".to_string());
-        assert_eq!(get_mime_type("ods"), "application/vnd.oasis.opendocument.spreadsheet".to_string());
-        assert_eq!(get_mime_type("odp"), "application/vnd.oasis.opendocument.presentation".to_string());
+        assert_eq!(
+            get_mime_type("odt"),
+            "application/vnd.oasis.opendocument.text".to_string()
+        );
+        assert_eq!(
+            get_mime_type("ods"),
+            "application/vnd.oasis.opendocument.spreadsheet".to_string()
+        );
+        assert_eq!(
+            get_mime_type("odp"),
+            "application/vnd.oasis.opendocument.presentation".to_string()
+        );
         assert_eq!(get_mime_type("doc"), "application/msword".to_string());
-        assert_eq!(get_mime_type("docx"), "application/vnd.openxmlformats-officedocument.wordprocessingml.document".to_string());
+        assert_eq!(
+            get_mime_type("docx"),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document".to_string()
+        );
         assert_eq!(get_mime_type("xls"), "application/vnd.ms-excel".to_string());
-        assert_eq!(get_mime_type("xlsx"), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".to_string());
-        assert_eq!(get_mime_type("ppt"), "application/vnd.ms-powerpoint".to_string());
-        assert_eq!(get_mime_type("pptx"), "application/vnd.openxmlformats-officedocument.presentationml.presentation".to_string());
+        assert_eq!(
+            get_mime_type("xlsx"),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".to_string()
+        );
+        assert_eq!(
+            get_mime_type("ppt"),
+            "application/vnd.ms-powerpoint".to_string()
+        );
+        assert_eq!(
+            get_mime_type("pptx"),
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation".to_string()
+        );
         assert_eq!(get_mime_type("wasm"), "application/wasm".to_string()); // Test for WebAssembly MIME type
-        assert_eq!(get_mime_type("unknown"), "application/octet-stream".to_string());
+        assert_eq!(
+            get_mime_type("unknown"),
+            "application/octet-stream".to_string()
+        );
     }
 
     #[test]
     fn test_get_mime_type_from_path() {
-        assert_eq!(get_mime_type_from_path("index.html"), "text/html".to_string());
+        assert_eq!(
+            get_mime_type_from_path("index.html"),
+            "text/html".to_string()
+        );
         assert_eq!(get_mime_type_from_path("style.css"), "text/css".to_string());
-        assert_eq!(get_mime_type_from_path("script.js"), "application/javascript".to_string());
-        assert_eq!(get_mime_type_from_path("image.png"), "image/png".to_string());
-        assert_eq!(get_mime_type_from_path("unknownfile"), "application/octet-stream".to_string());
-        assert_eq!(get_mime_type_from_path("document.pdf"), "application/pdf".to_string());
-        assert_eq!(get_mime_type_from_path("archive.tar.gz"), "application/gzip".to_string());
-        assert_eq!(get_mime_type_from_path("audio.mp3"), "audio/mpeg".to_string());
-        assert_eq!(get_mime_type_from_path("video.mp4"), "video/mp4".to_string());
-        assert_eq!(get_mime_type_from_path("module.wasm"), "application/wasm".to_string()); // Test for WebAssembly MIME type from path
+        assert_eq!(
+            get_mime_type_from_path("script.js"),
+            "application/javascript".to_string()
+        );
+        assert_eq!(
+            get_mime_type_from_path("image.png"),
+            "image/png".to_string()
+        );
+        assert_eq!(
+            get_mime_type_from_path("unknownfile"),
+            "application/octet-stream".to_string()
+        );
+        assert_eq!(
+            get_mime_type_from_path("document.pdf"),
+            "application/pdf".to_string()
+        );
+        assert_eq!(
+            get_mime_type_from_path("archive.tar.gz"),
+            "application/gzip".to_string()
+        );
+        assert_eq!(
+            get_mime_type_from_path("audio.mp3"),
+            "audio/mpeg".to_string()
+        );
+        assert_eq!(
+            get_mime_type_from_path("video.mp4"),
+            "video/mp4".to_string()
+        );
+        assert_eq!(
+            get_mime_type_from_path("module.wasm"),
+            "application/wasm".to_string()
+        ); // Test for WebAssembly MIME type from path
     }
 }

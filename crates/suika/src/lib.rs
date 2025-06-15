@@ -31,5 +31,4 @@ pub mod server {
 
 pub mod middleware {
     pub use suika_server::middleware::*;
-    pub use suika_wasm::*;
 }

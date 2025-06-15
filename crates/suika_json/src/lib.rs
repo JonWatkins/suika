@@ -108,10 +108,19 @@ mod tests {
         match obj {
             JsonValue::Object(map) => {
                 assert_eq!(map.len(), 4);
-                assert_eq!(map.iter().find(|(k, _)| k == "name").unwrap().1, JsonValue::String("Alice".to_string()));
-                assert_eq!(map.iter().find(|(k, _)| k == "age").unwrap().1, JsonValue::Number(30.0));
-                assert_eq!(map.iter().find(|(k, _)| k == "is_student").unwrap().1, JsonValue::Boolean(true));
-            },
+                assert_eq!(
+                    map.iter().find(|(k, _)| k == "name").unwrap().1,
+                    JsonValue::String("Alice".to_string())
+                );
+                assert_eq!(
+                    map.iter().find(|(k, _)| k == "age").unwrap().1,
+                    JsonValue::Number(30.0)
+                );
+                assert_eq!(
+                    map.iter().find(|(k, _)| k == "is_student").unwrap().1,
+                    JsonValue::Boolean(true)
+                );
+            }
             _ => panic!("Expected object"),
         }
 
@@ -125,7 +134,7 @@ mod tests {
                 assert_eq!(vec[2], JsonValue::String("three".to_string()));
                 assert_eq!(vec[3], JsonValue::Boolean(true));
                 assert_eq!(vec[4], JsonValue::Null);
-            },
+            }
             _ => panic!("Expected array"),
         }
 

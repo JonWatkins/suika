@@ -93,7 +93,7 @@ mod tests {
             Arc::new(Mutex::new(HashMap::new())),
         )
         .unwrap();
-    
+
         let mut res = Response::new(None);
 
         let cors_middleware = CorsMiddleware;

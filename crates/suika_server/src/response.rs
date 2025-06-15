@@ -5,8 +5,8 @@ use std::path::Path;
 use std::sync::Arc;
 use suika_json::JsonValue;
 use suika_mime::get_mime_type_from_path;
-use suika_templates::TemplateEngine;
 use suika_templates::context::Context;
+use suika_templates::TemplateEngine;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::Mutex;
@@ -254,7 +254,10 @@ mod tests {
             Poll::Ready(Ok(()))
         }
 
-        fn poll_shutdown(self: Pin<&mut Self>, _: &mut STDContext<'_>) -> Poll<std::io::Result<()>> {
+        fn poll_shutdown(
+            self: Pin<&mut Self>,
+            _: &mut STDContext<'_>,
+        ) -> Poll<std::io::Result<()>> {
             Poll::Ready(Ok(()))
         }
     }

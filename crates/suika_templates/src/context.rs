@@ -1,5 +1,5 @@
-use suika_json::JsonValue;
 use std::collections::HashMap;
+use suika_json::JsonValue;
 
 /// A context for storing key-value pairs where the values are JSON values.
 ///
@@ -151,8 +151,8 @@ impl Context {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use suika_json::JsonValue;
     use std::collections::HashMap;
+    use suika_json::JsonValue;
 
     #[test]
     fn test_new() {
@@ -164,7 +164,10 @@ mod tests {
     fn test_insert_and_get() {
         let mut context = Context::new();
         context.insert("name", "John");
-        assert_eq!(context.get("name"), Some(&JsonValue::String("John".to_string())));
+        assert_eq!(
+            context.get("name"),
+            Some(&JsonValue::String("John".to_string()))
+        );
 
         context.insert("age", 30);
         assert_eq!(context.get("age"), Some(&JsonValue::Number(30.0)));
@@ -177,10 +180,16 @@ mod tests {
     fn test_insert_overwrite() {
         let mut context = Context::new();
         context.insert("name", "John");
-        assert_eq!(context.get("name"), Some(&JsonValue::String("John".to_string())));
+        assert_eq!(
+            context.get("name"),
+            Some(&JsonValue::String("John".to_string()))
+        );
 
         context.insert("name", "Jane");
-        assert_eq!(context.get("name"), Some(&JsonValue::String("Jane".to_string())));
+        assert_eq!(
+            context.get("name"),
+            Some(&JsonValue::String("Jane".to_string()))
+        );
     }
 
     #[test]
@@ -209,6 +218,9 @@ mod tests {
         map.insert("key1".to_string(), JsonValue::String("value1".to_string()));
         map.insert("key2".to_string(), JsonValue::Number(42.0));
         context.insert("map", map.clone());
-        assert_eq!(context.get("map"), Some(&JsonValue::Object(map.into_iter().collect())));
+        assert_eq!(
+            context.get("map"),
+            Some(&JsonValue::Object(map.into_iter().collect()))
+        );
     }
 }

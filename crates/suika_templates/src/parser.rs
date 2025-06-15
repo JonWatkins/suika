@@ -222,13 +222,27 @@ impl<'a> TemplateParser<'a> {
                     "endfor" => TemplateToken::EndFor,
                     "endblock" => TemplateToken::EndBlock,
                     "endmacro" => TemplateToken::EndMacro,
-                    _ if directive.starts_with("if ") => TemplateToken::If(directive[3..].to_string()),
-                    _ if directive.starts_with("for ") => self.parse_for_directive(directive)?.unwrap(),
-                    _ if directive.starts_with("extend ") => TemplateToken::Extend(directive[7..].trim().to_string()),
-                    _ if directive.starts_with("include ") => TemplateToken::Include(directive[8..].trim().to_string()),
-                    _ if directive.starts_with("block ") => TemplateToken::Block(directive[6..].trim().to_string()),
-                    _ if directive.starts_with("macro ") => self.parse_macro_definition(directive)?.unwrap(),
-                    _ if directive.starts_with("call ") => self.parse_macro_call(directive)?.unwrap(),
+                    _ if directive.starts_with("if ") => {
+                        TemplateToken::If(directive[3..].to_string())
+                    }
+                    _ if directive.starts_with("for ") => {
+                        self.parse_for_directive(directive)?.unwrap()
+                    }
+                    _ if directive.starts_with("extend ") => {
+                        TemplateToken::Extend(directive[7..].trim().to_string())
+                    }
+                    _ if directive.starts_with("include ") => {
+                        TemplateToken::Include(directive[8..].trim().to_string())
+                    }
+                    _ if directive.starts_with("block ") => {
+                        TemplateToken::Block(directive[6..].trim().to_string())
+                    }
+                    _ if directive.starts_with("macro ") => {
+                        self.parse_macro_definition(directive)?.unwrap()
+                    }
+                    _ if directive.starts_with("call ") => {
+                        self.parse_macro_call(directive)?.unwrap()
+                    }
                     _ => return Err(format!("Unknown directive: {}", directive)),
                 }));
             }
@@ -251,11 +265,15 @@ impl<'a> TemplateParser<'a> {
     }
 
     fn parse_macro_definition(&self, directive: &str) -> Result<Option<TemplateToken>, String> {
-        let name = directive[6..].split('(').next()
+        let name = directive[6..]
+            .split('(')
+            .next()
             .ok_or("Invalid macro definition")?
             .trim()
             .to_string();
-        let params_str = directive.split('(').nth(1)
+        let params_str = directive
+            .split('(')
+            .nth(1)
             .ok_or("Invalid macro parameters")?
             .trim_end_matches(')')
             .trim();
@@ -267,18 +285,19 @@ impl<'a> TemplateParser<'a> {
     }
 
     fn parse_macro_call(&self, directive: &str) -> Result<Option<TemplateToken>, String> {
-        let name = directive[5..].split('(').next()
+        let name = directive[5..]
+            .split('(')
+            .next()
             .ok_or("Invalid macro call")?
             .trim()
             .to_string();
-        let args_str = directive.split('(').nth(1)
+        let args_str = directive
+            .split('(')
+            .nth(1)
             .ok_or("Invalid macro arguments")?
             .trim_end_matches(')')
             .trim();
-        let args: Vec<String> = args_str
-            .split(',')
-            .map(|s| s.trim().to_string())
-            .collect();
+        let args: Vec<String> = args_str.split(',').map(|s| s.trim().to_string()).collect();
         Ok(Some(TemplateToken::MacroCall(name, args)))
     }
 

@@ -36,8 +36,8 @@
 //! ```
 
 pub mod context;
-pub mod parser;
 pub mod filters;
+pub mod parser;
 pub mod template_engine;
 pub mod template_token;
 
