@@ -1,16 +1,18 @@
-# suika_json
+# suika_json: A Toy JSON Handling Library
 
-Suika JSON is a JSON handling library for the Suika web stack.
+**Important: This is a personal toy project, developed as an experiment and learning exercise. It is not intended for production use.**
 
-**Note:** Suika is under active development and not intended for production use.
-The API is subject to change and may lack comprehensive testing and
-documentation.
+**As a toy project, its future development is uncertain. It may or may not receive future updates, maintenance, or bug fixes. Please do not use it in production environments.**
+
+Suika JSON is a JSON handling library for the `Suika` web stack (also a toy project). It provides basic functionality for parsing JSON strings, primarily for understanding JSON parsing concepts and for experimental purposes.
+
+The API is subject to change. This project is not thoroughly tested or hardened for real-world applications, and documentation may be basic.
 
 ## Features
 
-- Parse JSON strings into `JsonValue` enums.
-- Supports JSON objects, arrays, strings, numbers, booleans, and null values.
-- Lightweight and easy to use.
+-   Parse JSON strings into `JsonValue` enums.
+-   Supports JSON objects, arrays, strings, numbers, booleans, and null values.
+-   Lightweight and easy to use for simple cases.
 
 ## Usage
 
@@ -39,8 +41,7 @@ fn main() {
 
 ## JsonParser Struct
 
-The `JsonParser` struct is used to parse `JSON` strings into `JsonValue` enums.
-Here's an example of how to use `JsonParser`:
+The `JsonParser` struct is used to parse `JSON` strings into `JsonValue` enums. Here's an example of how to use `JsonParser`:
 
 ```rust
 use suika_json::{JsonParser, JsonValue};
@@ -57,14 +58,11 @@ fn main() {
 
 ## JsonValue Enum
 
-The `JsonValue` enum represents a JSON value and can be one of the following
-variants:
+The `JsonValue` enum represents a JSON value and can be one of the following variants:
 
-- `Object(Vec<(String, JsonValue)>)`: A JSON object represented as a vector of
-  key-value pairs.
-- `Array(Vec<JsonValue>)`: A JSON array represented as a vector of `JsonValue`
-  elements.
-- `String(String)`: A JSON string.
-- `Number(f64)`: A JSON number.
-- `Boolean(bool)`: A JSON boolean.
-- `Null`: A JSON null value.
+-   `Object(Vec<(String, JsonValue)>)`: A JSON object represented as a vector of key-value pairs.
+-   `Array(Vec<JsonValue>)`: A JSON array represented as a vector of `JsonValue` elements.
+-   `String(String)`: A JSON string.
+-   `Number(f64)`: A JSON number.
+-   `Boolean(bool)`: A JSON boolean.
+-   `Null`: A JSON null value.

@@ -1,6 +1,6 @@
 [package]
 name = "suika_ui"
-description = "A front end framework for suika web stack using wasm."
+description = "THIS CRATE IS DEPRECATED. It was a toy project and is no longer maintained or updated. No further development is planned."
 version = "0.1.0"
 edition = "2021"
 authors = ["Jon Watkins"]

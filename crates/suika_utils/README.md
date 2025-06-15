@@ -1,11 +1,12 @@
-# Suika Utils
+# Suika Utils: A Toy Utility Library
 
-Suika Utils is a utility library for the Suika web stack, providing essential
-tools and helpers.
+**Important: This is a personal toy project, developed as an experiment and learning exercise. It is not intended for production use.**
 
-**Note:** Suika is under active development and not intended for production use.
-The API is subject to change and may lack comprehensive testing and
-documentation.
+**As a toy project, its future development is uncertain. It may or may not receive future updates, maintenance, or bug fixes. Please do not use it in production environments.**
+
+Suika Utils is a utility library for the `Suika` web stack (also a toy project), providing essential tools and helpers primarily for learning and experimental purposes.
+
+The API is subject to change. This project is not thoroughly tested or hardened for real-world applications, and documentation may be basic.
 
 ## Usage
 
